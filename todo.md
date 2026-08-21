@@ -1,8 +1,8 @@
-# Todo — System Flow Builder Page
+# Todo — Reference UI Redesign
 
-- [x] สร้าง route และโครง layout สำหรับหน้าออกแบบ Flow
-- [x] เพิ่มข้อมูลตัวอย่าง node และเส้นทางการทำงานที่แก้ไขได้
-- [x] เพิ่มการเพิ่ม ลบ แก้ไข และจัดลำดับขั้นตอน
-- [x] เพิ่มมุมมอง overview, details panel และ flow summary
-- [x] รองรับ Thai / English และ responsive layout
-- [x] ตรวจสอบ TypeScript, build, interaction และบันทึก checkpoint
+- [x] ปรับ theme tokens เป็น dark navy พร้อม cobalt/indigo glow และ cyan accents
+- [x] ปรับ Header และ Hero ให้มีภาพตัวละคร/ฉากเทคโนโลยีและ CTA แบบภาพอ้างอิง
+- [x] ปรับ Services, Portfolio, Process, Stats, Contact และ Footer เป็นการ์ด dark glass
+- [x] จัดวาง assets ให้เหมาะกับแต่ละ section และตรวจ contrast ของข้อความ
+- [x] ตรวจสอบ hover/share/language interactions และ responsive desktop/mobile
+- [x] ตรวจสอบ TypeScript, build และบันทึก checkpoint ใหม่
