@@ -47,6 +47,9 @@ button { cursor: pointer; }
   .button-ink { background: #171717; color: #f4f0e8; padding: .9rem 1.2rem; }
   .button-ink:hover { background: #2457ff; }
   .button-cobalt:active, .button-ink:active { transform: scale(.97); }
+  .language-switcher { display: inline-flex; align-items: center; gap: .3rem; font-family: "IBM Plex Mono", monospace; font-size: .65rem; letter-spacing: .08em; color: rgba(23,23,23,.35); }
+  .language-switcher button { padding: .25rem .15rem; color: rgba(23,23,23,.4); transition: color .2s; }
+  .language-switcher button:hover, .language-switcher button.active { color: #2457ff; font-weight: 700; }
   .nav-link { position: relative; color: rgba(23,23,23,.7); transition: color .2s; }
   .nav-link:hover { color: #2457ff; }
   .nav-link::after { content: ""; position: absolute; bottom: -7px; left: 0; width: 0; height: 2px; background: #ff6b5f; transition: width .2s; }

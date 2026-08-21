@@ -1,7 +1,7 @@
-# Todo — Portfolio Interaction Upgrade
+# Todo — Thai / English Localization
 
-- [x] เพิ่ม hover animation ให้การ์ดบริการ พร้อม accent line และการยกตัวแบบนุ่มนวล
-- [x] เพิ่ม hover animation ให้การ์ดผลงาน พร้อม overlay action และ image zoom
-- [x] เพิ่มปุ่มแชร์ไป Facebook, X, LinkedIn และคัดลอกลิงก์
-- [x] เพิ่ม feedback เมื่อคัดลอกลิงก์สำเร็จ และตรวจสอบการใช้งานบนมือถือ
-- [x] ตรวจสอบ TypeScript, build และบันทึก checkpoint ใหม่
+- [x] สร้าง state ภาษาและปุ่มสลับภาษาใน Navigation
+- [x] แปลข้อความหลักทั้งหมดของ Hero, Services, Portfolio, Process, Pricing และ Contact
+- [x] แปลข้อความในฟอร์มและ toast รวมถึงข้อความแชร์ผลงาน
+- [x] ปรับ lang attribute และตรวจสอบ layout เมื่อใช้ภาษาอังกฤษ
+- [x] ตรวจสอบ TypeScript, build, responsive และบันทึก checkpoint ใหม่
