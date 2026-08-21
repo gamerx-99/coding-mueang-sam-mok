@@ -92,6 +92,7 @@ a { color: inherit; text-decoration: none; }
 .service-card.purple .card-top { color: #c27aff; }
 .service-card.coral .card-top { color: #ff8175; }
 .card-num { color: rgba(206,220,255,.38); font-family: "IBM Plex Mono", monospace; font-size: .65rem; }
+.service-code { position: absolute; top: 3.1rem; right: 1rem; color: rgba(117,164,255,.28); font-family: "IBM Plex Mono", monospace; font-size: .62rem; letter-spacing: .12em; }
 .service-card h3 { margin: 3.2rem 0 .55rem; color: #fff; font-size: 1.05rem; font-weight: 700; }
 .service-card p { max-width: 230px; color: rgba(213,226,255,.62); font-size: .72rem; line-height: 1.75; }
 .service-card > button { position: absolute; right: 1rem; bottom: 1rem; display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid rgba(89,143,255,.45); border-radius: 50%; color: #70a0ff; background: rgba(46,98,230,.15); transition: transform .2s, background .2s; }
@@ -123,12 +124,14 @@ a { color: inherit; text-decoration: none; }
 .process-arrow { position: absolute; top: 3rem; right: -1rem; color: #3977ff; }
 
 .about-section { background: #07122f; }
-.about-grid { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 5rem; }
+.about-grid { display: grid; grid-template-columns: .9fr .6fr 1fr; align-items: center; gap: 2rem; }
 .about-copy h2 { max-width: 520px; margin: .6rem 0 1rem; white-space: pre-line; color: #fff; font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; letter-spacing: -.07em; line-height: 1; }
 .about-copy > p:not(.dark-kicker) { max-width: 470px; color: rgba(209,224,255,.65); font-size: .8rem; line-height: 1.8; }
 .about-list { display: grid; gap: .65rem; margin-top: 1.5rem; color: rgba(224,233,255,.72); font-size: .72rem; }
 .about-list span { display: flex; align-items: center; gap: .5rem; }
 .about-list svg { color: #51c1ff; }
+.about-mascot { display: flex; align-items: end; justify-content: center; min-height: 260px; margin-top: 1rem; overflow: hidden; background: radial-gradient(circle at 50% 70%, rgba(43,93,222,.28), transparent 60%); }
+.about-mascot img { width: min(100%, 280px); max-height: 310px; object-fit: contain; filter: drop-shadow(0 16px 24px rgba(0,0,0,.35)); }
 .stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; padding: 1rem; }
 .stats-panel > div { padding: 1.6rem; border: 1px solid rgba(111,151,235,.12); }
 .stats-panel strong { color: #4b85ff; font-family: "Space Grotesk", sans-serif; font-size: 3.4rem; line-height: .8; text-shadow: 0 0 18px rgba(54,119,255,.45); }
@@ -173,7 +176,7 @@ a { color: inherit; text-decoration: none; }
 .flow-builder .flow-field input, .flow-builder .flow-field textarea { color: #fff; border-color: rgba(116,153,240,.35); }
 
 @media (max-width: 1000px) { .dark-nav { gap: .8rem; margin-right: 1rem; } .dark-nav button, .dark-nav a { font-size: .62rem; } .service-grid, .portfolio-grid { grid-template-columns: repeat(2, 1fr); } .process-grid { grid-template-columns: repeat(3, 1fr); gap: 2rem 1rem; } .process-arrow { display: none; } .about-grid, .contact-grid { gap: 2rem; } }
-@media (max-width: 760px) { .site-container { width: min(100% - 1.4rem, 600px); } .dark-header .site-container { height: 62px; } .brand-lockup b { font-size: .72rem; } .brand-mark { width: 2rem; height: 2rem; } .dark-nav { position: absolute; top: 62px; right: .7rem; left: .7rem; display: none; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid rgba(104,145,240,.25); background: rgba(6,17,43,.98); padding: .5rem; box-shadow: 0 20px 40px rgba(0,0,0,.4); } .dark-nav.open { display: flex; } .dark-nav button, .dark-nav a { padding: .75rem; text-align: left; } .dark-nav button::after, .dark-nav a::after { display: none; } .hero-grid { display: block; min-height: auto; } .hero-copy { padding: 4rem 0 1.5rem; } .hero-copy h1 { font-size: clamp(3.6rem, 18vw, 5rem); } .hero-visual { height: 350px; } .hero-visual img { height: 82%; } .hero-chip { font-size: .48rem; } .section-heading { display: block; } .section-heading .outline-button { margin-top: 1rem; } .service-grid, .portfolio-grid { grid-template-columns: 1fr; } .service-card { min-height: 180px; } .work-image { height: 210px; } .process-grid { grid-template-columns: repeat(2, 1fr); } .about-grid, .contact-grid { grid-template-columns: 1fr; } .stats-panel { margin-top: 1rem; } .form-row { grid-template-columns: 1fr; } .footer-grid { grid-template-columns: repeat(2, 1fr); } .footer-grid > div:first-child { grid-column: 1 / -1; } .footer-bottom { flex-direction: column; } }
+@media (max-width: 760px) { .site-container { width: min(100% - 1.4rem, 600px); } .dark-header .site-container { height: 62px; } .brand-lockup b { font-size: .72rem; } .brand-mark { width: 2rem; height: 2rem; } .dark-nav { position: absolute; top: 62px; right: .7rem; left: .7rem; display: none; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid rgba(104,145,240,.25); background: rgba(6,17,43,.98); padding: .5rem; box-shadow: 0 20px 40px rgba(0,0,0,.4); } .dark-nav.open { display: flex; } .dark-nav button, .dark-nav a { padding: .75rem; text-align: left; } .dark-nav button::after, .dark-nav a::after { display: none; } .hero-grid { display: block; min-height: auto; } .hero-copy { padding: 4rem 0 1.5rem; } .hero-copy h1 { font-size: clamp(3.6rem, 18vw, 5rem); } .hero-visual { height: 350px; } .hero-visual img { height: 82%; } .hero-chip { font-size: .48rem; } .section-heading { display: block; } .section-heading .outline-button { margin-top: 1rem; } .service-grid, .portfolio-grid { grid-template-columns: 1fr; } .service-card { min-height: 180px; } .work-image { height: 210px; } .process-grid { grid-template-columns: repeat(2, 1fr); } .about-grid, .contact-grid { grid-template-columns: 1fr; } .about-mascot { order: 2; } .about-copy { order: 1; } .stats-panel { order: 3; } .stats-panel { margin-top: 1rem; } .form-row { grid-template-columns: 1fr; } .footer-grid { grid-template-columns: repeat(2, 1fr); } .footer-grid > div:first-child { grid-column: 1 / -1; } .footer-bottom { flex-direction: column; } }
 .flow-builder .container { width: min(1180px, calc(100% - 3rem)); margin-inline: auto; padding-inline: 0; }
 .flow-builder .flow-intro { border-color: rgba(123,157,255,.12); background: radial-gradient(circle at 70% 30%, rgba(35,71,158,.2), transparent 28rem); }
 .flow-builder .flow-intro h1 { color: #fff; font-family: "Space Grotesk", "IBM Plex Sans Thai", sans-serif; }

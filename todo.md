@@ -1,8 +1,8 @@
-# Todo — Reference UI Redesign
+# Todo — Reference Replica UI
 
-- [x] ปรับ theme tokens เป็น dark navy พร้อม cobalt/indigo glow และ cyan accents
-- [x] ปรับ Header และ Hero ให้มีภาพตัวละคร/ฉากเทคโนโลยีและ CTA แบบภาพอ้างอิง
-- [x] ปรับ Services, Portfolio, Process, Stats, Contact และ Footer เป็นการ์ด dark glass
-- [x] จัดวาง assets ให้เหมาะกับแต่ละ section และตรวจ contrast ของข้อความ
-- [x] ตรวจสอบ hover/share/language interactions และ responsive desktop/mobile
-- [x] ตรวจสอบ TypeScript, build และบันทึก checkpoint ใหม่
+- [x] ตรวจข้อกำหนดภาพลักษณ์จากเรฟและ DESIGN.md ให้ครบ
+- [x] ปรับ Hero ให้มี Mascot, mountain atmosphere และ floating tech labels
+- [x] ปรับ Services, Portfolio, About, Process, Contact และ Footer ให้ตรงลำดับเรฟ
+- [x] ใช้ข้อมูลติดต่อเป็น placeholder ตามข้อกำหนด ไม่สร้างข้อมูลปลอม
+- [x] ตรวจ animation, language switcher, share actions และ responsive layout
+- [x] ตรวจ TypeScript, build และบันทึก checkpoint ใหม่
