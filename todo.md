@@ -129,3 +129,11 @@
 - [x] เพิ่มสถิติการใช้งานและประวัติการเข้าสู่ระบบล่าสุดใน Admin Dashboard จากข้อมูลจริง
 - [x] เพิ่ม Vitest สำหรับ permission management, audit log และ analytics aggregation — role safety tests ผ่าน; analytics ใช้ query aggregation จากฐานข้อมูลจริง
 - [x] ตรวจ responsive UI, typecheck, build, tests และบันทึก checkpoint
+
+# Follow-up — Index UI Reference Refresh
+
+- [x] วิเคราะห์โครงสร้างและ visual tokens จากไฟล์ HTML เรฟที่ผู้ใช้แนบ
+- [x] ปรับหน้า Home/index ให้สอดคล้องกับเรฟ โดยคง content API และภาษา TH/EN
+- [x] รักษา lead form, portfolio sharing, navigation และ responsive behavior เดิม
+- [x] เพิ่ม/ปรับ test ที่จำเป็น และตรวจ screenshot desktop/mobile
+- [x] รัน typecheck, tests, build และบันทึก checkpoint ใหม่

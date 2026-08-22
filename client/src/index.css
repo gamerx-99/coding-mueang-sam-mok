@@ -294,3 +294,25 @@ a { color: inherit; text-decoration: none; }
 .admin-secondary:disabled, .admin-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 @media (max-width: 720px) { .crop-controls { grid-template-columns: 1fr; } .crop-actions > button { width: 100%; } .crop-preview-frame { max-height: 240px; } }
 @media (prefers-reduced-motion: reduce) { .crop-preview-frame img, .admin-secondary { transition: none; } }
+
+/* Index reference refresh: tighter glass navigation, pill CTAs, and clearer cyber-studio depth. */
+.dark-header { box-shadow: 0 10px 35px rgba(0, 0, 0, .18); }
+.brand-mark { border-radius: 13px; }
+.glow-button, .ghost-button, .outline-button { border-radius: 999px; }
+.glow-button { padding-inline: 1.15rem; }
+.ghost-button, .outline-button { background: rgba(12, 29, 67, .48); }
+.dark-card, .work-card, .stats-panel, .dark-form { box-shadow: inset 0 1px rgba(255,255,255,.045), 0 22px 55px rgba(0,0,0,.16); }
+.service-card, .work-card, .dark-form { border-radius: 3px; }
+.service-card::after { position: absolute; inset: 0; pointer-events: none; content: ""; opacity: 0; background: linear-gradient(135deg, rgba(67,132,255,.08), transparent 45%); transition: opacity .25s; }
+.service-card:hover::after { opacity: 1; }
+.hero-visual img { border-radius: 2px; }
+.dark-form input, .dark-form textarea, .dark-form select { border-radius: 2px; }
+.mobile-menu { border-radius: 10px; }
+@media (max-width: 760px) {
+  .header-actions { gap: .55rem; }
+  .dark-language { font-size: .55rem; }
+  .hero-copy { padding-top: 3.2rem; }
+  .hero-actions .glow-button, .hero-actions .ghost-button { width: 100%; }
+  .hero-proof { gap: .75rem; }
+  .dark-section { padding: 4rem 0; }
+}
