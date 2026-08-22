@@ -112,6 +112,6 @@
 
 # Verification Note
 
-- [x] ตรวจพบว่า production domain ยังเป็นเวอร์ชันก่อนเพิ่ม Google Login จึงตอบ 404 ที่ `/api/auth/google/start`
+- [x] ตรวจพบว่า production domain ยังเป็นเวอร์ชันก่อนเพิ่ม Google Login จึงตอบ 404 ที่ `/api/auth/google/start`; หลังรีสตาร์ต dev server ยังต้องเผยแพร่ checkpoint ใหม่
 - [ ] เผยแพร่ checkpoint ล่าสุดก่อนทดสอบ production OAuth ซ้ำ
 - [ ] ทดสอบ Google Login บน production หลัง checkpoint ใหม่เผยแพร่
