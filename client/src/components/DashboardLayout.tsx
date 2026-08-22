@@ -19,7 +19,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { startLogin } from "@/const";
+import { startGoogleLogin, startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { BriefcaseBusiness, Inbox, LayoutDashboard, LogOut, PanelLeft } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
@@ -71,11 +71,20 @@ export default function DashboardLayout({
             </p>
           </div>
           <Button
-            onClick={() => startLogin()}
+            onClick={() => startGoogleLogin()}
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in
+            <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-sm font-bold text-[#4285F4]">G</span>
+            Continue with Google
+          </Button>
+          <Button
+            onClick={() => startLogin()}
+            size="lg"
+            variant="outline"
+            className="w-full"
+          >
+            Sign in with Manus
           </Button>
         </div>
       </div>

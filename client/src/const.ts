@@ -29,3 +29,9 @@ export const startLogin = () => {
 
   window.location.href = url.toString();
 };
+
+/** Start Google OAuth from an explicit user action. */
+export const startGoogleLogin = () => {
+  const origin = window.location.origin;
+  window.location.href = `${origin}/api/auth/google/start?origin=${encodeURIComponent(origin)}`;
+};

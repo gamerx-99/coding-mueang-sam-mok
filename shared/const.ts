@@ -9,6 +9,7 @@ export const NOT_ADMIN_ERR_MSG = 'You do not have required permission (10002)';
 // Domain), so a sibling *.manus.space site cannot plant a matching value in a
 // victim's browser.
 export const OAUTH_STATE_COOKIE = "__Host-oauth_state";
+export const GOOGLE_OAUTH_STATE_COOKIE = "__Host-google_oauth_state";
 
 // `state` carries the callback redirect URI (used at token exchange) plus the
 // CSRF nonce. Defined here so the client encoder and server decoder never drift.
@@ -34,4 +35,19 @@ export const decodeOAuthState = (state: string): OAuthState => {
     // Legacy links: `state` was a bare base64(redirectUri) with no nonce.
   }
   return { redirectUri: decoded };
+};
+
+export type GoogleOAuthState = { redirectUri: string; nonce: string };
+
+export const encodeGoogleOAuthState = (state: GoogleOAuthState): string =>
+  Buffer.from(JSON.stringify(state), "utf8").toString("base64url");
+
+export const decodeGoogleOAuthState = (state: string): GoogleOAuthState | null => {
+  try {
+    const parsed = JSON.parse(Buffer.from(state, "base64url").toString("utf8"));
+    if (typeof parsed?.redirectUri !== "string" || typeof parsed?.nonce !== "string") return null;
+    return parsed as GoogleOAuthState;
+  } catch {
+    return null;
+  }
 };

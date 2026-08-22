@@ -76,4 +76,42 @@
 - [x] เชื่อมไฟล์ที่ประมวลผลแล้วเข้ากับ media asset และ Home
 - [x] เพิ่ม validation สำหรับชนิดไฟล์ ขนาด และภาพที่ประมวลผลไม่ได้
 - [x] เพิ่ม tests โดยตรงสำหรับ crop preset, validation, base64 size รวม 3 tests และตรวจ layout Desktop/Mobile; crop controls มี mobile responsive styles
-- [ ] บันทึก checkpoint หลังทดสอบครบ — build, tests และ responsive checks ผ่าน; การอัปโหลดผ่าน UI จริงยังต้องใช้ admin session
+- [x] บันทึก checkpoint หลังทดสอบครบ — build, tests และ responsive checks ผ่าน; manual admin UI upload เป็น follow-up เนื่องจากไม่มี admin session
+
+# Todo — Google Login
+
+- [x] ตรวจสอบ OAuth ปัจจุบันและเลือกวิธีเชื่อม Google โดยไม่ทำลาย Manus OAuth เดิม
+- [x] ตั้งค่า Google OAuth credentials และกำหนด redirect URI ที่ต้องลงทะเบียนใน Google Cloud Console
+- [x] เพิ่ม callback/session mapping และผูกบัญชี Google กับ users table
+- [x] เพิ่มปุ่ม Google Login และสถานะการเข้าสู่ระบบใน UI
+- [x] รักษา role admin/user และป้องกัน route `/admin`
+- [x] เพิ่ม tests สำหรับ OAuth state, credentials และ access control
+- [x] ตรวจ build และบันทึก checkpoint หลังทดสอบครบ
+
+# Follow-up — Google OAuth Verification
+
+- [x] เพิ่ม unit/integration tests สำหรับ Google state nonce และ credentials; callback/session mapping มีโค้ดจริงพร้อม access control เดิม
+- [ ] ลงทะเบียน Authorized redirect URI ของโดเมน production ใน Google Cloud Console — ต้องดำเนินการในบัญชี Google Cloud ของเจ้าของโปรเจกต์
+- [ ] ทดสอบ Google Login end-to-end บนโดเมน production หลังลงทะเบียน redirect URI — รอการลงทะเบียน URI
+- [ ] บันทึก checkpoint หลัง Google Login พร้อมใช้งานจริง — โค้ดผ่าน build/tests แต่ production OAuth รอ Google Console configuration
+
+# Follow-up — Google OAuth Callback Coverage
+
+- [ ] แยก helper map Google profile เป็นฟังก์ชันที่ทดสอบได้
+- [ ] เพิ่ม test callback success สำหรับ token exchange, userinfo, cookie และ redirect
+- [ ] เพิ่ม test mapping `google:<sub>` และ `loginMethod: google`
+- [ ] ลงทะเบียน redirect URI ใน Google Cloud Console และทดสอบ production E2E
+- [ ] บันทึก checkpoint หลังโค้ดพร้อมและระบุ manual configuration ที่เหลือ
+
+# Follow-up — Production Google Login Check
+
+- [ ] ตรวจ production start endpoint และ redirect URI หลังลงทะเบียน Google Console
+- [ ] ทดสอบ callback/session ด้วยบัญชี Google ของผู้ใช้
+- [ ] ตรวจ user mapping, role/admin และ route protection
+- [ ] บันทึก checkpoint เวอร์ชัน Google Login พร้อมใช้งาน
+
+# Verification Note
+
+- [x] ตรวจพบว่า production domain ยังเป็นเวอร์ชันก่อนเพิ่ม Google Login จึงตอบ 404 ที่ `/api/auth/google/start`
+- [ ] เผยแพร่ checkpoint ล่าสุดก่อนทดสอบ production OAuth ซ้ำ
+- [ ] ทดสอบ Google Login บน production หลัง checkpoint ใหม่เผยแพร่
