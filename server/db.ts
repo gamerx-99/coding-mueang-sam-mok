@@ -1,6 +1,6 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, InsertLead, InsertProject, appointments, InsertAppointment, leads, projects, quotes, users } from "../drizzle/schema";
+import { InsertUser, InsertLead, InsertProject, appointments, InsertAppointment, contentSettings, InsertContentSetting, leads, mediaAssets, InsertMediaAsset, projects, quotes, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -85,4 +85,32 @@ export async function createProject(input: InsertProject) {
 export async function updateProjectStatus(id: number, status: "idea" | "active" | "review" | "completed" | "archived", progress?: number) {
   const db = await getDb(); if (!db) throw new Error("Database unavailable");
   await db.update(projects).set({ status, ...(progress === undefined ? {} : { progress }) }).where(eq(projects.id, id));
+}
+
+export async function listContentSettings() {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(contentSettings).orderBy(contentSettings.contentKey);
+}
+
+export async function upsertContentSetting(input: InsertContentSetting) {
+  const db = await getDb(); if (!db) throw new Error("Database unavailable");
+  const language: "th" | "en" = input.language ?? "th";
+  const existing = await db.select().from(contentSettings).where(and(eq(contentSettings.contentKey, input.contentKey), eq(contentSettings.language, language))).limit(1);
+  if (existing[0]) {
+    await db.update(contentSettings).set({ value: input.value, language: input.language, updatedBy: input.updatedBy }).where(eq(contentSettings.id, existing[0].id));
+    return existing[0].id;
+  }
+  const result = await db.insert(contentSettings).values({ ...input, language });
+  return Number(result[0].insertId);
+}
+
+export async function listMediaAssets() {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt)).limit(100);
+}
+
+export async function createMediaAsset(input: InsertMediaAsset) {
+  const db = await getDb(); if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(mediaAssets).values(input);
+  return Number(result[0].insertId);
 }

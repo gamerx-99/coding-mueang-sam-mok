@@ -31,6 +31,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "ภาพรวม", path: "/admin" },
   { icon: Inbox, label: "Lead จากเว็บไซต์", path: "/admin?tab=leads" },
   { icon: BriefcaseBusiness, label: "โปรเจกต์", path: "/admin?tab=projects" },
+  { icon: LayoutDashboard, label: "จัดการคอนเทนต์", path: "/admin?tab=content" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

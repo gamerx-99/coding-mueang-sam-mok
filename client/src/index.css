@@ -244,3 +244,38 @@ a { color: inherit; text-decoration: none; }
 .admin-badge.accepted, .admin-badge.confirmed, .admin-badge.completed { border-color: rgba(93,218,158,.35); color: #79e7ae; background: rgba(29,124,89,.16); }
 .admin-badge.sent, .admin-badge.requested { border-color: rgba(102,172,255,.35); color: #81bdff; }
 .admin-badge.declined, .admin-badge.cancelled { border-color: rgba(255,122,111,.35); color: #ff9b91; background: rgba(147,47,50,.14); }
+
+/* Admin content manager */
+.content-manager-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 18px; }
+.content-list, .media-upload-form, .media-list { display: grid; gap: 12px; }
+.content-field { display: grid; gap: 8px; padding: 14px; border: 1px solid rgba(150,180,255,.14); border-radius: 14px; background: rgba(7,18,48,.45); }
+.content-field > span { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; color: rgba(225,235,255,.72); }
+.content-field > span small { color: #62b5ff; font: 11px/1 "IBM Plex Mono", monospace; letter-spacing: .1em; }
+.content-field textarea, .media-upload-form input, .media-upload-form select { width: 100%; border: 1px solid rgba(150,180,255,.18); border-radius: 10px; background: rgba(4,12,32,.72); color: #fff; padding: 11px 12px; outline: none; }
+.content-field textarea:focus, .media-upload-form input:focus, .media-upload-form select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.14); }
+.content-field .admin-primary { justify-self: start; padding: 8px 12px; font-size: 12px; }
+.media-upload-form > label { display: grid; gap: 7px; color: rgba(225,235,255,.75); font-size: 12px; }
+.upload-dropzone { position: relative; min-height: 150px; place-items: center; align-content: center; border: 1px dashed rgba(98,181,255,.45); border-radius: 14px; background: linear-gradient(135deg, rgba(24,73,155,.18), rgba(105,55,190,.12)); text-align: center; color: #9ed4ff !important; cursor: pointer; }
+.upload-dropzone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.upload-dropzone span { font-weight: 700; color: #fff; }
+.upload-dropzone small { color: rgba(225,235,255,.5); }
+.media-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; background: rgba(7,18,48,.45); border: 1px solid rgba(150,180,255,.1); }
+.media-row img { width: 58px; height: 58px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,.12); }
+.media-row div { display: grid; gap: 4px; min-width: 0; }
+.media-row strong { color: #fff; font-size: 13px; }
+.media-row small { overflow: hidden; color: rgba(225,235,255,.54); text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) { .content-manager-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .content-field > span { align-items: flex-start; flex-direction: column; gap: 5px; } }
+
+.content-new-form { display: grid; gap: 10px; margin-bottom: 16px; padding: 14px; border: 1px solid rgba(98,181,255,.2); border-radius: 14px; background: rgba(32,70,145,.12); }
+.content-new-form > div { display: grid; grid-template-columns: 1fr 100px; gap: 10px; }
+.content-new-form label { display: grid; gap: 7px; color: rgba(225,235,255,.72); font-size: 12px; }
+.content-new-form input, .content-new-form select, .content-new-form textarea { width: 100%; border: 1px solid rgba(150,180,255,.18); border-radius: 10px; background: rgba(4,12,32,.72); color: #fff; padding: 10px 12px; outline: none; }
+.content-new-form input:focus, .content-new-form select:focus, .content-new-form textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.14); }
+.content-new-form .admin-primary { justify-self: start; }
+
+.content-preview { display: grid; gap: 8px; margin: 12px 0 16px; padding: 18px; border: 1px solid rgba(98,181,255,.22); border-radius: 16px; background: radial-gradient(circle at 100% 0, rgba(43,110,255,.24), transparent 48%), rgba(4,12,32,.75); overflow: hidden; }
+.content-preview > span { color: #62b5ff; font: 10px/1 "IBM Plex Mono", monospace; letter-spacing: .16em; }
+.content-preview h3 { margin: 0; color: #fff; font-size: clamp(22px, 3vw, 34px); line-height: 1.05; letter-spacing: -.04em; }
+.content-preview p { margin: 0; color: rgba(225,235,255,.7); font-size: 13px; }
+.content-preview img { width: 100%; max-height: 180px; margin-top: 8px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,.12); }

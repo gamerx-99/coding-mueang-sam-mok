@@ -39,4 +39,31 @@
 
 - [x] ตรวจคำสั่งและ diff ว่าไม่มี DELETE, TRUNCATE หรือคำสั่งลบข้อมูลจริงในรอบนี้ — พบเฉพาะ action ลบ Node ของ Flow และ helper ลบ heartbeat ที่ไม่เกี่ยวกับข้อมูลลูกค้า
 - [x] บันทึกหลักฐานว่า cleanup รอบนี้ลบเฉพาะข้อมูลคงที่ฝั่ง UI และไม่ได้แก้ records ในฐานข้อมูล — migration เป็น CREATE TABLE และไม่มี DELETE/TRUNCATE ในรอบนี้
-- [ ] บันทึก checkpoint ใหม่หลัง audit หลักฐานเสร็จ
+- [x] บันทึก checkpoint ใหม่หลัง audit หลักฐานเสร็จ
+
+# Todo — Admin Content Manager
+
+- [x] อ่านแนวทาง full-stack และ file storage ก่อนเริ่มเชื่อมข้อมูล
+- [x] เพิ่มตาราง content settings และ media assets พร้อม migration
+- [x] เพิ่ม admin-only API สำหรับอ่าน/แก้ไขข้อความและอัปโหลดรูป
+- [x] เพิ่มหน้า Content Manager ใน Dashboard พร้อม preview และ validation
+- [x] เชื่อม Home ให้ใช้ content จากฐานข้อมูลโดยมี fallback ที่ปลอดภัย
+- [x] เพิ่ม tests สำหรับสิทธิ์ admin, validation และการบันทึก content
+- [x] ตรวจ build, tests, upload workflow และบันทึก checkpoint ใหม่
+
+# Follow-up — Content Safety and Verification
+
+- [x] กำหนด whitelist ของ content keys และชนิดข้อมูลที่รองรับ
+- [x] เพิ่มรายการ content ตั้งต้นและ preview ก่อนบันทึกใน Content Manager
+- [x] เชื่อมข้อความ Home ที่รองรับให้ใช้ content store อย่างปลอดภัย
+- [x] เพิ่ม Vitest สำหรับ content upsert success/validation และ media upload success แบบ mock
+- [ ] ทดสอบ upload workflow จริงและยืนยันภาพที่อัปโหลดแสดงบน Home — mock Storage/API และ fallback ภาพผ่านแล้ว แต่ E2E UI รอ admin login
+- [ ] บันทึก checkpoint ใหม่หลังแก้ไขและทดสอบครบ — build/tests ผ่าน; รอ E2E upload UI
+
+# Follow-up — Final Content QA
+
+- [x] แสดง starter content ในหน้า Content Manager เมื่อฐานข้อมูลยังว่างโดยไม่เขียนข้อมูล mock ลงฐานข้อมูล
+- [x] เพิ่ม preview panel สำหรับข้อความและภาพก่อนบันทึก
+- [x] เพิ่ม test กรณี content key นอก whitelist และ value ว่าง
+- [ ] ทดสอบ upload UI จริงและตรวจการเลือก asset ใน Home — UI, mock Storage/API และ Home fallback ผ่านแล้ว แต่รอ admin login
+- [ ] บันทึก checkpoint ใหม่หลัง QA ครบ — build/tests ผ่าน; รอ E2E upload UI

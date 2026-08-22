@@ -3,10 +3,12 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { createLead, createProject, listAppointments, listLeads, listProjects, listQuotes, updateAppointmentStatus, updateLeadStatus, updateProjectStatus, updateQuoteStatus } from "./db";
+import { createLead, createProject, createMediaAsset, listAppointments, listContentSettings, listLeads, listMediaAssets, listProjects, listQuotes, updateAppointmentStatus, updateLeadStatus, updateProjectStatus, updateQuoteStatus, upsertContentSetting } from "./db";
+import { storagePut } from "./storage";
 
 const leadStatus = z.enum(["new", "contacted", "qualified", "closed"]);
 const projectStatus = z.enum(["idea", "active", "review", "completed", "archived"]);
+const editableContentKey = z.enum(["heroTitle", "heroAccent", "heroBody", "serviceTitle", "portfolioTitle", "processTitle", "aboutTitle", "aboutBody", "formTitle", "formBody", "footerTag"]);
 
 export const appRouter = router({
   system: systemRouter,
@@ -49,6 +51,26 @@ export const appRouter = router({
     updateStatus: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["requested", "confirmed", "completed", "cancelled"]) })).mutation(async ({ input }) => {
       await updateAppointmentStatus(input.id, input.status);
       return { success: true } as const;
+    }),
+  }),
+  content: router({
+    publicList: publicProcedure.query(() => listContentSettings()),
+    adminList: adminProcedure.query(() => listContentSettings()),
+    upsert: adminProcedure.input(z.object({ contentKey: editableContentKey, language: z.enum(["th", "en"]), value: z.string().trim().min(1).max(20000) })).mutation(async ({ input, ctx }) => {
+      const id = await upsertContentSetting({ ...input, updatedBy: ctx.user.id });
+      return { success: true, id } as const;
+    }),
+  }),
+  media: router({
+    publicList: publicProcedure.query(() => listMediaAssets()),
+    list: adminProcedure.query(() => listMediaAssets()),
+    upload: adminProcedure.input(z.object({ slot: z.string().trim().min(1).max(120), fileName: z.string().trim().min(1).max(255), mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]), fileSize: z.number().int().positive().max(5_000_000), dataBase64: z.string().min(1), altText: z.string().max(255).optional() })).mutation(async ({ input, ctx }) => {
+      const raw = input.dataBase64.replace(/^data:[^;]+;base64,/, "");
+      const buffer = Buffer.from(raw, "base64");
+      if (buffer.length !== input.fileSize) throw new Error("File size mismatch");
+      const uploaded = await storagePut(`content/${ctx.user.id}/${input.slot}/${input.fileName}`, buffer, input.mimeType);
+      const id = await createMediaAsset({ slot: input.slot, fileName: input.fileName, storageKey: uploaded.key, url: uploaded.url, mimeType: input.mimeType, fileSize: buffer.length, altText: input.altText, uploadedBy: ctx.user.id });
+      return { success: true, id, url: uploaded.url } as const;
     }),
   }),
   projects: router({
