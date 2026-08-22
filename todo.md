@@ -17,4 +17,26 @@
 - [x] เพิ่ม mutation และ UI สำหรับเปลี่ยนสถานะ appointment
 - [x] เพิ่ม mutation และ UI สำหรับเปลี่ยนสถานะ quote
 - [x] เพิ่ม integration test สำหรับ create lead สำเร็จ — mock database และตรวจ payload/ผลลัพธ์
-- [ ] บันทึก checkpoint ใหม่หลังแก้ไขครบ
+- [x] บันทึก checkpoint ใหม่หลังแก้ไขครบ
+
+# Todo — Remove Mockup Data
+
+- [x] สำรวจจุดที่มีข้อความ ภาพ และตัวเลข Mockup บนหน้าเว็บ
+- [x] ลบหรือแทนที่ Portfolio/Stats/Process/Service mockup ด้วย empty state ที่พร้อมรับข้อมูลจริง
+- [x] ตรวจไม่ให้ seed หรือข้อมูลตัวอย่างถูกสร้างในระบบหลังบ้าน
+- [x] ตรวจสอบว่า Lead และข้อมูลลูกค้าจริงไม่ถูกลบ
+- [x] รัน TypeScript, build, tests และบันทึก checkpoint ใหม่
+
+# Follow-up — Full Mockup Cleanup
+
+- [x] แทนข้อความตัวอย่างใน Services และ Process ด้วยข้อความกลางที่พร้อมรับข้อมูลจริง
+- [x] ลบ placeholder ที่สื่อถึงธุรกิจตัวอย่างจาก Admin Dashboard
+- [x] ตรวจ schema, db helpers และ routers ว่าไม่มี seed/mock insert
+- [x] ตรวจจำนวนข้อมูลในฐานข้อมูลแบบไม่แก้ไข เพื่อยืนยันว่าไม่มีการลบข้อมูลจริง
+- [x] รัน build/tests และบันทึก checkpoint หลัง cleanup ครบ
+
+# Audit Follow-up — Data Preservation
+
+- [x] ตรวจคำสั่งและ diff ว่าไม่มี DELETE, TRUNCATE หรือคำสั่งลบข้อมูลจริงในรอบนี้ — พบเฉพาะ action ลบ Node ของ Flow และ helper ลบ heartbeat ที่ไม่เกี่ยวกับข้อมูลลูกค้า
+- [x] บันทึกหลักฐานว่า cleanup รอบนี้ลบเฉพาะข้อมูลคงที่ฝั่ง UI และไม่ได้แก้ records ในฐานข้อมูล — migration เป็น CREATE TABLE และไม่มี DELETE/TRUNCATE ในรอบนี้
+- [ ] บันทึก checkpoint ใหม่หลัง audit หลักฐานเสร็จ
