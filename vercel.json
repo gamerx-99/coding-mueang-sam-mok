@@ -1,5 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
   "buildCommand": "rm -rf dist && pnpm exec vite build",
-  "outputDirectory": "public"
+  "builds": [
+    { "src": "index.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/(.*)", "dest": "/index.ts" }
+  ]
 }
