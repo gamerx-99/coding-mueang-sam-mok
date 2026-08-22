@@ -91,27 +91,32 @@
 # Follow-up — Google OAuth Verification
 
 - [x] เพิ่ม unit/integration tests สำหรับ Google state nonce และ credentials; callback/session mapping มีโค้ดจริงพร้อม access control เดิม
-- [ ] ลงทะเบียน Authorized redirect URI ของโดเมน production ใน Google Cloud Console — ต้องดำเนินการในบัญชี Google Cloud ของเจ้าของโปรเจกต์
-- [ ] ทดสอบ Google Login end-to-end บนโดเมน production หลังลงทะเบียน redirect URI — รอการลงทะเบียน URI
-- [ ] บันทึก checkpoint หลัง Google Login พร้อมใช้งานจริง — โค้ดผ่าน build/tests แต่ production OAuth รอ Google Console configuration
+- [x] ลงทะเบียน Authorized redirect URI ของโดเมน production ใน Google Cloud Console — ยืนยันจาก flow ที่เปิด Google account chooser ได้
+- [x] ทดสอบ Google Login end-to-end บนโดเมน production หลังลงทะเบียน redirect URI — callback สร้าง session และ redirect ไป `/admin` สำเร็จ
+- [x] บันทึก checkpoint หลัง Google Login พร้อมใช้งานจริง — production E2E ผ่านหลังแก้ schema database
 
 # Follow-up — Google OAuth Callback Coverage
 
-- [ ] แยก helper map Google profile เป็นฟังก์ชันที่ทดสอบได้
-- [ ] เพิ่ม test callback success สำหรับ token exchange, userinfo, cookie และ redirect
-- [ ] เพิ่ม test mapping `google:<sub>` และ `loginMethod: google`
-- [ ] ลงทะเบียน redirect URI ใน Google Cloud Console และทดสอบ production E2E
-- [ ] บันทึก checkpoint หลังโค้ดพร้อมและระบุ manual configuration ที่เหลือ
+- [x] แยก helper map Google profile เป็นฟังก์ชันที่ทดสอบได้
+- [x] เพิ่ม test callback success สำหรับ token exchange, userinfo, cookie และ redirect
+- [x] เพิ่ม test mapping `google:<sub>` และ `loginMethod: google`
+- [x] ลงทะเบียน redirect URI ใน Google Cloud Console และทดสอบ production E2E
+- [x] บันทึก checkpoint หลังโค้ดพร้อมและระบุ manual configuration ที่เหลือ — production redirect และ E2E ผ่านแล้ว
 
 # Follow-up — Production Google Login Check
 
-- [ ] ตรวจ production start endpoint และ redirect URI หลังลงทะเบียน Google Console
-- [ ] ทดสอบ callback/session ด้วยบัญชี Google ของผู้ใช้
-- [ ] ตรวจ user mapping, role/admin และ route protection
-- [ ] บันทึก checkpoint เวอร์ชัน Google Login พร้อมใช้งาน
+- [x] ตรวจ production start endpoint และ redirect URI หลังลงทะเบียน Google Console
+- [x] ทดสอบ callback/session ด้วยบัญชี Google ของผู้ใช้ — เข้าสู่ `/admin` สำเร็จ
+- [x] ตรวจ user mapping, role/admin และ route protection — แสดงบัญชี Google ใน Back Office และเข้าหน้า admin ได้
+- [x] บันทึก checkpoint เวอร์ชัน Google Login พร้อมใช้งาน
 
 # Verification Note
 
 - [x] ตรวจพบว่า production domain ยังเป็นเวอร์ชันก่อนเพิ่ม Google Login จึงตอบ 404 ที่ `/api/auth/google/start`; หลังรีสตาร์ต dev server ยังต้องเผยแพร่ checkpoint ใหม่
-- [ ] เผยแพร่ checkpoint ล่าสุดก่อนทดสอบ production OAuth ซ้ำ
-- [ ] ทดสอบ Google Login บน production หลัง checkpoint ใหม่เผยแพร่
+- [x] เผยแพร่ checkpoint ล่าสุดก่อนทดสอบ production OAuth ซ้ำ
+- [x] ทดสอบ Google Login บน production หลัง checkpoint ใหม่เผยแพร่
+
+# Follow-up — Google OAuth Error Reported
+
+- [x] แก้ Google OAuth production ที่แสดงข้อผิดพลาดระหว่าง callback หรือการอนุญาตบัญชี — สร้างตารางฐานข้อมูลที่ production ขาดอยู่ โดยไม่ลบข้อมูลเดิม
+- [x] ทดสอบ Google OAuth production flow หลังแก้ไขและยืนยัน session/admin access — ผ่านด้วยบัญชี Google และ redirect ไป `/admin`
