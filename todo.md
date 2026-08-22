@@ -145,3 +145,24 @@
 - [x] ปรับ service, process, about, stats และ contact form ให้เรียงอ่านง่ายบนมือถือ
 - [x] ตรวจ viewport มือถือหลายขนาดและแก้ horizontal overflow
 - [x] รัน typecheck, tests, build และบันทึก checkpoint ใหม่
+
+# Follow-up — Vercel Environment Variables
+
+- [ ] ตรวจการใช้งาน environment variables ใน frontend, backend และ build config ของ repository
+- [ ] แยกค่าที่ต้องตั้งใน Vercel ตาม Environment: Production, Preview และ Development
+- [ ] ตรวจสถานะการเชื่อมต่อ Vercel และตั้งค่าเฉพาะค่าที่ผู้ใช้ยืนยันหรือมีอยู่ใน connector
+- [ ] ตรวจ build/deploy readiness และจัดทำรายการค่าที่ต้องกรอกเพิ่มเติมโดยไม่เปิดเผย secrets
+
+# Follow-up — Vercel Error Page Investigation
+
+- [x] ตรวจ URL deployment ล่าสุดและ response ของ root กับ route สำคัญ
+- [x] ตรวจ deployment protection และ build/runtime logs ล่าสุด
+- [x] ระบุสาเหตุหน้า error — พบ Vercel SSO protection และ root output routing ผิด; ยังไม่ได้แก้ configuration เพราะต้องเลือกระหว่างแก้ Vercel settings กับปรับ full-stack adapter
+- [ ] ทดสอบ production หลังแก้และสรุปขั้นตอนที่ผู้ใช้ต้องทำต่อ
+
+# Follow-up — Vercel Public Deployment Fix
+
+- [ ] ปรับ build/output routing ให้ root Vercel URL เสิร์ฟ `dist/public/index.html`
+- [ ] ตรวจความเข้ากันได้ของ Express/tRPC API กับ Vercel runtime ก่อนแก้ config
+- [ ] ปิด Vercel SSO protection ตามตัวเลือก A หลังได้รับการยืนยัน
+- [ ] Push และตรวจ deployment ใหม่ พร้อมทดสอบ `/`, `/admin` และ API/auth routes
