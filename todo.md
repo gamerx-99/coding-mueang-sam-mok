@@ -137,3 +137,11 @@
 - [x] รักษา lead form, portfolio sharing, navigation และ responsive behavior เดิม
 - [x] เพิ่ม/ปรับ test ที่จำเป็น และตรวจ screenshot desktop/mobile
 - [x] รัน typecheck, tests, build และบันทึก checkpoint ใหม่
+
+# Follow-up — Mobile Responsive Refresh
+
+- [x] ปรับ header และ mobile navigation ให้กดง่ายและไม่บังเนื้อหา
+- [x] ปรับ hero, image, CTA และ proof points ให้พอดีกับหน้าจอแคบ
+- [x] ปรับ service, process, about, stats และ contact form ให้เรียงอ่านง่ายบนมือถือ
+- [x] ตรวจ viewport มือถือหลายขนาดและแก้ horizontal overflow
+- [x] รัน typecheck, tests, build และบันทึก checkpoint ใหม่

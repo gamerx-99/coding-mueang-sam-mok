@@ -316,3 +316,46 @@ a { color: inherit; text-decoration: none; }
   .hero-proof { gap: .75rem; }
   .dark-section { padding: 4rem 0; }
 }
+
+/* Mobile-first refinements for narrow screens. */
+@media (max-width: 760px) {
+  html, body { overflow-x: hidden; }
+  .dark-header { position: sticky; }
+  .dark-header .site-container { padding-inline: .15rem; }
+  .dark-nav { z-index: 60; border-radius: 14px; }
+  .dark-nav button, .dark-nav a { min-height: 44px; display: flex; align-items: center; }
+  .header-actions { min-width: 0; }
+  .dark-language { white-space: nowrap; }
+  .hero-grid { width: 100%; }
+  .hero-copy h1 { max-width: 300px; letter-spacing: -.08em; }
+  .hero-body { max-width: 100%; font-size: .78rem; }
+  .hero-visual { height: 300px; margin-inline: -.2rem; }
+  .hero-visual img { width: 100%; height: 84%; }
+  .hero-visual::after { inset: 6% 2% 6% 6%; }
+  .hero-chip { padding: .38rem .48rem; font-size: .43rem; }
+  .chip-code { left: 2%; }
+  .chip-db { right: 1%; }
+  .chip-cloud { right: 0; bottom: 12%; }
+  .section-heading h2 { font-size: clamp(1.85rem, 9vw, 2.45rem); line-height: 1.05; }
+  .service-card { min-height: 170px; }
+  .process-step h3 { font-size: .72rem; }
+  .process-step p { font-size: .57rem; }
+  .about-copy h2 { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .stats-panel > div { padding: 1.25rem .9rem; }
+  .stats-panel strong { font-size: 2.6rem; }
+  .dark-form { padding: 1rem; }
+  .dark-form > button, .dark-form .glow-button { width: 100%; justify-content: center; }
+}
+@media (max-width: 380px) {
+  .site-container { width: calc(100% - 1.1rem); }
+  .brand-lockup { gap: .45rem; }
+  .brand-lockup b { font-size: .64rem; }
+  .brand-lockup small { font-size: .35rem; }
+  .brand-mark { width: 1.85rem; height: 1.85rem; }
+  .hero-copy h1 { font-size: clamp(3.1rem, 17vw, 4.1rem); }
+  .hero-proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+  .hero-proof span { font-size: .57rem; }
+  .hero-visual { height: 270px; }
+  .process-grid { gap: 1.5rem .5rem; }
+  .footer-grid { gap: 1.1rem .7rem; }
+}
