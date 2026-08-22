@@ -3,7 +3,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { createLead, createProject, createMediaAsset, listAppointments, listContentSettings, listLeads, listMediaAssets, listProjects, listQuotes, updateAppointmentStatus, updateLeadStatus, updateProjectStatus, updateQuoteStatus, upsertContentSetting } from "./db";
+import { createLead, createProject, createMediaAsset, getUsageStats, listAdminUsers, listAppointments, listContentSettings, listLeads, listMediaAssets, listProjects, listQuotes, listRecentAuditLogs, updateAppointmentStatus, updateLeadStatus, updateProjectStatus, updateQuoteStatus, updateUserRole, upsertContentSetting } from "./db";
 import { storagePut } from "./storage";
 
 const leadStatus = z.enum(["new", "contacted", "qualified", "closed"]);
@@ -59,6 +59,15 @@ export const appRouter = router({
     upsert: adminProcedure.input(z.object({ contentKey: editableContentKey, language: z.enum(["th", "en"]), value: z.string().trim().min(1).max(20000) })).mutation(async ({ input, ctx }) => {
       const id = await upsertContentSetting({ ...input, updatedBy: ctx.user.id });
       return { success: true, id } as const;
+    }),
+  }),
+  admin: router({
+    users: adminProcedure.query(() => listAdminUsers()),
+    recentActivity: adminProcedure.query(() => listRecentAuditLogs()),
+    usageStats: adminProcedure.query(() => getUsageStats()),
+    setUserRole: adminProcedure.input(z.object({ userId: z.number().int().positive(), role: z.enum(["user", "admin"]) })).mutation(async ({ input, ctx }) => {
+      await updateUserRole(input.userId, input.role, ctx.user.id);
+      return { success: true } as const;
     }),
   }),
   media: router({

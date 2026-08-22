@@ -1,6 +1,6 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, InsertLead, InsertProject, appointments, InsertAppointment, contentSettings, InsertContentSetting, leads, mediaAssets, InsertMediaAsset, projects, quotes, users } from "../drizzle/schema";
+import { InsertUser, InsertLead, InsertProject, appointments, InsertAppointment, auditLogs, contentSettings, InsertContentSetting, leads, mediaAssets, InsertMediaAsset, projects, quotes, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -27,12 +27,68 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   values.lastSignedIn ??= new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
   await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  try {
+    const savedUser = await getUserByOpenId(user.openId);
+    if (savedUser) await createAuditLog({ userId: savedUser.id, action: "login", metadata: JSON.stringify({ loginMethod: savedUser.loginMethod ?? "unknown" }) });
+  } catch (error) {
+    console.warn("[Audit] Failed to record login:", error);
+  }
 }
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb(); if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result[0];
+}
+
+export async function listAdminUsers() {
+  const db = await getDb(); if (!db) return [];
+  return db.select({ id: users.id, openId: users.openId, name: users.name, email: users.email, loginMethod: users.loginMethod, role: users.role, createdAt: users.createdAt, lastSignedIn: users.lastSignedIn }).from(users).orderBy(desc(users.lastSignedIn));
+}
+
+export function assertRoleChangeAllowed(targetUserId: number, targetCurrentRole: "user" | "admin", nextRole: "user" | "admin", actorUserId: number, adminCount: number) {
+  if (targetUserId === actorUserId && targetCurrentRole === "admin" && nextRole === "user") throw new Error("You cannot remove your own admin access");
+  if (targetCurrentRole === "admin" && nextRole === "user" && adminCount <= 1) throw new Error("At least one admin must remain");
+}
+
+export async function updateUserRole(targetUserId: number, role: "user" | "admin", actorUserId: number) {
+  const db = await getDb(); if (!db) throw new Error("Database unavailable");
+  const target = await db.select({ id: users.id, role: users.role }).from(users).where(eq(users.id, targetUserId)).limit(1);
+  if (!target[0]) throw new Error("User not found");
+  const adminCount = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "admin"));
+  assertRoleChangeAllowed(targetUserId, target[0].role, role, actorUserId, Number(adminCount[0]?.count ?? 0));
+  await db.update(users).set({ role }).where(eq(users.id, targetUserId));
+  await createAuditLog({ userId: actorUserId, action: "role_change", metadata: JSON.stringify({ targetUserId, role }) });
+}
+
+export async function createAuditLog(input: { userId?: number; action: string; metadata?: string }) {
+  const db = await getDb(); if (!db) return;
+  await db.insert(auditLogs).values(input);
+}
+
+export async function listRecentAuditLogs(limit = 20) {
+  const db = await getDb(); if (!db) return [];
+  return db.select({ id: auditLogs.id, userId: auditLogs.userId, action: auditLogs.action, metadata: auditLogs.metadata, createdAt: auditLogs.createdAt, userName: users.name, userEmail: users.email }).from(auditLogs).leftJoin(users, eq(auditLogs.userId, users.id)).orderBy(desc(auditLogs.createdAt)).limit(limit);
+}
+
+export function buildUsageStats(counts: { users: number; admins: number; leads: number; projects: number; quotes: number; appointments: number; content: number; media: number; logins: number }) {
+  return { users: Number(counts.users), admins: Number(counts.admins), leads: Number(counts.leads), projects: Number(counts.projects), quotes: Number(counts.quotes), appointments: Number(counts.appointments), content: Number(counts.content), media: Number(counts.media), logins: Number(counts.logins) };
+}
+
+export async function getUsageStats() {
+  const db = await getDb(); if (!db) return buildUsageStats({ users: 0, admins: 0, leads: 0, projects: 0, quotes: 0, appointments: 0, content: 0, media: 0, logins: 0 });
+  const [userCount, adminCount, leadCount, projectCount, quoteCount, appointmentCount, contentCount, mediaCount, loginCount] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(users),
+    db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "admin")),
+    db.select({ count: sql<number>`count(*)` }).from(leads),
+    db.select({ count: sql<number>`count(*)` }).from(projects),
+    db.select({ count: sql<number>`count(*)` }).from(quotes),
+    db.select({ count: sql<number>`count(*)` }).from(appointments),
+    db.select({ count: sql<number>`count(*)` }).from(contentSettings),
+    db.select({ count: sql<number>`count(*)` }).from(mediaAssets),
+    db.select({ count: sql<number>`count(*)` }).from(auditLogs).where(eq(auditLogs.action, "login")),
+  ]);
+  return buildUsageStats({ users: Number(userCount[0]?.count ?? 0), admins: Number(adminCount[0]?.count ?? 0), leads: Number(leadCount[0]?.count ?? 0), projects: Number(projectCount[0]?.count ?? 0), quotes: Number(quoteCount[0]?.count ?? 0), appointments: Number(appointmentCount[0]?.count ?? 0), content: Number(contentCount[0]?.count ?? 0), media: Number(mediaCount[0]?.count ?? 0), logins: Number(loginCount[0]?.count ?? 0) });
 }
 
 export async function createLead(input: InsertLead) {

@@ -1,8 +1,9 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
-import { Activity, ArrowUpRight, BriefcaseBusiness, CheckCircle2, CircleDollarSign, FileImage, Inbox, ImagePlus, Loader2, Plus, RefreshCw, Save, Users } from "lucide-react";
+import { Activity, ArrowUpRight, BarChart3, BriefcaseBusiness, CheckCircle2, CircleDollarSign, Clock3, FileImage, Inbox, ImagePlus, Loader2, Plus, RefreshCw, Save, Settings2, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { cropPresets, estimateBase64Bytes, isSupportedImageUpload } from "@shared/imageCrop";
 import type { CropSlot } from "@shared/imageCrop";
@@ -31,9 +32,13 @@ export default function AdminDashboard() {
   const appointments = trpc.appointments.list.useQuery();
   const contentSettings = trpc.content.adminList.useQuery();
   const mediaAssets = trpc.media.list.useQuery();
+  const adminUsers = trpc.admin.users.useQuery();
+  const recentActivity = trpc.admin.recentActivity.useQuery();
+  const usageStats = trpc.admin.usageStats.useQuery();
+  const { user: currentUser } = useAuth();
   const utils = trpc.useUtils();
   const [location] = useLocation();
-  const [activeTab, setActiveTab] = useState<"leads" | "projects" | "quotes" | "appointments" | "content">(() => {
+  const [activeTab, setActiveTab] = useState<"leads" | "projects" | "quotes" | "appointments" | "content" | "settings">(() => {
     const tab = new URLSearchParams(window.location.search).get("tab");
     return tab === "projects" || tab === "quotes" || tab === "appointments" || tab === "content" ? tab : "leads";
   });
@@ -86,6 +91,7 @@ export default function AdminDashboard() {
     <header className="admin-topbar"><div><p className="admin-eyebrow">CODING MUEANG SAM MOK / BACK OFFICE</p><h1>ภาพรวมงานหลังบ้าน</h1><p className="admin-subtitle">จัดการ Lead, โปรเจกต์ และคำขอจากเว็บไซต์ในที่เดียว</p></div><button className="admin-refresh" onClick={() => { void leads.refetch(); void projects.refetch(); void quotes.refetch(); void appointments.refetch(); }}><RefreshCw size={15} /> รีเฟรชข้อมูล</button></header>
 
     <section className="admin-stat-grid"><Stat icon={Inbox} label="Lead ใหม่" value={newLeads} hint="รอติดต่อกลับ" tone="blue" /><Stat icon={BriefcaseBusiness} label="โปรเจกต์กำลังทำ" value={activeProjects} hint="กำลังเดินงาน" tone="purple" /><Stat icon={CheckCircle2} label="ส่งมอบแล้ว" value={completedProjects} hint="จากรายการที่บันทึก" tone="cyan" /><Stat icon={Activity} label="Lead ทั้งหมด" value={leadRows.length} hint="จากทุกช่องทาง" tone="orange" /></section>
+    <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr] mt-4"><div className="admin-table-card"><div className="admin-table-head"><div><h2>สถิติการใช้งาน</h2><p>ข้อมูลปัจจุบันจากระบบหลังบ้าน</p></div><BarChart3 size={18} className="admin-table-icon" /></div><div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4">{usageStats.data ? [["ผู้ใช้", usageStats.data.users], ["Admin", usageStats.data.admins], ["การเข้าสู่ระบบ", usageStats.data.logins], ["คอนเทนต์และสื่อ", usageStats.data.content + usageStats.data.media]].map(([label, value]) => <div key={String(label)} className="rounded-xl border border-border/60 bg-background/50 p-3"><p className="text-xs text-muted-foreground">{label}</p><strong className="text-2xl">{value}</strong></div>) : <p className="p-3 text-sm text-muted-foreground">กำลังโหลด...</p>}</div></div><div className="admin-table-card"><div className="admin-table-head"><div><h2>เข้าสู่ระบบล่าสุด</h2><p>กิจกรรมจริงที่บันทึกไว้</p></div><Clock3 size={18} className="admin-table-icon" /></div><div className="divide-y divide-border/50">{(recentActivity.data ?? []).slice(0, 4).map((item) => <div key={item.id} className="px-4 py-3 flex items-center justify-between gap-3"><div><strong className="text-sm">{item.userName || item.userEmail || "ผู้ใช้ระบบ"}</strong><p className="text-xs text-muted-foreground">{item.action === "login" ? "เข้าสู่ระบบ" : "เปลี่ยนสิทธิ์"}</p></div><time className="text-xs text-muted-foreground whitespace-nowrap">{new Date(item.createdAt).toLocaleString("th-TH")}</time></div>)}{!recentActivity.isLoading && !recentActivity.data?.length && <p className="p-4 text-sm text-muted-foreground">ยังไม่มีประวัติการเข้าสู่ระบบ</p>}</div></div></section>
 
     <section className="admin-workspace"><div className="admin-tabs"><button className={activeTab === "leads" ? "active" : ""} onClick={() => setActiveTab("leads")}><Users size={16} /> Lead จากเว็บไซต์ <span>{leadRows.length}</span></button><button className={activeTab === "projects" ? "active" : ""} onClick={() => setActiveTab("projects")}><BriefcaseBusiness size={16} /> โปรเจกต์ <span>{projectRows.length}</span></button><button className={activeTab === "quotes" ? "active" : ""} onClick={() => setActiveTab("quotes")}><CircleDollarSign size={16} /> ใบประเมิน <span>{quoteRows.length}</span></button><button className={activeTab === "appointments" ? "active" : ""} onClick={() => setActiveTab("appointments")}><Activity size={16} /> นัดหมาย <span>{appointmentRows.length}</span></button><button className={activeTab === "content" ? "active" : ""} onClick={() => setActiveTab("content")}><FileImage size={16} /> คอนเทนต์ <span>{(contentSettings.data?.length ?? 0) + (mediaAssets.data?.length ?? 0)}</span></button>{activeTab === "projects" && <button className="admin-primary" onClick={() => setProjectOpen(!projectOpen)}><Plus size={15} /> สร้างโปรเจกต์</button>}</div>
       {projectOpen && <form className="admin-create-form" onSubmit={(event) => { event.preventDefault(); if (!projectName.trim()) return; createProject.mutate({ name: projectName.trim(), clientName: clientName.trim() || undefined, serviceType: "Website" }); }}><label>ชื่อโปรเจกต์<input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder="กรอกชื่อโปรเจกต์จริง" required /></label><label>ชื่อลูกค้า<input value={clientName} onChange={(event) => setClientName(event.target.value)} placeholder="กรอกเมื่อต้องการ" /></label><button className="admin-primary" disabled={createProject.isPending}>{createProject.isPending ? <Loader2 className="animate-spin" size={15} /> : <Plus size={15} />} บันทึกโปรเจกต์</button></form>}

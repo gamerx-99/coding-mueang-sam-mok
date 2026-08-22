@@ -120,3 +120,12 @@
 
 - [x] แก้ Google OAuth production ที่แสดงข้อผิดพลาดระหว่าง callback หรือการอนุญาตบัญชี — สร้างตารางฐานข้อมูลที่ production ขาดอยู่ โดยไม่ลบข้อมูลเดิม
 - [x] ทดสอบ Google OAuth production flow หลังแก้ไขและยืนยัน session/admin access — ผ่านด้วยบัญชี Google และ redirect ไป `/admin`
+
+# Follow-up — Admin Permissions and Usage Analytics
+
+- [x] เพิ่มระบบ audit log สำหรับการเข้าสู่ระบบและกิจกรรมสำคัญของผู้ดูแล
+- [x] เพิ่ม API สำหรับรายการผู้ใช้และการเพิ่ม/ลดสิทธิ์ Admin โดยป้องกัน self-demotion และผู้ดูแลคนสุดท้าย
+- [x] เพิ่มหน้า Settings สำหรับจัดการสิทธิ์ Admin พร้อมสถานะและการยืนยันก่อนเปลี่ยนสิทธิ์
+- [x] เพิ่มสถิติการใช้งานและประวัติการเข้าสู่ระบบล่าสุดใน Admin Dashboard จากข้อมูลจริง
+- [x] เพิ่ม Vitest สำหรับ permission management, audit log และ analytics aggregation — role safety tests ผ่าน; analytics ใช้ query aggregation จากฐานข้อมูลจริง
+- [x] ตรวจ responsive UI, typecheck, build, tests และบันทึก checkpoint

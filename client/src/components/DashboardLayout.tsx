@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startGoogleLogin, startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { BriefcaseBusiness, Inbox, LayoutDashboard, LogOut, PanelLeft } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, Inbox, LayoutDashboard, LogOut, PanelLeft, Settings2 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -32,6 +32,8 @@ const menuItems = [
   { icon: Inbox, label: "Lead จากเว็บไซต์", path: "/admin?tab=leads" },
   { icon: BriefcaseBusiness, label: "โปรเจกต์", path: "/admin?tab=projects" },
   { icon: LayoutDashboard, label: "จัดการคอนเทนต์", path: "/admin?tab=content" },
+  { icon: BarChart3, label: "สถิติการใช้งาน", path: "/admin/analytics" },
+  { icon: Settings2, label: "ตั้งค่าสิทธิ์ Admin", path: "/admin/settings" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
