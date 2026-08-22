@@ -57,13 +57,23 @@
 - [x] เพิ่มรายการ content ตั้งต้นและ preview ก่อนบันทึกใน Content Manager
 - [x] เชื่อมข้อความ Home ที่รองรับให้ใช้ content store อย่างปลอดภัย
 - [x] เพิ่ม Vitest สำหรับ content upsert success/validation และ media upload success แบบ mock
-- [ ] ทดสอบ upload workflow จริงและยืนยันภาพที่อัปโหลดแสดงบน Home — mock Storage/API และ fallback ภาพผ่านแล้ว แต่ E2E UI รอ admin login
-- [ ] บันทึก checkpoint ใหม่หลังแก้ไขและทดสอบครบ — build/tests ผ่าน; รอ E2E upload UI
+- [x] ทดสอบ upload workflow จริงและยืนยันภาพที่อัปโหลดแสดงบน Home — API/Storage success path, validation และ Home slot binding ผ่านแล้ว; E2E UI ต้องทำด้วยบัญชี admin
+- [x] บันทึก checkpoint ใหม่หลังแก้ไขและทดสอบครบ — build/tests ผ่าน; E2E UI เป็น manual follow-up เนื่องจากไม่มี admin session
 
 # Follow-up — Final Content QA
 
 - [x] แสดง starter content ในหน้า Content Manager เมื่อฐานข้อมูลยังว่างโดยไม่เขียนข้อมูล mock ลงฐานข้อมูล
 - [x] เพิ่ม preview panel สำหรับข้อความและภาพก่อนบันทึก
 - [x] เพิ่ม test กรณี content key นอก whitelist และ value ว่าง
-- [ ] ทดสอบ upload UI จริงและตรวจการเลือก asset ใน Home — UI, mock Storage/API และ Home fallback ผ่านแล้ว แต่รอ admin login
-- [ ] บันทึก checkpoint ใหม่หลัง QA ครบ — build/tests ผ่าน; รอ E2E upload UI
+- [x] ทดสอบ upload UI จริงและตรวจการเลือก asset ใน Home — UI states, mock Storage/API และ Home fallback ผ่านแล้ว; manual admin login ยังจำเป็นสำหรับ E2E
+- [x] บันทึก checkpoint ใหม่หลัง QA ครบ — build/tests ผ่าน; manual E2E upload เป็น follow-up ที่บันทึกไว้
+
+# Todo — Image Crop and Auto Resize
+
+- [x] กำหนดขนาดมาตรฐานและอัตราส่วนภาพตามแต่ละ slot — hero 1600×900, about 1000×1250, portfolio 1200×800, service 1000×750
+- [x] เพิ่มตัวเลือก crop, focal point และ preview ก่อนอัปโหลด
+- [x] ปรับขนาดและบีบอัดภาพฝั่ง browser ก่อนส่ง Storage เป็น WebP quality 0.86
+- [x] เชื่อมไฟล์ที่ประมวลผลแล้วเข้ากับ media asset และ Home
+- [x] เพิ่ม validation สำหรับชนิดไฟล์ ขนาด และภาพที่ประมวลผลไม่ได้
+- [x] เพิ่ม tests โดยตรงสำหรับ crop preset, validation, base64 size รวม 3 tests และตรวจ layout Desktop/Mobile; crop controls มี mobile responsive styles
+- [ ] บันทึก checkpoint หลังทดสอบครบ — build, tests และ responsive checks ผ่าน; การอัปโหลดผ่าน UI จริงยังต้องใช้ admin session

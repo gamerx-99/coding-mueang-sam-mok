@@ -4,6 +4,8 @@ import { Activity, ArrowUpRight, BriefcaseBusiness, CheckCircle2, CircleDollarSi
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
+import { cropPresets, estimateBase64Bytes, isSupportedImageUpload } from "@shared/imageCrop";
+import type { CropSlot } from "@shared/imageCrop";
 
 const leadStatuses = ["new", "contacted", "qualified", "closed"] as const;
 const projectStatuses = ["idea", "active", "review", "completed", "archived"] as const;
@@ -102,27 +104,72 @@ function QuoteTable({ rows, loading, onStatus }: { rows: Array<{ id: number; ser
 
 function AppointmentTable({ rows, loading, onStatus }: { rows: Array<{ id: number; customerName: string; contact: string; scheduledAt: Date; durationMinutes: number; status: "requested" | "confirmed" | "completed" | "cancelled" }>; loading: boolean; onStatus: (id: number, status: "requested" | "confirmed" | "completed" | "cancelled") => void }) { return <div className="admin-table-card"><div className="admin-table-head"><div><h2>นัดหมาย</h2><p>ติดตามคำขอคุยโปรเจกต์และการนัดหมายลูกค้า</p></div><Activity className="admin-table-icon" size={18} /></div>{loading ? <LoadingRows /> : rows.length === 0 ? <EmptyState text="ยังไม่มีนัดหมาย" /> : <div className="admin-table-wrap"><table><thead><tr><th>ลูกค้า</th><th>ช่องทาง</th><th>วันเวลา</th><th>ระยะเวลา</th><th>สถานะ</th></tr></thead><tbody>{rows.map((appointment) => <tr key={appointment.id}><td><strong>{appointment.customerName}</strong></td><td>{appointment.contact}</td><td>{new Date(appointment.scheduledAt).toLocaleString("th-TH")}</td><td>{appointment.durationMinutes} นาที</td><td><select className={`status-select ${appointment.status}`} value={appointment.status} onChange={(event) => onStatus(appointment.id, event.target.value as typeof appointment.status)}>{["requested", "confirmed", "completed", "cancelled"].map((status) => <option key={status} value={status}>{status}</option>)}</select></td></tr>)}</tbody></table></div>}</div>; }
 
+async function cropAndResize(dataUrl: string, slot: CropSlot, focalX: number, focalY: number, zoom: number) {
+  const preset = cropPresets[slot] ?? cropPresets.hero;
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = dataUrl; });
+  const aspect = preset.width / preset.height;
+  const baseWidth = Math.min(image.naturalWidth, image.naturalHeight * aspect);
+  const baseHeight = baseWidth / aspect;
+  const cropWidth = baseWidth / zoom;
+  const cropHeight = baseHeight / zoom;
+  const maxX = Math.max(0, image.naturalWidth - cropWidth);
+  const maxY = Math.max(0, image.naturalHeight - cropHeight);
+  const sourceX = Math.min(maxX, Math.max(0, focalX * image.naturalWidth - cropWidth / 2));
+  const sourceY = Math.min(maxY, Math.max(0, focalY * image.naturalHeight - cropHeight / 2));
+  const canvas = document.createElement("canvas");
+  canvas.width = preset.width;
+  canvas.height = preset.height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("ไม่สามารถประมวลผลภาพได้");
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, sourceX, sourceY, cropWidth, cropHeight, 0, 0, preset.width, preset.height);
+  return canvas.toDataURL("image/webp", 0.86);
+}
+
 function ContentManager({ settings, media, onSave, onUpload, uploading }: { settings: ContentRow[]; media: MediaRow[]; onSave: (contentKey: ContentKey, language: "th" | "en", value: string) => void; onUpload: (input: UploadInput) => void; uploading: boolean }) {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [slot, setSlot] = useState("hero");
+  const [slot, setSlot] = useState<CropSlot>("hero");
   const [altText, setAltText] = useState("");
+  const [sourcePreview, setSourcePreview] = useState<string | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [pendingFileName, setPendingFileName] = useState("");
+  const [focalX, setFocalX] = useState(0.5);
+  const [focalY, setFocalY] = useState(0.5);
+  const [zoom, setZoom] = useState(1);
+  const [processing, setProcessing] = useState(false);
   const [newKey, setNewKey] = useState<ContentKey>("heroTitle");
   const [newLanguage, setNewLanguage] = useState<"th" | "en">("th");
   const [newValue, setNewValue] = useState("");
+  const preset = cropPresets[slot] ?? cropPresets.hero;
   const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > 5_000_000) { toast.error("รองรับรูปภาพไม่เกิน 5MB"); return; }
+    if (!isSupportedImageUpload(file.type, file.size)) { toast.error("รองรับ JPG, PNG, WebP หรือ GIF ไม่เกิน 5MB"); return; }
     const reader = new FileReader();
-    reader.onload = () => { setLocalPreview(String(reader.result)); onUpload({ slot, fileName: file.name, mimeType: file.type as UploadInput["mimeType"], fileSize: file.size, dataBase64: String(reader.result), altText: altText.trim() || undefined }); };
+    reader.onload = () => { setSourcePreview(String(reader.result)); setLocalPreview(null); setPendingFileName(file.name); setFocalX(0.5); setFocalY(0.5); setZoom(1); };
+    reader.onerror = () => toast.error("อ่านไฟล์รูปภาพไม่สำเร็จ");
     reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+  const applyCrop = async () => {
+    if (!sourcePreview || !pendingFileName) return;
+    setProcessing(true);
+    try { setLocalPreview(await cropAndResize(sourcePreview, slot, focalX, focalY, zoom)); }
+    catch { toast.error("ไม่สามารถครอปและปรับขนาดภาพได้"); }
+    finally { setProcessing(false); }
+  };
+  const uploadProcessed = () => {
+    if (!localPreview || !pendingFileName) { toast.error("กรุณาครอปภาพและดูตัวอย่างก่อนบันทึก"); return; }
+    const payload = localPreview.split(",")[1] ?? "";
+    onUpload({ slot, fileName: pendingFileName.replace(/\\.[^.]+$/, "") + ".webp", mimeType: "image/webp", fileSize: estimateBase64Bytes(payload), dataBase64: localPreview, altText: altText.trim() || undefined });
+    setSourcePreview(null); setLocalPreview(null); setPendingFileName("");
   };
   const visibleSettings = settings.length ? settings : starterContent;
   const previewTitle = drafts["heroTitle:th"] ?? visibleSettings.find((item) => item.contentKey === "heroTitle" && item.language === "th")?.value ?? "ตัวอย่าง Hero";
   const previewAccent = drafts["heroAccent:th"] ?? visibleSettings.find((item) => item.contentKey === "heroAccent" && item.language === "th")?.value ?? "ข้อความตัวอย่างจะแสดงที่นี่";
   const previewImage = localPreview || media.find((item) => item.slot === "hero")?.url;
-  return <div className="content-manager-grid"><div className="admin-table-card"><div className="admin-table-head"><div><h2>ข้อความบนเว็บไซต์</h2><p>แก้ไขข้อความตาม key และภาษาที่ต้องการแสดง</p></div><Save className="admin-table-icon" size={18} /></div><form className="content-new-form" onSubmit={(event) => { event.preventDefault(); if (!newValue.trim()) return; onSave(newKey, newLanguage, newValue.trim()); setNewValue(""); }}><div><label>Content key<select value={newKey} onChange={(event) => setNewKey(event.target.value as ContentKey)}>{["heroTitle", "heroAccent", "heroBody", "serviceTitle", "portfolioTitle", "processTitle", "aboutTitle", "aboutBody", "formTitle", "formBody", "footerTag"].map((key) => <option key={key} value={key}>{key}</option>)}</select></label><label>ภาษา<select value={newLanguage} onChange={(event) => setNewLanguage(event.target.value as "th" | "en")}><option value="th">TH</option><option value="en">EN</option></select></label></div><label>ข้อความใหม่<textarea value={newValue} onChange={(event) => setNewValue(event.target.value)} rows={3} placeholder="พิมพ์ข้อความที่ต้องการแสดงบนเว็บไซต์" required /></label><button className="admin-primary" type="submit"><Plus size={14} /> เพิ่มข้อความ</button></form><div className="content-preview"><span>LIVE PREVIEW</span><h3>{previewTitle.split("\\n").map((line) => <span key={line}>{line}<br /></span>)}</h3><p>{previewAccent}</p>{previewImage && <img src={previewImage} alt="ตัวอย่าง Hero" />}</div><div className="content-list">{visibleSettings.map((item) => { const key = `${item.contentKey}:${item.language}`; return <label className="content-field" key={key}><span><b>{item.contentKey}</b><small>{item.language.toUpperCase()}</small></span><textarea value={drafts[key] ?? item.value} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} rows={3} /><button className="admin-primary" onClick={() => onSave(item.contentKey, item.language, drafts[key] ?? item.value)}><Save size={14} /> บันทึก</button></label>; })}</div></div><div className="admin-table-card"><div className="admin-table-head"><div><h2>รูปภาพเว็บไซต์</h2><p>อัปโหลดภาพไปยัง Storage และเลือก slot ที่หน้าเว็บจะนำไปใช้</p></div><ImagePlus className="admin-table-icon" size={18} /></div><div className="media-upload-form"><label>ตำแหน่งภาพ<select value={slot} onChange={(event) => setSlot(event.target.value)}><option value="hero">Hero</option><option value="about">About</option><option value="portfolio">Portfolio</option><option value="service">Service</option></select></label><label>คำอธิบายภาพ<input value={altText} onChange={(event) => setAltText(event.target.value)} placeholder="คำอธิบายสำหรับ accessibility" /></label><label className="upload-dropzone"><ImagePlus size={22} /><span>{uploading ? "กำลังอัปโหลด..." : "เลือกไฟล์รูปภาพ"}</span><small>JPG, PNG, WebP หรือ GIF ไม่เกิน 5MB</small><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFile} disabled={uploading} /></label></div><div className="media-list">{media.length === 0 ? <EmptyState text="ยังไม่มีรูปภาพที่อัปโหลด" /> : media.map((item) => <div className="media-row" key={item.id}><img src={item.url} alt={item.altText || item.fileName} /><div><strong>{item.slot}</strong><small>{item.fileName} · {Math.round(item.fileSize / 1024)} KB</small></div></div>)}</div></div></div>;
+  return <div className="content-manager-grid"><div className="admin-table-card"><div className="admin-table-head"><div><h2>ข้อความบนเว็บไซต์</h2><p>แก้ไขข้อความตาม key และภาษาที่ต้องการแสดง</p></div><Save className="admin-table-icon" size={18} /></div><form className="content-new-form" onSubmit={(event) => { event.preventDefault(); if (!newValue.trim()) return; onSave(newKey, newLanguage, newValue.trim()); setNewValue(""); }}><div><label>Content key<select value={newKey} onChange={(event) => setNewKey(event.target.value as ContentKey)}>{["heroTitle", "heroAccent", "heroBody", "serviceTitle", "portfolioTitle", "processTitle", "aboutTitle", "aboutBody", "formTitle", "formBody", "footerTag"].map((key) => <option key={key} value={key}>{key}</option>)}</select></label><label>ภาษา<select value={newLanguage} onChange={(event) => setNewLanguage(event.target.value as "th" | "en")}><option value="th">TH</option><option value="en">EN</option></select></label></div><label>ข้อความใหม่<textarea value={newValue} onChange={(event) => setNewValue(event.target.value)} rows={3} placeholder="พิมพ์ข้อความที่ต้องการแสดงบนเว็บไซต์" required /></label><button className="admin-primary" type="submit"><Plus size={14} /> เพิ่มข้อความ</button></form><div className="content-preview"><span>LIVE PREVIEW</span><h3>{previewTitle.split("\\n").map((line) => <span key={line}>{line}<br /></span>)}</h3><p>{previewAccent}</p>{previewImage && <img src={previewImage} alt="ตัวอย่าง Hero" />}</div><div className="content-list">{visibleSettings.map((item) => { const key = `${item.contentKey}:${item.language}`; return <label className="content-field" key={key}><span><b>{item.contentKey}</b><small>{item.language.toUpperCase()}</small></span><textarea value={drafts[key] ?? item.value} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} rows={3} /><button className="admin-primary" onClick={() => onSave(item.contentKey, item.language, drafts[key] ?? item.value)}><Save size={14} /> บันทึก</button></label>; })}</div></div><div className="admin-table-card"><div className="admin-table-head"><div><h2>รูปภาพเว็บไซต์</h2><p>ครอปและปรับขนาดอัตโนมัติตาม slot ก่อนบันทึกไปยัง Storage</p></div><ImagePlus className="admin-table-icon" size={18} /></div><div className="media-upload-form"><label>ตำแหน่งภาพ<select value={slot} onChange={(event) => { setSlot(event.target.value as CropSlot); setSourcePreview(null); setLocalPreview(null); }}>{Object.entries(cropPresets).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}</select></label><label>คำอธิบายภาพ<input value={altText} onChange={(event) => setAltText(event.target.value)} placeholder="คำอธิบายสำหรับ accessibility" /></label><label className="upload-dropzone"><ImagePlus size={22} /><span>{sourcePreview ? "เลือกภาพใหม่เพื่อแทนที่" : "เลือกไฟล์รูปภาพ"}</span><small>JPG, PNG, WebP หรือ GIF ไม่เกิน 5MB</small><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleFile} disabled={uploading || processing} /></label>{sourcePreview && <div className="crop-panel"><div className="crop-preview-frame" style={{ aspectRatio: `${preset.width} / ${preset.height}` }}><img src={sourcePreview} alt="ต้นฉบับสำหรับครอป" style={{ objectPosition: `${focalX * 100}% ${focalY * 100}%`, transform: `scale(${zoom})` }} /></div><div className="crop-controls"><label>จุดโฟกัสแนวนอน<input type="range" min="0" max="1" step="0.01" value={focalX} onChange={(event) => setFocalX(Number(event.target.value))} /></label><label>จุดโฟกัสแนวตั้ง<input type="range" min="0" max="1" step="0.01" value={focalY} onChange={(event) => setFocalY(Number(event.target.value))} /></label><label>ซูม <b>{zoom.toFixed(1)}×</b><input type="range" min="1" max="3" step="0.1" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} /></label></div><div className="crop-actions"><button className="admin-secondary" type="button" onClick={applyCrop} disabled={processing}>{processing ? <Loader2 className="animate-spin" size={14} /> : <RefreshCw size={14} />} ครอปและปรับขนาด {preset.width}×{preset.height}</button>{localPreview && <button className="admin-primary" type="button" onClick={uploadProcessed} disabled={uploading}><Save size={14} /> บันทึกภาพที่ประมวลผลแล้ว</button>}</div></div>}</div><div className="media-list">{media.length === 0 ? <EmptyState text="ยังไม่มีรูปภาพที่อัปโหลด" /> : media.map((item) => <div className="media-row" key={item.id}><img src={item.url} alt={item.altText || item.fileName} /><div><strong>{item.slot}</strong><small>{item.fileName} · {Math.round(item.fileSize / 1024)} KB</small></div></div>)}</div></div></div>;
 }
 
 function LoadingRows() { return <div className="admin-loading"><Loader2 className="animate-spin" size={20} /> กำลังโหลดข้อมูล...</div>; }
