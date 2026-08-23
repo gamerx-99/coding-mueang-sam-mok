@@ -102,7 +102,7 @@ export default function Home() {
     onError: () => toast.error(language === "th" ? "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" : "Could not send your brief. Please try again."),
   });
   const remoteText = Object.fromEntries((remoteContent.data ?? []).filter((item) => item.language === language).map((item) => [item.contentKey, item.value]));
-  const t = { ...content[language], ...remoteText } as typeof content[Language];
+  const t = { ...remoteText, ...content[language] } as typeof content[Language];
   const heroImage = remoteMedia.data?.find((item) => item.slot === "hero")?.url || "/manus-storage/mueang-sam-mok-hero_e5657bc4.png";
   const aboutImage = remoteMedia.data?.find((item) => item.slot === "about")?.url || "/manus-storage/mueang-sam-mok-mascot_f89dec6c.png";
   const setLang = (next: Language) => { setLanguage(next); localStorage.setItem("webcraft-language", next); document.documentElement.lang = next; };
