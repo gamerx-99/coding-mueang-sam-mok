@@ -2,13 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "trailingSlash": false,
-  "buildCommand": "rm -rf dist && pnpm exec vite build && pnpm exec esbuild api/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api-dist/api.js",
-  "builds": [
-    { "src": "api-dist/api.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api-dist/api.js" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "buildCommand": "rm -rf public && pnpm exec vite build",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/manus-storage/:path*", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
