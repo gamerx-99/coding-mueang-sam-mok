@@ -2,11 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "trailingSlash": false,
-  "buildCommand": "rm -rf public && pnpm exec vite build",
+  "buildCommand": "rm -rf public && pnpm exec vite build && pnpm exec esbuild api/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/handler.js",
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api" },
-    { "source": "/manus-storage/:path*", "destination": "/api" },
+    { "source": "/api/:path*", "destination": "/api/handler" },
+    { "source": "/manus-storage/:path*", "destination": "/api/handler" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
