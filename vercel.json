@@ -6,7 +6,8 @@
     { "src": "index.ts", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
-    { "src": "/(.*)", "dest": "/index.ts" }
+    { "src": "/api/(.*)", "dest": "/index.ts" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
