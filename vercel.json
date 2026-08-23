@@ -3,6 +3,7 @@
   "version": 2,
   "trailingSlash": false,
   "buildCommand": "rm -rf public && pnpm exec vite build",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api" },
     { "source": "/manus-storage/:path*", "destination": "/api" },
