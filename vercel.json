@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "trailingSlash": false,
   "buildCommand": "rm -rf dist && pnpm exec vite build",
   "builds": [
     { "src": "index.ts", "use": "@vercel/node" }
