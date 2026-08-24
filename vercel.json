@@ -11,6 +11,7 @@
     { "source": "/tool/", "destination": "/tool/index.html" },
     { "source": "/tools", "destination": "/tool/index.html" },
     { "source": "/tools/", "destination": "/tool/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/tool/:path*", "destination": "/tool/:path*" },
+    { "source": "/((?!tool|tools|api|manus-storage).*)", "destination": "/index.html" }
   ]
 }
