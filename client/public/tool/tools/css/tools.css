@@ -10,8 +10,10 @@
   --primary-hover: #be123c;
   --card-radius: 18px;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.12), 0 10px 15px -5px rgba(0, 0, 0, 0.06);
+  --shadow-md:
+    0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-hover:
+    0 20px 30px -10px rgba(0, 0, 0, 0.12), 0 10px 15px -5px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="dark"] {
@@ -34,14 +36,18 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
   background-color: var(--bg-main);
   color: var(--text-title);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   line-height: 1.5;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 /* Header & Navigation */
@@ -680,7 +686,8 @@ main {
   margin-bottom: 20px;
 }
 
-.dropzone:hover, .dropzone.dragover {
+.dropzone:hover,
+.dropzone.dragover {
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.05);
 }
@@ -726,13 +733,23 @@ main {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 900px) {
@@ -764,4 +781,3 @@ main {
     font-size: 0.8rem;
   }
 }
-

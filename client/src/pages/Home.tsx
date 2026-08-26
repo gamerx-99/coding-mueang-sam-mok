@@ -1,128 +1,188 @@
-// Design philosophy: Reference-led dark navy cyber-studio — midnight surfaces, cobalt light, cyan data accents, coral action punctuation, and confident Thai display type.
 import { useState } from "react";
 import { Link } from "wouter";
-import { toast } from "sonner";
-import { ArrowRight, Check, ChevronRight, CircleCheck, Code2, Database, Globe2, Layers3, Languages, Menu, Send, Sparkles, X, Bed, ShoppingCart, Coffee } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import {
+  ArrowRight,
+  Cloud,
+  Code2,
+  Database,
+  Globe2,
+  LogIn,
+  Menu,
+  MessageCircle,
+  Settings2,
+  Sparkles,
+  Wrench,
+  X,
+} from "lucide-react";
 
-type Language = "th" | "en";
+type Service = {
+  icon: typeof Globe2;
+  tone: "blue" | "cyan" | "gold" | "navy";
+  title: string;
+  body: string;
+  tags: string[];
+};
 
-type Work = { title: string; category: string; image: string; tags: string[] };
-
-const content = {
-  th: {
-    nav: ["หน้าแรก", "บริการของเรา", "ผลงานของเรา", "เกี่ยวกับเรา", "ขั้นตอนการทำงาน", "ติดต่อเรา"],
-    contact: "คุยโปรเจกต์กับเรา",
-    heroKicker: "LOCAL DEV • LOCAL SOLUTION",
-    heroTitle: "โค้ดดิ้ง\nเมืองสามหมอก",
-    heroAccent: "เขียนโค้ดบนดอย ไม่ต้องรอ Silicon Valley",
-    heroBody: "รับทำเว็บไซต์ Web Application และระบบ Software สำหรับธุรกิจและองค์กร โดยทีมคนรุ่นใหม่จากแม่ฮ่องสอน",
-    primary: "คุยโปรเจกต์กับเรา",
-    secondary: "ดูผลงานของเรา",
-    serviceKicker: "บริการของเรา",
-    serviceTitle: "เราทำอะไรให้คุณได้บ้าง?",
-    portfolioKicker: "ผลงานของเรา",
-    portfolioTitle: "ตัวอย่างผลงานที่เราภูมิใจ",
-    portfolioEmpty: "ยังไม่มีผลงานที่เผยแพร่",
-    portfolioEmptyBody: "ผลงานจริงของแบรนด์จะถูกเพิ่มในส่วนนี้เมื่อพร้อมเผยแพร่",
-    portfolioCTA: "คุยเรื่องโปรเจกต์ของคุณ",
-    processKicker: "ขั้นตอนการทำงาน",
-    processTitle: "ทำงานกับเราอย่างไร?",
-    aboutKicker: "ทำไมต้องเลือกเรา",
-    aboutTitle: "มีไอเดียอยากทำเว็บ?\nเล่าให้เราฟังก่อนได้",
-    aboutBody: "ไม่ต้องมี Technical Requirement ที่ดี เราช่วยตั้งคำถามและวางแผนให้เป็นขั้นตอน",
-    formTitle: "มีไอเดียอยากทำเว็บ?",
-    formBody: "เล่าให้เราฟังก่อนได้ ไม่ต้องมี Technical Requirement ก็ได้",
-    formButton: "ส่งข้อมูลให้เรา",
-    footerTag: "เขียนโค้ดบนดอย ไม่ต้องรอ Silicon Valley",
-    share: "แชร์ผลงาน",
-    shared: "คัดลอกลิงก์ผลงานแล้ว",
-    flow: "ออกแบบ System Flow",
+const services: Service[] = [
+  {
+    icon: Code2,
+    tone: "blue",
+    title: "รับทำเว็บไซต์",
+    body: "พัฒนาเว็บไซต์ที่สวยงาม ใช้งานง่าย และรองรับทุกหน้าจอ เน้นประสิทธิภาพและความเร็วในการโหลด เพื่อประสบการณ์ที่ดีที่สุดของผู้ใช้",
+    tags: ["React", "Next.js", "Tailwind CSS"],
   },
-  en: {
-    nav: ["Home", "Services", "Our work", "About", "Process", "Contact"],
-    contact: "Start a project",
-    heroKicker: "DIGITAL PRODUCT STUDIO / MAE HONG SON",
-    heroTitle: "Coding\nMueang Sam Mok",
-    heroAccent: "Build from the mountains, not Silicon Valley",
-    heroBody: "Websites, web applications and software systems for ambitious businesses — with a team that makes complex work feel clear.",
-    primary: "Start a project",
-    secondary: "Explore our work",
-    serviceKicker: "Our services",
-    serviceTitle: "What can we build for you?",
-    portfolioKicker: "Selected work",
-    portfolioTitle: "Our work gallery",
-    portfolioEmpty: "No published work yet",
-    portfolioEmptyBody: "Verified client work will appear here when it is ready to publish.",
-    portfolioCTA: "Discuss your project",
-    processKicker: "How we work",
-    processTitle: "A clear path from idea to launch",
-    aboutKicker: "Why work with us",
-    aboutTitle: "Have an idea for a website?\nTell us before you build it",
-    aboutBody: "You do not need a perfect technical brief. We ask the right questions and turn your idea into a clear plan.",
-    formTitle: "Tell us about your project",
-    formBody: "Start with a rough idea. Our team will reach out and help shape the next step.",
-    formButton: "Send your brief",
-    footerTag: "Build from the mountains, not Silicon Valley",
-    share: "Share work",
-    shared: "Project link copied",
-    flow: "Design a System Flow",
+  {
+    icon: Settings2,
+    tone: "cyan",
+    title: "ระบบซอฟต์แวร์องค์กร",
+    body: "ออกแบบและพัฒนาระบบซอฟต์แวร์เฉพาะทางที่ปรับให้เข้ากับกระบวนการทำงานขององค์กร เช่น ระบบ ERP, CRM หรือระบบจัดการภายใน",
+    tags: ["Node.js", "Python", "ERP / CRM"],
   },
-} as const;
-
-const services = [
-  { icon: Globe2, num: "01", th: "เว็บไซต์", en: "Websites", thBody: "รายละเอียดบริการกำลังเพิ่มข้อมูลจริง", enBody: "Service details will be added with verified information.", accent: "cyan" },
-  { icon: Layers3, num: "02", th: "Web Application", en: "Web Applications", thBody: "รายละเอียดบริการกำลังเพิ่มข้อมูลจริง", enBody: "Service details will be added with verified information.", accent: "blue" },
-  { icon: Code2, num: "03", th: "ระบบ Software", en: "Software systems", thBody: "รายละเอียดบริการกำลังเพิ่มข้อมูลจริง", enBody: "Service details will be added with verified information.", accent: "purple" },
-  { icon: Database, num: "04", th: "ดูแลและบำรุงรักษา", en: "Care & maintenance", thBody: "รายละเอียดบริการกำลังเพิ่มข้อมูลจริง", enBody: "Service details will be added with verified information.", accent: "coral" },
+  {
+    icon: Cloud,
+    tone: "gold",
+    title: "Cloud Solutions",
+    body: "ให้คำปรึกษาและวางระบบโครงสร้างพื้นฐานบน Cloud ให้เสถียร ปลอดภัย และขยายระบบรองรับการเติบโตของธุรกิจได้",
+    tags: ["AWS", "Docker", "Cloud"],
+  },
+  {
+    icon: Database,
+    tone: "blue",
+    title: "Database Management",
+    body: "ออกแบบและจัดการฐานข้อมูลให้มีประสิทธิภาพ พร้อมระบบสำรองข้อมูลและแนวทางรักษาความปลอดภัยที่เหมาะกับงานจริง",
+    tags: ["PostgreSQL", "MongoDB", "Redis"],
+  },
+  {
+    icon: Wrench,
+    tone: "cyan",
+    title: "Custom Software & API Development",
+    body: "พัฒนาซอฟต์แวร์ตามความต้องการเฉพาะ และเชื่อมต่อระบบต่าง ๆ ด้วย API พร้อมวาง automation เพื่อลดเวลางานซ้ำ",
+    tags: ["RESTful API", "GraphQL", "Automation"],
+  },
 ];
 
-const process = [
-  ["01", "คุยไอเดีย", "เข้าใจปัญหาและความต้องการ"],
-  ["02", "วางระบบ", "วิเคราะห์และออกแบบโครงสร้าง"],
-  ["03", "ออกแบบ", "ออกแบบ UI/UX"],
-  ["04", "พัฒนา", "เขียนโค้ดและเชื่อมระบบ"],
-  ["05", "ทดสอบ", "ตรวจสอบก่อนส่งมอบ"],
-  ["06", "ส่งมอบ", "พร้อมใช้งานและดูแลต่อ"],
-];
-
-const portfolio = [
-  { icon: Bed, title: "ระบบจองที่พัก", desc: "เว็บไซต์สำหรับธุรกิจที่พักและรีสอร์ท", tags: ["Next.js", "Supabase"] },
-  { icon: ShoppingCart, title: "ระบบจัดการสินค้า", desc: "จัดการสินค้า ออเดอร์ และข้อมูลลูกค้า", tags: ["React", "Node.js"] },
-  { icon: Coffee, title: "เว็บไซต์ร้านกาแฟ", desc: "เว็บไซต์ธุรกิจพร้อมเมนูและช่องทางติดต่อ", tags: ["Next.js", "CSS"] },
+const projectIdeas = [
+  { title: "เว็บธุรกิจและ Landing Page", src: "/media/mascot/mhs-pose-08.png", label: "WEBSITE" },
+  { title: "ระบบหลังบ้านและข้อมูล", src: "/media/mascot/mhs-pose-13.png", label: "SOFTWARE" },
+  { title: "ดูแลระบบต่อหลังเปิดใช้", src: "/media/mascot/mhs-pose-16.png", label: "SUPPORT" },
 ];
 
 export default function Home() {
-  const [language, setLanguage] = useState<Language>(() => (localStorage.getItem("webcraft-language") as Language) || "th");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const remoteContent = trpc.content.publicList.useQuery();
-  const remoteMedia = trpc.media.publicList.useQuery();
-  const submitLead = trpc.leads.create.useMutation({
-    onSuccess: () => toast.success(language === "th" ? "ส่งข้อมูลแล้ว ทีมงานจะติดต่อกลับเร็ว ๆ นี้" : "Brief received — we will be in touch soon"),
-    onError: () => toast.error(language === "th" ? "ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" : "Could not send your brief. Please try again."),
-  });
-  const remoteText = Object.fromEntries((remoteContent.data ?? []).filter((item) => item.language === language).map((item) => [item.contentKey, item.value]));
-  const t = { ...remoteText, ...content[language] } as typeof content[Language];
-  const heroImage = remoteMedia.data?.find((item) => item.slot === "hero")?.url || "/manus-storage/mueang-sam-mok-hero_e5657bc4.png";
-  const aboutImage = remoteMedia.data?.find((item) => item.slot === "about")?.url || "/manus-storage/mueang-sam-mok-mascot_f89dec6c.png";
-  const setLang = (next: Language) => { setLanguage(next); localStorage.setItem("webcraft-language", next); document.documentElement.lang = next; };
-  const scrollTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMobileOpen(false); };
 
-  return <main className="site-dark min-h-screen bg-night text-white">
-    <header className="dark-header"><div className="site-container flex h-[72px] items-center justify-between gap-5"><a href="#top" className="brand-lockup"><span className="brand-mark"><img src="/manus-storage/webcraft-logo_f3b5f60e.png" alt="" /></span><span><b>{language === "th" ? "โค้ดดิ้งเมืองสามหมอก" : "Coding Mueang Sam Mok"}</b><small>CODING MUEANG SAM MOK</small></span></a><nav className={`dark-nav ${mobileOpen ? "open" : ""}`}>{t.nav.map((item, index) => <button key={item} onClick={() => scrollTo(["top", "services", "portfolio", "about", "process", "contact"][index])}>{item}</button>)}<Link href="/flow" onClick={() => setMobileOpen(false)}>{t.flow}</Link></nav><div className="header-actions"><div className="dark-language"><Languages size={14} /><button className={language === "th" ? "active" : ""} onClick={() => setLang("th")}>TH</button><span>/</span><button className={language === "en" ? "active" : ""} onClick={() => setLang("en")}>EN</button></div><button className="glow-button hidden sm:flex" onClick={() => scrollTo("contact")}><Send size={14} /> {t.contact}</button><button className="mobile-menu sm:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">{mobileOpen ? <X size={20} /> : <Menu size={20} />}</button></div></div></header>
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMobileOpen(false);
+  };
 
-    <section id="top" className="dark-hero"><div className="site-container hero-grid"><div className="hero-copy"><p className="dark-kicker"><span /> {t.heroKicker}</p><h1>{t.heroTitle}</h1><h2>{t.heroAccent}</h2><p className="hero-body">{t.heroBody}</p><div className="hero-actions"><button className="glow-button" onClick={() => scrollTo("contact")}><Send size={15} /> {t.primary}</button><button className="ghost-button" onClick={() => scrollTo("portfolio")}>{t.secondary} <ArrowRight size={15} /></button></div><div className="hero-proof"><span><CircleCheck size={15} /> คุยง่าย</span><span><CircleCheck size={15} /> งานตามความต้องการ</span><span><CircleCheck size={15} /> ส่งงานตรงเวลา</span><span><CircleCheck size={15} /> ดูแลหลังส่งงาน</span></div></div><div className="hero-visual"><div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><img src={heroImage} alt="Coding Mueang Sam Mok studio" /><span className="hero-chip chip-code">&lt;/&gt; CODE</span><span className="hero-chip chip-db"><Database size={15} /> DATABASE</span><span className="hero-chip chip-cloud">☁ CLOUD</span><div className="hero-glow" /></div></div></section>
+  return (
+    <main className="code-home">
+      <header className="code-topbar">
+        <div className="code-container code-topbar-inner">
+          <a href="#top" className="code-brand" aria-label="Coding Mueang Sam Mok home">
+            <span className="code-brand-mark"><Code2 size={19} /></span>
+            <span>
+              <strong>CODING MUEANG SAM MOK</strong>
+              <small>Local Dev • Local Solution</small>
+            </span>
+          </a>
 
-    <section id="services" className="dark-section"><div className="site-container"><div className="section-heading centered"><p className="dark-kicker"><span /> {t.serviceKicker}</p><h2>{t.serviceTitle}</h2></div><div className="service-grid">{services.map(({ icon: Icon, num, th, en, thBody, enBody, accent }) => <article className={`dark-card service-card ${accent}`} key={num}><div className="card-top"><span className="card-num">{num}</span><Icon size={28} /></div><span className="service-code">&lt;/&gt;</span><h3>{language === "th" ? th : en}</h3><p>{language === "th" ? thBody : enBody}</p><button onClick={() => scrollTo("contact")} aria-label="Learn more"><ArrowRight size={17} /></button></article>)}</div></div></section>
+          <nav className={`code-nav ${mobileOpen ? "is-open" : ""}`} aria-label="Main navigation">
+            <button onClick={() => scrollTo("top")}>Home</button>
+            <button onClick={() => scrollTo("services")}>Services</button>
+            <button onClick={() => scrollTo("portfolio")}>Portfolio</button>
+            <button onClick={() => scrollTo("about")}>About Us</button>
+            <button onClick={() => scrollTo("process")}>Process</button>
+            <button onClick={() => scrollTo("contact")}>Contact</button>
+            <Link href="/tool/" onClick={() => setMobileOpen(false)} className="code-nav-tool"><Wrench size={14} /> Tool</Link>
+            <Link href="/login" onClick={() => setMobileOpen(false)} className="code-nav-login"><LogIn size={14} /> Login</Link>
+          </nav>
 
-    <section id="portfolio" className="dark-section portfolio-section"><div className="site-container"><div className="section-heading"><div><p className="dark-kicker"><span /> {t.portfolioKicker}</p><h2>{t.portfolioTitle}</h2></div></div><div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-10">{portfolio.map(({ icon: Icon, title, desc, tags }) => <article className="dark-card service-card flex flex-col items-start" key={title}><div className="card-top mb-4"><Icon size={28} /></div><h3 className="mb-2">{title}</h3><p className="mb-6">{desc}</p><div className="flex flex-wrap gap-2 mt-auto">{tags.map(tag => <span key={tag} className="text-xs px-3 py-1 rounded-full border border-line bg-panel text-cyan">{tag}</span>)}</div></article>)}</div></div></section>
+          <div className="code-topbar-actions">
+            <Link href="/login" className="code-login-pill"><LogIn size={14} /> Login</Link>
+            <Link href="/tool/" className="code-tool-pill"><Wrench size={14} /> Tool</Link>
+            <button className="code-menu-button" onClick={() => setMobileOpen(value => !value)} aria-label="Open menu">
+              {mobileOpen ? <X size={21} /> : <Menu size={21} />}
+            </button>
+          </div>
+        </div>
+      </header>
 
-    <section id="process" className="dark-section process-section"><div className="site-container"><div className="section-heading centered"><p className="dark-kicker"><span /> {t.processKicker}</p><h2>{t.processTitle}</h2></div><div className="process-grid">{process.map(([num, title, detail]) => <div className="process-step" key={num}><span className="process-number">{num}</span><div className="process-avatar"><Sparkles size={21} /></div><h3>{language === "th" ? title : ["Talk ideas", "Plan the system", "Design", "Build", "Test", "Ship"][Number(num) - 1]}</h3><p>{language === "th" ? detail : ["Align on your goals and opportunity.", "Turn the brief into a clear structure.", "Make the product feel simple to use.", "Build in public and keep momentum.", "Check quality across real scenarios.", "Launch with support after handoff."][Number(num) - 1]}</p>{num !== "06" && <ChevronRight className="process-arrow" size={22} />}</div>)}</div></div></section>
+      <section id="top" className="code-hero">
+        <div className="code-container code-hero-grid">
+          <div className="code-hero-copy">
+            <span className="code-eyebrow"><i /> TECH STACK &amp; CAPABILITIES</span>
+            <h1>เครื่องมือและ<br /><em>บริการของเรา</em></h1>
+            <p>เราใช้เทคโนโลยีที่ทันสมัยและมีประสิทธิภาพสูงในการพัฒนาซอฟต์แวร์ เพื่อสร้างโซลูชันที่ตอบโจทย์ธุรกิจของคุณ ตั้งแต่การออกแบบ UI/UX ไปจนถึงการจัดการฐานข้อมูลและโครงสร้างพื้นฐานบนคลาวด์</p>
+            <div className="code-hero-badges">
+              <span><Code2 size={15} /> Full-Stack Dev</span>
+              <span><Cloud size={15} /> Cloud Native</span>
+              <span><Sparkles size={15} /> High Performance</span>
+            </div>
+            <div className="code-hero-actions">
+              <button className="code-primary-button" onClick={() => scrollTo("contact")}><MessageCircle size={16} /> คุยโปรเจกต์กับเรา</button>
+              <button className="code-secondary-button" onClick={() => scrollTo("services")}>ดูบริการทั้งหมด <ArrowRight size={16} /></button>
+            </div>
+          </div>
 
-    <section id="about" className="dark-section about-section"><div className="site-container about-grid"><div className="about-copy"><p className="dark-kicker"><span /> {t.aboutKicker}</p><h2>{t.aboutTitle}</h2><p>{t.aboutBody}</p><div className="about-list"><span><Check size={15} /> งานของคุณไม่ใช่ Template</span><span><Check size={15} /> เข้าใจธุรกิจไม่ใช่แค่เขียนโค้ด</span><span><Check size={15} /> เทคโนโลยีทันสมัย ปลอดภัย ขยายระบบได้</span><span><Check size={15} /> สื่อสารชัดเจน ไม่หายระหว่างทาง</span></div></div><div className="about-mascot"><img src={aboutImage} alt="Developer mascot" /></div><div className="stats-panel"><div><strong>—</strong><small>โปรเจกต์ที่เผยแพร่</small></div><div><strong>—</strong><small>ลูกค้าที่อนุญาตให้เผยแพร่</small></div><div><strong>—</strong><small>ปีประสบการณ์</small></div><div><strong>—</strong><small>ข้อมูลกำลังอัปเดต</small></div></div></div></section>
+          <div className="code-hero-art" aria-label="เมืองสามหมอกเดฟ mascot">
+            <div className="code-hero-halo" />
+            <div className="code-hero-grid-lines" />
+            <div className="code-mascot-stage">
+              <span className="code-stage-label">MHS DEV / READY TO BUILD</span>
+              <img src="/media/mhs-dev-mascot.png" alt="เมืองสามหมอกเดฟกำลังเขียนโค้ด" />
+              <span className="code-stage-mountain" />
+            </div>
+            <span className="code-floating-badge code-floating-code"><Code2 size={16} /> &lt;/&gt; CODE</span>
+            <span className="code-floating-badge code-floating-cloud"><Cloud size={16} /> CLOUD</span>
+            <span className="code-floating-badge code-floating-data"><Database size={16} /> DATABASE</span>
+            <span className="code-hero-coffee">MHS <small>COFFEE MODE</small></span>
+          </div>
+        </div>
+      </section>
 
-    <section id="contact" className="contact-section"><div className="site-container contact-grid"><div className="contact-visual"><p className="dark-kicker"><span /> LET'S BUILD TOGETHER</p><h2>{t.formTitle}</h2><p>{t.formBody}</p><div className="contact-pills"><span>Websites</span><span>Web Apps</span><span>Software</span></div></div><form className="dark-form" onSubmit={(event) => { event.preventDefault(); const form = new FormData(event.currentTarget); submitLead.mutate({ name: String(form.get("name") || ""), contact: String(form.get("contact") || ""), businessType: String(form.get("businessType") || "") || undefined, serviceType: String(form.get("serviceType") || "") || undefined, budget: String(form.get("budget") || "") || undefined, details: String(form.get("details") || "") || undefined }); event.currentTarget.reset(); }}><div className="form-row"><label>ชื่อของคุณ *<input name="name" required placeholder={language === "th" ? "กรอกชื่อของคุณ" : "Your name"} /></label><label>ช่องทางติดต่อ *<input name="contact" required placeholder={language === "th" ? "เบอร์โทร / อีเมล / LINE" : "Email / phone / LINE"} /></label></div><div className="form-row"><label>ประเภทธุรกิจ<select name="businessType" defaultValue=""><option value="" disabled>{language === "th" ? "เลือกประเภทธุรกิจ" : "Select business type"}</option><option>ร้านค้า</option><option>ที่พัก</option><option>บริการ</option><option>องค์กร</option></select></label><label>งบประมาณโดยประมาณ<select name="budget" defaultValue=""><option value="" disabled>{language === "th" ? "เลือกช่วงงบประมาณ" : "Select a range"}</option><option>ต่ำกว่า 10,000</option><option>10,000–30,000</option><option>30,000–50,000</option><option>50,000+</option></select></label></div><label>รายละเอียดเพิ่มเติม<textarea name="details" rows={4} placeholder={language === "th" ? "บอกข้อมูลเบื้องต้นเกี่ยวกับโปรเจกต์ของคุณ" : "Tell us a little about your project"} /></label><button className="glow-button w-full justify-center" type="submit"><Send size={15} /> {t.formButton}</button></form></div></section>
+      <section id="services" className="code-section code-services">
+        <div className="code-container">
+          <div className="code-section-heading">
+            <div><span className="code-eyebrow"><i /> 01 / SERVICES</span><h2>โซลูชันที่เริ่มจากโจทย์จริง</h2></div>
+            <p>เลือกเฉพาะสิ่งที่ธุรกิจต้องใช้ก่อน แล้วค่อยต่อยอดเมื่อพร้อม เราออกแบบให้ใช้งานได้จริงและดูแลต่อได้</p>
+          </div>
+          <div className="code-service-grid">
+            {services.map(({ icon: Icon, tone, title, body, tags }) => (
+              <article className={`code-service-card ${tone}`} key={title}>
+                <div className="code-card-icon"><Icon size={27} /></div>
+                <div className="code-card-content"><h3>{title}</h3><p>{body}</p></div>
+                <div className="code-card-tags">{tags.map(tag => <span key={tag}>{tag}</span>)}</div>
+                <button onClick={() => scrollTo("contact")} className="code-card-link">ดูรายละเอียดเพิ่มเติม <ArrowRight size={16} /></button>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-    <footer className="dark-footer"><div className="site-container footer-grid"><div><a href="#top" className="brand-lockup"><span className="brand-mark"><img src="/manus-storage/webcraft-logo_f3b5f60e.png" alt="" /></span><span><b>{language === "th" ? "โค้ดดิ้งเมืองสามหมอก" : "Coding Mueang Sam Mok"}</b><small>CODING MUEANG SAM MOK</small></span></a><p>{t.footerTag}</p><div className="socials"><span>f</span><span>ig</span><span>line</span><span>▶</span></div></div><div><h4>{language === "th" ? "บริการของเรา" : "Services"}</h4><a onClick={() => scrollTo("services")}>เว็บไซต์</a><a onClick={() => scrollTo("services")}>Web Application</a><a onClick={() => scrollTo("services")}>ระบบ Software</a></div><div><h4>{language === "th" ? "ลิงก์สำคัญ" : "Explore"}</h4><a onClick={() => scrollTo("portfolio")}>{t.portfolioKicker}</a><a onClick={() => scrollTo("about")}>{t.aboutKicker}</a><a href="/flow">{t.flow}</a></div><div><h4>{language === "th" ? "ติดต่อเรา" : "Contact"}</h4><a>อีเมล: กำลังเพิ่มข้อมูล</a><a>โทรศัพท์: กำลังเพิ่มข้อมูล</a><a>ที่อยู่: กำลังเพิ่มข้อมูล</a></div></div><div className="site-container footer-bottom"><span>© 2026 Coding Mueang Sam Mok — Concept. All rights reserved.</span><span>Made with ♥ in Mae Hong Son</span></div></footer>
-  </main>;
+      <section id="portfolio" className="code-section code-projects">
+        <div className="code-container">
+          <div className="code-section-heading"><div><span className="code-eyebrow"><i /> 02 / PROJECT DIRECTIONS</span><h2>เริ่มต้นจากภาพที่คุณเห็น</h2></div><p>ไม่ต้องมีคำตอบครบตั้งแต่วันแรก แค่เล่าโจทย์ แล้วเราจะช่วยแปลงให้เป็นระบบที่จับต้องได้</p></div>
+          <div className="code-project-grid">
+            {projectIdeas.map(({ title, src, label }) => <button className="code-project-card" key={label} onClick={() => scrollTo("contact")}><span>{label}</span><img src={src} alt="" /><strong>{title}</strong><ArrowRight size={16} /></button>)}
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="code-section code-about">
+        <div className="code-container code-about-grid">
+          <div><span className="code-eyebrow"><i /> 03 / LOCAL DEV</span><h2>เด็กผู้ชายขี้เล่น<br /><em>แต่ทำงานจริง</em></h2><p>สามหมอกโค้ดดิ้งคือทีมจากแม่ฮ่องสอนที่เชื่อว่าเทคโนโลยีไม่ควรทำให้คนรู้สึกไกลตัว เราคุยด้วยภาษาคน วางระบบเป็นขั้นตอน และอยู่ดูแลต่อเมื่อคุณต้องการ</p><div className="code-about-points"><span>01 <b>คุยง่าย</b></span><span>02 <b>เห็นภาพก่อนเริ่ม</b></span><span>03 <b>ดูแลต่อได้</b></span></div></div>
+          <div className="code-about-visual"><img src="/media/mascot/mhs-pose-18.png" alt="เมืองสามหมอกเดฟพักกับกาแฟ MHS" /><span>WRITE CODE<br />FROM THE MOUNTAINS</span></div>
+        </div>
+      </section>
+
+      <section id="process" className="code-section code-process">
+        <div className="code-container"><div className="code-section-heading"><div><span className="code-eyebrow"><i /> 04 / PROCESS</span><h2>ชัดเจนตั้งแต่คุยจนส่งมอบ</h2></div><p>ทุกขั้นตอนมีจุดเช็กที่เข้าใจง่าย ลดความเสี่ยง และทำให้คุณเห็นความคืบหน้า</p></div><div className="code-process-steps"><span><b>01</b> คุยโจทย์</span><span><b>02</b> วางระบบ</span><span><b>03</b> ออกแบบ</span><span><b>04</b> พัฒนา</span><span><b>05</b> ทดสอบ</span><span><b>06</b> ส่งมอบ</span></div></div>
+      </section>
+
+      <section id="contact" className="code-contact"><div className="code-container code-contact-inner"><div><span className="code-eyebrow"><i /> 05 / START A PROJECT</span><h2>มีไอเดียอยากทำเว็บ?<br /><em>เริ่มคุยกันได้เลย</em></h2><p>กดเข้าสู่ Tool เพื่อทดลองวาง Flow หรือเข้าสู่ Login เพื่อจัดการระบบหลังบ้าน</p></div><div className="code-contact-actions"><Link href="/tool/" className="code-primary-button"><Wrench size={16} /> เปิด Tool</Link><Link href="/login" className="code-secondary-button"><LogIn size={16} /> เข้าสู่ Login</Link></div></div></section>
+
+      <footer className="code-footer"><div className="code-container code-footer-inner"><div><a href="#top" className="code-brand"><span className="code-brand-mark"><Code2 size={19} /></span><span><strong>CODING MUEANG SAM MOK</strong><small>Local Dev • Local Solution</small></span></a><p>เขียนโค้ดบนดอย ไม่ต้องรอ Silicon Valley</p></div><div className="code-footer-links"><Link href="/tool/">Tool</Link><Link href="/login">Login</Link><a href="#services">Services</a><a href="#contact">Contact</a></div></div><div className="code-container code-footer-bottom">© 2026 Coding Mueang Sam Mok <span>Made with care in Mae Hong Son</span></div></footer>
+    </main>
+  );
 }

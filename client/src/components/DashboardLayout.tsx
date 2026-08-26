@@ -1,11 +1,7 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useLocation } from "wouter";
+import { useIsMobile } from "@/hooks/useMobile";
+import { useAuth } from "@/hooks/useAuth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -19,19 +15,33 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { startGoogleLogin, startLogin } from "@/const";
-import { useIsMobile } from "@/hooks/useMobile";
-import { BarChart3, BriefcaseBusiness, Inbox, LayoutDashboard, LogOut, PanelLeft, Settings2 } from "lucide-react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
-import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { startGoogleLogin, startFacebookLogin } from "@/const";
+import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
+import { FacebookLoginButton } from "./FacebookLoginButton";
 import { Button } from "./ui/button";
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  Inbox,
+  LayoutDashboard,
+  LogOut,
+  Mountain,
+  PanelLeft,
+  Settings2,
+  ArrowUpRight,
+} from "lucide-react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "ภาพรวม", path: "/admin" },
   { icon: Inbox, label: "Lead จากเว็บไซต์", path: "/admin?tab=leads" },
   { icon: BriefcaseBusiness, label: "โปรเจกต์", path: "/admin?tab=projects" },
-  { icon: LayoutDashboard, label: "จัดการคอนเทนต์", path: "/admin?tab=content" },
+  {
+    icon: LayoutDashboard,
+    label: "จัดการคอนเทนต์",
+    path: "/admin?tab=content",
+  },
   { icon: BarChart3, label: "สถิติการใช้งาน", path: "/admin/analytics" },
   { icon: Settings2, label: "ตั้งค่าสิทธิ์ Admin", path: "/admin/settings" },
 ];
@@ -50,48 +60,10 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const { loading, user } = useAuth();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
-
-  if (loading) {
-    return <DashboardLayoutSkeleton />
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
-            </p>
-          </div>
-          <Button
-            onClick={() => startGoogleLogin()}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-sm font-bold text-[#4285F4]">G</span>
-            Continue with Google
-          </Button>
-          <Button
-            onClick={() => startLogin()}
-            size="lg"
-            variant="outline"
-            className="w-full"
-          >
-            Sign in with Manus
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <SidebarProvider
@@ -117,13 +89,15 @@ function DashboardLayoutContent({
   children,
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
-  const { user, logout } = useAuth();
+  const { loading, user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => location.startsWith(item.path.split("?")[0]));
+  const activeMenuItem = menuItems.find(item =>
+    location.startsWith(item.path.split("?")[0])
+  );
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -162,6 +136,38 @@ function DashboardLayoutContent({
     };
   }, [isResizing, setSidebarWidth]);
 
+  if (loading) {
+    return <DashboardLayoutSkeleton />;
+  }
+
+  if (!user) {
+    return (
+      <div className="admin-auth-gate">
+        <div className="admin-auth-orbit admin-auth-orbit-one" />
+        <div className="admin-auth-orbit admin-auth-orbit-two" />
+        <div className="admin-auth-card">
+          <div className="admin-auth-kicker"><Mountain size={14} /> MHS DEV / PRIVATE WORKSPACE</div>
+          <div className="admin-auth-mark"><Mountain size={22} /></div>
+          <span className="admin-auth-code">ACCESS CHECK / 01</span>
+          <h1>เข้าสู่ระบบเพื่อ<br /><em>ทำงานต่อ</em></h1>
+          <p>พื้นที่หลังบ้านสำหรับจัดการ Lead, โปรเจกต์, คอนเทนต์ และระบบงานของสามหมอกโค้ดดิ้ง</p>
+          <div className="admin-auth-actions">
+            <Button onClick={() => startGoogleLogin()} size="lg" className="w-full h-11 shadow-sm hover:shadow-md transition-all cursor-pointer font-medium">
+              <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-[#4285F4]">G</span>
+              Continue with Google
+            </Button>
+            <FacebookLoginButton onClick={() => startFacebookLogin()} label="Continue with Facebook" />
+          </div>
+          <div className="admin-auth-footer">
+            <button onClick={() => setLocation("/")}>กลับหน้าเว็บหลัก</button>
+            <span>•</span>
+            <button onClick={() => { window.location.href = "/tool/"; }}>เปิด Tool</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="relative" ref={sidebarRef}>
@@ -181,9 +187,11 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    Navigation
-                  </span>
+                  <span className="admin-brand-mark"><Mountain size={16} /></span>
+                  <div className="min-w-0">
+                    <span className="font-semibold tracking-tight truncate block">MHS DEV</span>
+                    <small className="admin-brand-subtitle">BACK OFFICE</small>
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -254,6 +262,13 @@ function DashboardLayoutContent({
       </div>
 
       <SidebarInset>
+        <div className="admin-contextbar">
+          <div className="admin-contextbar-label"><span className="admin-contextbar-dot" /> <span>PRIVATE WORKSPACE</span><b>/</b><span>MHS DEV BACK OFFICE</span></div>
+          <div className="admin-contextbar-links">
+            <button onClick={() => setLocation("/")}>Public site <ArrowUpRight size={13} /></button>
+            <button onClick={() => { window.location.href = "/tool/"; }}>Tools <ArrowUpRight size={13} /></button>
+          </div>
+        </div>
         {isMobile && (
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
