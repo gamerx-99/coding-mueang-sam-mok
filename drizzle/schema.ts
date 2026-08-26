@@ -1,99 +1,139 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: text("role").$type<"user" | "admin">().default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
-export const leads = mysqlTable("leads", {
-  id: int("id").autoincrement().primaryKey(),
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
   contact: varchar("contact", { length: 320 }).notNull(),
   businessType: varchar("businessType", { length: 100 }),
   serviceType: varchar("serviceType", { length: 100 }),
   budget: varchar("budget", { length: 100 }),
   details: text("details"),
-  status: mysqlEnum("status", ["new", "contacted", "qualified", "closed"]).default("new").notNull(),
+  status: text("status")
+    .$type<"new" | "contacted" | "qualified" | "closed">()
+    .default("new")
+    .notNull(),
   source: varchar("source", { length: 60 }).default("website").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const quotes = mysqlTable("quotes", {
-  id: int("id").autoincrement().primaryKey(),
-  leadId: int("leadId"),
+export const quotes = pgTable("quotes", {
+  id: serial("id").primaryKey(),
+  leadId: integer("leadId"),
   serviceType: varchar("serviceType", { length: 100 }).notNull(),
   scope: text("scope"),
-  estimatedMin: int("estimatedMin").notNull(),
-  estimatedMax: int("estimatedMax").notNull(),
-  status: mysqlEnum("status", ["draft", "sent", "accepted", "declined"]).default("draft").notNull(),
+  estimatedMin: integer("estimatedMin").notNull(),
+  estimatedMax: integer("estimatedMax").notNull(),
+  status: text("status")
+    .$type<"draft" | "sent" | "accepted" | "declined">()
+    .default("draft")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const appointments = mysqlTable("appointments", {
-  id: int("id").autoincrement().primaryKey(),
-  leadId: int("leadId"),
+export const appointments = pgTable("appointments", {
+  id: serial("id").primaryKey(),
+  leadId: integer("leadId"),
   customerName: varchar("customerName", { length: 160 }).notNull(),
   contact: varchar("contact", { length: 320 }).notNull(),
   scheduledAt: timestamp("scheduledAt").notNull(),
-  durationMinutes: int("durationMinutes").default(60).notNull(),
-  status: mysqlEnum("status", ["requested", "confirmed", "completed", "cancelled"]).default("requested").notNull(),
+  durationMinutes: integer("durationMinutes").default(60).notNull(),
+  status: text("status")
+    .$type<"requested" | "confirmed" | "completed" | "cancelled">()
+    .default("requested")
+    .notNull(),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const contentSettings = mysqlTable("contentSettings", {
-  id: int("id").autoincrement().primaryKey(),
+export const contentSettings = pgTable("contentSettings", {
+  id: serial("id").primaryKey(),
   contentKey: varchar("contentKey", { length: 120 }).notNull(),
-  language: mysqlEnum("language", ["th", "en"]).default("th").notNull(),
+  language: text("language").$type<"th" | "en">().default("th").notNull(),
   value: text("value").notNull(),
-  updatedBy: int("updatedBy"),
+  updatedBy: integer("updatedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const mediaAssets = mysqlTable("mediaAssets", {
-  id: int("id").autoincrement().primaryKey(),
+export const mediaAssets = pgTable("mediaAssets", {
+  id: serial("id").primaryKey(),
   slot: varchar("slot", { length: 120 }).notNull(),
   fileName: varchar("fileName", { length: 255 }).notNull(),
   storageKey: varchar("storageKey", { length: 500 }).notNull(),
   url: varchar("url", { length: 700 }).notNull(),
   mimeType: varchar("mimeType", { length: 100 }).notNull(),
-  fileSize: int("fileSize").notNull(),
+  fileSize: integer("fileSize").notNull(),
   altText: varchar("altText", { length: 255 }),
-  uploadedBy: int("uploadedBy"),
+  uploadedBy: integer("uploadedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const auditLogs = mysqlTable("auditLogs", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId"),
+export const auditLogs = pgTable("auditLogs", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId"),
   action: varchar("action", { length: 80 }).notNull(),
   metadata: text("metadata"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export const projects = mysqlTable("projects", {
-  id: int("id").autoincrement().primaryKey(),
+export const projects = pgTable("projects", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 180 }).notNull(),
   clientName: varchar("clientName", { length: 180 }),
   serviceType: varchar("serviceType", { length: 100 }),
-  status: mysqlEnum("status", ["idea", "active", "review", "completed", "archived"]).default("idea").notNull(),
-  progress: int("progress").default(0).notNull(),
+  status: text("status")
+    .$type<"idea" | "active" | "review" | "completed" | "archived">()
+    .default("idea")
+    .notNull(),
+  progress: integer("progress").default(0).notNull(),
   dueAt: timestamp("dueAt"),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export type User = typeof users.$inferSelect;
