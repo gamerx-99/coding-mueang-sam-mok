@@ -310,10 +310,22 @@ export default function AdminDashboard() {
                     <strong className="text-2xl">{value}</strong>
                   </div>
                 ))
+              ) : usageStats.isLoading ? (
+                <div className="admin-loading-state col-span-full" role="status">
+                  <Loader2 size={18} className="animate-spin" />
+                  <div>
+                    <strong>กำลังโหลดสถิติ</strong>
+                    <span>กำลังดึงข้อมูลจากระบบหลังบ้าน</span>
+                  </div>
+                </div>
               ) : (
-                <p className="p-3 text-sm text-muted-foreground">
-                  กำลังโหลด...
-                </p>
+                <div className="admin-empty-state col-span-full">
+                  <div className="admin-empty-icon"><BarChart3 size={17} /></div>
+                  <div>
+                    <strong>ยังไม่มีข้อมูลสถิติ</strong>
+                    <span>ข้อมูลจะปรากฏเมื่อมีการใช้งานระบบ</span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -346,10 +358,20 @@ export default function AdminDashboard() {
                   </time>
                 </div>
               ))}
+              {recentActivity.isLoading && (
+                <div className="admin-loading-state compact" role="status">
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>กำลังโหลดกิจกรรมล่าสุด...</span>
+                </div>
+              )}
               {!recentActivity.isLoading && !recentActivity.data?.length && (
-                <p className="p-4 text-sm text-muted-foreground">
-                  ยังไม่มีประวัติการเข้าสู่ระบบ
-                </p>
+                <div className="admin-empty-state compact">
+                  <div className="admin-empty-icon"><Clock3 size={15} /></div>
+                  <div>
+                    <strong>ยังไม่มีประวัติการเข้าสู่ระบบ</strong>
+                    <span>กิจกรรมใหม่จะแสดงที่นี่เมื่อมีการใช้งาน</span>
+                  </div>
+                </div>
               )}
             </div>
           </div>

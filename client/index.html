@@ -2,17 +2,41 @@
 <html lang="th">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
     <meta name="theme-color" content="#f4f0e8" />
-    <meta name="description" content="โค้ดดิ้งเมืองสามหมอก — ออกแบบและพัฒนาเว็บไซต์ที่สวย มีเหตุผล และช่วยให้ธุรกิจเดินหน้าได้จริง" />
+    <meta
+      name="description"
+      content="โค้ดดิ้งเมืองสามหมอก — ออกแบบและพัฒนาเว็บไซต์ที่สวย มีเหตุผล และช่วยให้ธุรกิจเดินหน้าได้จริง"
+    />
     <title>โค้ดดิ้งเมืองสามหมอก — รับทำเว็บไซต์ครบวงจร</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <script type="module">
+      const analyticsEndpoint = "%VITE_ANALYTICS_ENDPOINT%";
+      const analyticsWebsiteId = "%VITE_ANALYTICS_WEBSITE_ID%";
+      if (
+        analyticsEndpoint.startsWith("http") &&
+        analyticsWebsiteId &&
+        !analyticsEndpoint.includes("%") &&
+        !analyticsWebsiteId.includes("%")
+      ) {
+        const analyticsScript = document.createElement("script");
+        analyticsScript.defer = true;
+        analyticsScript.src = `${analyticsEndpoint.replace(/\/$/, "")}/umami`;
+        analyticsScript.dataset.websiteId = analyticsWebsiteId;
+        document.head.appendChild(analyticsScript);
+      }
+    </script>
   </body>
 </html>

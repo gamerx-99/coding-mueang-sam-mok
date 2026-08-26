@@ -354,3 +354,63 @@ body:has(.admin-shell) select { color-scheme: dark; }
   .admin-auth-card { padding: 1.25rem; }
   .admin-auth-orbit { width: 22rem; }
 }
+
+/* Chrome iteration 3: intentional dashboard loading and empty states. */
+body:has(.admin-shell) .admin-loading-state,
+body:has(.admin-shell) .admin-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 84px;
+  border: 1px dashed rgba(66, 232, 255, 0.16);
+  border-radius: 11px;
+  background: rgba(66, 232, 255, 0.035);
+  padding: 0.9rem 1rem;
+  color: #91a3bb;
+}
+body:has(.admin-shell) .admin-loading-state { color: var(--mhs-cyan); }
+body:has(.admin-shell) .admin-loading-state > div,
+body:has(.admin-shell) .admin-empty-state > div:last-child { display: grid; gap: 0.22rem; }
+body:has(.admin-shell) .admin-loading-state strong,
+body:has(.admin-shell) .admin-empty-state strong { color: #eaf7ff; font-size: 0.72rem; font-weight: 600; }
+body:has(.admin-shell) .admin-loading-state span,
+body:has(.admin-shell) .admin-empty-state span { color: #7f91aa; font-size: 0.62rem; line-height: 1.5; }
+body:has(.admin-shell) .admin-empty-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(245, 197, 92, 0.28);
+  border-radius: 9px;
+  color: var(--mhs-gold);
+  background: rgba(245, 197, 92, 0.08);
+}
+body:has(.admin-shell) .admin-loading-state.compact,
+body:has(.admin-shell) .admin-empty-state.compact { min-height: 74px; margin: 0.75rem; }
+
+/* Chrome iteration 4: bring the Flow workspace into view without losing its story block. */
+.flow-builder .flow-intro .container { padding-top: 2.25rem; padding-bottom: 2.25rem; }
+.flow-builder .flow-intro .eyebrow { margin-bottom: 0.95rem; }
+.flow-builder .flow-intro h1 { font-size: clamp(2.85rem, 5.35vw, 4.65rem); }
+.flow-builder .flow-intro h1 + p { margin-top: 1.1rem; line-height: 1.65; }
+.flow-builder .flow-intro .flow-mascot-callout { margin-top: 0.85rem; }
+@media (max-width: 900px) {
+  .flow-builder .flow-intro .container { padding-top: 1.8rem; padding-bottom: 1.8rem; }
+}
+
+/* Chrome iteration 5: make the primary Flow action read as an action, not a text link. */
+.flow-builder .flow-intro .button-ink {
+  border: 1px solid rgba(66, 232, 255, 0.42);
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(47, 140, 255, 0.28), rgba(17, 100, 212, 0.2));
+  color: #effcff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  transition: transform 160ms ease-out, border-color 160ms ease-out, background 160ms ease-out;
+}
+.flow-builder .flow-intro .button-ink:hover {
+  border-color: var(--mhs-cyan);
+  background: linear-gradient(135deg, rgba(47, 140, 255, 0.48), rgba(17, 100, 212, 0.34));
+  transform: translateY(-2px);
+}
+.flow-builder .flow-intro .font-mono { color: rgba(224, 237, 251, 0.55); }
