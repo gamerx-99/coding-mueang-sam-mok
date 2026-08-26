@@ -33,14 +33,22 @@ const TRANSLATIONS = {
     cropper_desc:
       "ตัดภาพแยกตัวละครอัตโนมัติ (Auto-Cut On Drop), ตรวจจับพื้นหลังสีทึบ/Alpha, ปรับสเกลภาพ Pixel Art และส่งออก ZIP",
     cropper_link: "เปิด Image Cropper ↗",
-    dropzone_title: "ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์",
-    dropzone_desc: "รองรับไฟล์ PDF, Word, Excel, Images (สูงสุด 100 MB)",
+    dropzone_title: "ลากหลายไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือก",
+    dropzone_desc: "รองรับ PDF, Word, Excel และรูปภาพ (ไฟล์ละไม่เกิน 100 MB)",
     btn_start_process: "เริ่มประมวลผลทันที ⚡",
     btn_processing: "⏳ กำลังประมวลผล...",
-    toast_file_size_error: "⚠️ ไฟล์มีขนาดเกิน 100 MB กรุณาเลือกไฟล์ใหม่",
-    toast_file_selected: (name, size) =>
-      `📁 เลือกไฟล์ "${name}" เรียบร้อยแล้ว (${size} MB)`,
-    toast_process_success: title => `⚡ Demo Mode: ทำรายการ ${title} สำเร็จ!`,
+    file_count: count => `เลือกแล้ว ${count} ไฟล์`,
+    file_total_size: size => `รวม ${size}`,
+    file_remove: "นำไฟล์ออก",
+    file_clear: "ล้างทั้งหมด",
+    toast_files_selected: count => `📁 เพิ่มไฟล์ ${count} ไฟล์เรียบร้อยแล้ว`,
+    toast_file_size_error: count =>
+      `⚠️ มี ${count} ไฟล์ที่เกินขนาด 100 MB และไม่ได้เพิ่ม`,
+    toast_duplicate_files: count => `ไฟล์ซ้ำ ${count} ไฟล์ถูกข้ามแล้ว`,
+    toast_max_files: "เพิ่มได้สูงสุด 20 ไฟล์ต่อครั้ง",
+    toast_no_files: "กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์ก่อนเริ่มประมวลผล",
+    toast_process_success: (title, count) =>
+      `⚡ Demo Mode: ประมวลผล ${count} ไฟล์ของ ${title} สำเร็จ!`,
   },
   en: {
     page_title: "PDF & Document Tools Suite - All-in-One Document & PDF Tools",
@@ -72,16 +80,23 @@ const TRANSLATIONS = {
     cropper_desc:
       "Smart auto crop & sprite extraction on drop, alpha/solid background removal, pixel art scaling, and batch ZIP export.",
     cropper_link: "Open Image Cropper ↗",
-    dropzone_title: "Drag & drop files here, or click to select",
-    dropzone_desc: "Supports PDF, Word, Excel, Images (Max 100 MB)",
+    dropzone_title: "Drag & drop multiple files here, or click to select",
+    dropzone_desc: "Supports PDF, Word, Excel, and images (max 100 MB per file)",
     btn_start_process: "Process Now ⚡",
     btn_processing: "⏳ Processing...",
-    toast_file_size_error:
-      "⚠️ File size exceeds 100 MB. Please choose a smaller file.",
-    toast_file_selected: (name, size) =>
-      `📁 Selected "${name}" successfully (${size} MB)`,
-    toast_process_success: title =>
-      `⚡ Demo Mode: Successfully processed ${title}!`,
+    file_count: count => `${count} file${count === 1 ? "" : "s"} selected`,
+    file_total_size: size => `Total ${size}`,
+    file_remove: "Remove file",
+    file_clear: "Clear all",
+    toast_files_selected: count => `📁 Added ${count} file${count === 1 ? "" : "s"}`,
+    toast_file_size_error: count =>
+      `⚠️ ${count} file${count === 1 ? "" : "s"} over 100 MB were skipped`,
+    toast_duplicate_files: count =>
+      `${count} duplicate file${count === 1 ? "" : "s"} skipped`,
+    toast_max_files: "You can add up to 20 files per batch",
+    toast_no_files: "Choose at least one file before processing",
+    toast_process_success: (title, count) =>
+      `⚡ Demo Mode: Successfully processed ${count} file${count === 1 ? "" : "s"} for ${title}!`,
   },
 };
 
@@ -135,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Theme toggle tooltip
     const btnThemeToggle = document.getElementById("btn-theme-toggle");
-    if (btnThemeToggle) {
+      if (btnThemeToggle) {
       btnThemeToggle.title = t.btn_theme_title;
     }
 
@@ -174,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.classList.remove("active");
       }
     });
+    renderFileQueue();
   }
 
   function setLanguage(lang) {
@@ -405,6 +421,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("file-input");
   const btnStartProcess = document.getElementById("btn-start-process");
   const toastMsg = document.getElementById("toast-msg");
+  const fileQueue = document.getElementById("file-queue");
+  const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
+  const MAX_FILES = 20;
+  let selectedFiles = [];
 
   let toastTimeout = null;
   function showToast(msg) {
@@ -423,12 +443,16 @@ document.addEventListener("DOMContentLoaded", () => {
     modalDesc.textContent = desc;
     modalIconContainer.innerHTML = iconSvg || "";
     modal.classList.add("open");
+    renderFileQueue();
   }
 
   function closeModal() {
     if (!modal) return;
     modal.classList.remove("open");
     currentActiveTool = null;
+    selectedFiles = [];
+    if (fileInput) fileInput.value = "";
+    renderFileQueue();
   }
 
   if (modalClose) {
@@ -441,20 +465,137 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Drag & Drop File Handling
-  function handleFiles(files) {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    const maxSizeBytes = 100 * 1024 * 1024; // 100 MB
-    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
-
-    if (file.size > maxSizeBytes) {
-      showToast(t.toast_file_size_error);
-      return;
+  // Batch File Handling
+  function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) {
+      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
     }
-    showToast(
-      t.toast_file_selected(file.name, (file.size / (1024 * 1024)).toFixed(2))
-    );
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  function getFileKey(file) {
+    return `${file.name}::${file.size}::${file.lastModified}`;
+  }
+
+  function renderFileQueue() {
+    if (!fileQueue) return;
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
+    fileQueue.innerHTML = "";
+    fileQueue.hidden = selectedFiles.length === 0;
+
+    if (btnStartProcess && !btnStartProcess.dataset.processing) {
+      btnStartProcess.disabled = selectedFiles.length === 0;
+      if (selectedFiles.length === 0) {
+        btnStartProcess.textContent = t.btn_start_process;
+      }
+    }
+
+    if (selectedFiles.length === 0) return;
+
+    const summary = document.createElement("div");
+    summary.className = "file-queue-summary";
+
+    const summaryText = document.createElement("span");
+    summaryText.textContent = t.file_count(selectedFiles.length);
+
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    const totalText = document.createElement("span");
+    totalText.className = "file-queue-total";
+    totalText.textContent = t.file_total_size(formatFileSize(totalSize));
+
+    const clearButton = document.createElement("button");
+    clearButton.type = "button";
+    clearButton.className = "file-queue-clear";
+    clearButton.textContent = t.file_clear;
+    clearButton.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      selectedFiles = [];
+      if (fileInput) fileInput.value = "";
+      renderFileQueue();
+    });
+
+    summary.append(summaryText, totalText, clearButton);
+    fileQueue.appendChild(summary);
+
+    const list = document.createElement("ul");
+    list.className = "file-queue-list";
+    selectedFiles.forEach((file, index) => {
+      const item = document.createElement("li");
+      item.className = "file-queue-item";
+
+      const fileInfo = document.createElement("div");
+      fileInfo.className = "file-queue-info";
+      const fileName = document.createElement("strong");
+      fileName.className = "file-queue-name";
+      fileName.textContent = file.name;
+      const fileMeta = document.createElement("span");
+      fileMeta.className = "file-queue-meta";
+      fileMeta.textContent = formatFileSize(file.size);
+      fileInfo.append(fileName, fileMeta);
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "file-queue-remove";
+      removeButton.title = t.file_remove;
+      removeButton.setAttribute("aria-label", `${t.file_remove}: ${file.name}`);
+      removeButton.textContent = "×";
+      removeButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        selectedFiles.splice(index, 1);
+        if (fileInput) fileInput.value = "";
+        renderFileQueue();
+      });
+
+      item.append(fileInfo, removeButton);
+      list.appendChild(item);
+    });
+    fileQueue.appendChild(list);
+  }
+
+  function handleFiles(files) {
+    const incomingFiles = Array.from(files || []);
+    if (incomingFiles.length === 0) return;
+
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
+    const existingKeys = new Set(selectedFiles.map(getFileKey));
+    const addedFiles = [];
+    let oversizedCount = 0;
+    let duplicateCount = 0;
+    let maxFilesReached = false;
+
+    for (const file of incomingFiles) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        oversizedCount += 1;
+        continue;
+      }
+      const key = getFileKey(file);
+      if (existingKeys.has(key)) {
+        duplicateCount += 1;
+        continue;
+      }
+      if (selectedFiles.length + addedFiles.length >= MAX_FILES) {
+        maxFilesReached = true;
+        break;
+      }
+      existingKeys.add(key);
+      addedFiles.push(file);
+    }
+
+    selectedFiles.push(...addedFiles);
+    if (fileInput) fileInput.value = "";
+    renderFileQueue();
+
+    if (oversizedCount > 0) {
+      showToast(t.toast_file_size_error(oversizedCount));
+    } else if (maxFilesReached) {
+      showToast(t.toast_max_files);
+    } else if (duplicateCount > 0) {
+      showToast(t.toast_duplicate_files(duplicateCount));
+    } else if (addedFiles.length > 0) {
+      showToast(t.toast_files_selected(addedFiles.length));
+    }
   }
 
   if (dropzone) {
@@ -495,14 +636,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnStartProcess) {
     btnStartProcess.addEventListener("click", () => {
       const t = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
+      if (selectedFiles.length === 0) {
+        showToast(t.toast_no_files);
+        return;
+      }
+
+      const processedCount = selectedFiles.length;
+      btnStartProcess.dataset.processing = "true";
       btnStartProcess.textContent = t.btn_processing;
       btnStartProcess.disabled = true;
       setTimeout(() => {
         btnStartProcess.textContent = t.btn_start_process;
         btnStartProcess.disabled = false;
+        delete btnStartProcess.dataset.processing;
         const currentTitle = modalTitle ? modalTitle.textContent : "";
         closeModal();
-        showToast(t.toast_process_success(currentTitle));
+        showToast(t.toast_process_success(currentTitle, processedCount));
       }, 1200);
     });
   }

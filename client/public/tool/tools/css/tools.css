@@ -781,3 +781,126 @@ main {
     font-size: 0.8rem;
   }
 }
+
+/* Batch upload queue */
+.file-queue {
+  margin: -4px 0 18px;
+  text-align: left;
+}
+
+.file-queue[hidden] {
+  display: none;
+}
+
+.file-queue-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: var(--text-desc);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.file-queue-total {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.file-queue-clear {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #e11d48;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 5px;
+}
+
+.file-queue-clear:hover,
+.file-queue-clear:focus-visible {
+  color: #be123c;
+  text-decoration: underline;
+}
+
+.file-queue-list {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  max-height: 168px;
+  overflow-y: auto;
+  padding: 0 4px 0 0;
+}
+
+.file-queue-item {
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.file-queue-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.file-queue-name {
+  color: var(--text-desc);
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-queue-meta {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.file-queue-remove {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  height: 26px;
+  justify-content: center;
+  line-height: 1;
+  width: 26px;
+}
+
+.file-queue-remove:hover,
+.file-queue-remove:focus-visible {
+  background: rgba(225, 29, 72, 0.12);
+  color: #e11d48;
+}
+
+.btn-action-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 560px) {
+  .file-queue-summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .file-queue-clear {
+    margin-left: 0;
+  }
+}

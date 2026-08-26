@@ -162,7 +162,14 @@
           >
             รองรับไฟล์ PDF, Word, Excel, Images (สูงสุด 100 MB)
           </p>
-          <input type="file" id="file-input" style="display: none" />
+          <div class="file-queue" id="file-queue" hidden aria-live="polite"></div>
+          <input
+            type="file"
+            id="file-input"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.html,.txt"
+            multiple
+            style="display: none"
+          />
         </div>
 
         <button
