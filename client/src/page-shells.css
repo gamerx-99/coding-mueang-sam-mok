@@ -3575,6 +3575,87 @@
   line-height: 1.7;
 }
 
+/* Canva integration card (C1) */
+
+.toolhub-canva-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 1.6rem;
+  color: var(--color-ink-soft);
+  font-size: 0.8rem;
+}
+
+.toolhub-canva-card.is-connected {
+  border-color: rgba(26, 127, 78, 0.4);
+  background: rgba(26, 127, 78, 0.05);
+}
+
+.toolhub-canva-card > svg {
+  flex: 0 0 auto;
+  color: var(--color-ink-muted);
+}
+
+.toolhub-canva-card.is-connected > svg {
+  color: var(--color-success);
+}
+
+.toolhub-canva-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.toolhub-canva-body strong {
+  color: var(--color-ink);
+  font-size: 0.88rem;
+}
+
+.toolhub-canva-connect,
+.toolhub-canva-unlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.toolhub-canva-connect {
+  background: var(--color-cobalt);
+  color: #ffffff;
+}
+
+.toolhub-canva-connect:hover {
+  background: #1a41b8;
+}
+
+.toolhub-canva-unlink {
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--color-ink-soft);
+}
+
+.toolhub-canva-unlink:hover {
+  border-color: rgba(208, 61, 46, 0.5);
+  color: var(--color-danger);
+}
+
+.toolhub-canva-unlink:disabled,
+.toolhub-canva-connect:disabled {
+  opacity: 0.6;
+}
+
 /* Interactive studio tool bodies */
 
 .toolhub-tool-body {

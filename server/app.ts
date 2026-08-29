@@ -2,6 +2,7 @@ import express from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./_core/oauth";
 import { registerLocalMediaRoutes } from "./_core/storageProxy";
+import { registerCanvaRoutes } from "./canva/canva.routes";
 import { createContext } from "./_core/context";
 import { appRouter } from "./routers";
 
@@ -13,6 +14,7 @@ export function createApiApp() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerLocalMediaRoutes(app);
   registerOAuthRoutes(app);
+  registerCanvaRoutes(app);
   app.use(
     "/api/trpc",
     createExpressMiddleware({

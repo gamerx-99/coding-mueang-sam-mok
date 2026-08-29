@@ -27,4 +27,7 @@ export const ENV = {
   facebookAppId: process.env.FACEBOOK_APP_ID ?? process.env.App_ID ?? process.env.APP_ID ?? "",
   facebookAppSecret: process.env.FACEBOOK_APP_SECRET ?? process.env.App_Secret ?? process.env.APP_SECRET ?? "",
   facebookRedirectUri: process.env.FACEBOOK_REDIRECT_URI ?? "",
+  canvaClientId: process.env.CANVA_CLIENT_ID ?? "",
+  canvaClientSecret: process.env.CANVA_CLIENT_SECRET ?? "",
+  canvaRedirectUri: process.env.CANVA_REDIRECT_URI ?? "",
 };

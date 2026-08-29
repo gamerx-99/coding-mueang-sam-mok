@@ -136,6 +136,23 @@ export const projects = pgTable("projects", {
     .notNull(),
 });
 
+export const canvaAccounts = pgTable("canvaAccounts", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().unique(),
+  canvaUserId: varchar("canvaUserId", { length: 120 }),
+  displayName: varchar("displayName", { length: 160 }),
+  email: varchar("email", { length: 320 }),
+  accessTokenEnc: text("accessTokenEnc").notNull(),
+  refreshTokenEnc: text("refreshTokenEnc"),
+  scopes: text("scopes"),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Lead = typeof leads.$inferSelect;
@@ -152,3 +169,4 @@ export type MediaAsset = typeof mediaAssets.$inferSelect;
 export type InsertMediaAsset = typeof mediaAssets.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
+export type CanvaAccount = typeof canvaAccounts.$inferSelect;
