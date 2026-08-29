@@ -3,7 +3,11 @@ export type ToolCategory =
   | "convert-from"
   | "organize"
   | "security"
-  | "ai";
+  | "ai"
+  | "colour"
+  | "images"
+  | "typography"
+  | "calculators";
 
 export type CatalogTool = {
   id: string;
@@ -276,9 +280,234 @@ export const CATALOG_TOOLS: CatalogTool[] = [
 export const CATEGORY_LABELS: Array<{ id: ToolCategory | "all"; label: string }> =
   [
     { id: "all", label: "ทั้งหมด" },
+    { id: "images", label: "รูปภาพ & โซเชียล" },
+    { id: "colour", label: "สี" },
+    { id: "typography", label: "ตัวอักษร" },
+    { id: "calculators", label: "เครื่องมือคำนวณ" },
     { id: "convert-to", label: "แปลงเป็น PDF" },
     { id: "convert-from", label: "แปลงจาก PDF" },
     { id: "organize", label: "จัดหน้า & แก้ไข" },
     { id: "security", label: "ความปลอดภัย" },
     { id: "ai", label: "AI & ขั้นสูง" },
   ];
+
+/* ---------- Interactive (live) tools — adapted from delphitools-cli ---------- */
+
+export type InteractiveKind =
+  | "color-converter"
+  | "tw-shades"
+  | "harmony"
+  | "contrast"
+  | "colorblind"
+  | "palette"
+  | "social-crop"
+  | "matte"
+  | "scroll"
+  | "favicon"
+  | "img-convert"
+  | "img-clip"
+  | "px-rem"
+  | "line-height"
+  | "type-scale"
+  | "word-counter"
+  | "paper-sizes"
+  | "unit-convert"
+  | "base-convert"
+  | "time-convert"
+  | "encoder"
+  | "meta-tag";
+
+export type InteractiveTool = {
+  id: string;
+  kind: InteractiveKind;
+  category: ToolCategory;
+  titleTh: string;
+  descTh: string;
+  iconSvg: string;
+};
+
+const swatchIcon = (fill: string) =>
+  `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="${fill}"/><circle cx="24" cy="24" r="9" fill="white" opacity="0.9"/><circle cx="24" cy="24" r="4.5" fill="${fill}" stroke="white" stroke-width="2"/></svg>`;
+
+export const INTERACTIVE_TOOLS: InteractiveTool[] = [
+  {
+    id: "colour-convert",
+    kind: "color-converter",
+    category: "colour",
+    titleTh: "แปลงรหัสสี",
+    descTh: "แปลงสีระหว่าง HEX / RGB / HSL พร้อมคัดลอกได้ทันที",
+    iconSvg: swatchIcon("#1D4ED8"),
+  },
+  {
+    id: "tailwind-shades",
+    kind: "tw-shades",
+    category: "colour",
+    titleTh: "ชุดเฉดสี 50–950",
+    descTh: "สร้างเฉดสีจากสีหลักแบบ Tailwind 11 ระดับ พร้อมคัดลอกทุกเฉด",
+    iconSvg: swatchIcon("#0F766E"),
+  },
+  {
+    id: "colour-harmony",
+    kind: "harmony",
+    category: "colour",
+    titleTh: "สีฮาร์มอนี",
+    descTh: "หาสีคู่ สีสามเหลี่ยม สีข้างเคียง และสีแยกจากสีหลัก",
+    iconSvg: swatchIcon("#B45309"),
+  },
+  {
+    id: "contrast-check",
+    kind: "contrast",
+    category: "colour",
+    titleTh: "ตรวจ Contrast WCAG",
+    descTh: "ตรวจความตัดกันของสีตัวอักษร/พื้นหลัง ตามเกณฑ์ AA / AAA",
+    iconSvg: swatchIcon("#374151"),
+  },
+  {
+    id: "colour-blind-sim",
+    kind: "colorblind",
+    category: "colour",
+    titleTh: "จำลองตาบอดสี",
+    descTh: "ดูสีของคุณผ่านตาของคนตาบอดสี 3 ประเภท",
+    iconSvg: swatchIcon("#7C3AED"),
+  },
+  {
+    id: "palette-from-image",
+    kind: "palette",
+    category: "colour",
+    titleTh: "สกัดพาเลตจากรูป",
+    descTh: "ดึงสีเด่นจากไฟล์รูปภาพเป็นพาเลตพร้อมสัดส่วน",
+    iconSvg: swatchIcon("#BE185D"),
+  },
+  {
+    id: "social-crop",
+    kind: "social-crop",
+    category: "images",
+    titleTh: "ครอปรูปโซเชียล",
+    descTh: "ครอปรูปเป็นสัดส่วน IG/Feed (1:1, 4:5, 9:16, 16:9) เลือกจุดตัดได้",
+    iconSvg: `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#DBEAFE"/><rect x="12" y="12" width="24" height="24" rx="4" stroke="#2563EB" stroke-width="3"/><path d="M18 6V12M30 6V12M18 36V42M30 36V42M6 18H12M6 30H12M36 18H42M36 30H42" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/></svg>`,
+  },
+  {
+    id: "matte-maker",
+    kind: "matte",
+    category: "images",
+    titleTh: "พื้นหลังรอบรูป (Matte)",
+    descTh: "วางรูปที่ไม่จัตุรัสบนพื้นเบลอ/สีทึบ/ไล่เฉด แบบโพสต์ IG",
+    iconSvg: swatchIcon("#0E7490"),
+  },
+  {
+    id: "carousel-split",
+    kind: "scroll",
+    category: "images",
+    titleTh: "แตะรูปเป็นคารูเซล",
+    descTh: "แบ่งภาพยาวเป็นไทล์ IG carousel เรียงถูกลำดับ พร้อมพื้นเติม",
+    iconSvg: `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#E0E7FF"/><rect x="8" y="14" width="14" height="20" rx="3" stroke="#4F46E5" stroke-width="3"/><rect x="26" y="14" width="14" height="20" rx="3" stroke="#4F46E5" stroke-width="3" stroke-dasharray="4 3"/></svg>`,
+  },
+  {
+    id: "favicon-gen",
+    kind: "favicon",
+    category: "images",
+    titleTh: "สร้างชุด Favicon",
+    descTh: "ตัดรูปเป็น favicon 16/32/48 + Apple Touch + PWA ในคลิกเดียว",
+    iconSvg: `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#FEF3C7"/><rect x="10" y="10" width="12" height="12" rx="3" fill="#D97706"/><rect x="26" y="10" width="12" height="12" rx="6" fill="#D97706"/><rect x="10" y="26" width="12" height="12" rx="6" fill="#D97706"/><rect x="26" y="26" width="12" height="12" rx="3" fill="#D97706"/></svg>`,
+  },
+  {
+    id: "image-convert",
+    kind: "img-convert",
+    category: "images",
+    titleTh: "แปลงชนิดรูปภาพ",
+    descTh: "แปลง PNG / JPG / WebP พร้อมเทียบขนาดไฟล์ก่อน-หลัง",
+    iconSvg: `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#DCFCE7"/><path d="M14 18H30M30 18L26 14M30 18L26 22" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 30H18M18 30L22 26M18 30L22 34" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  },
+  {
+    id: "transparent-trim",
+    kind: "img-clip",
+    category: "images",
+    titleTh: "ตัดขอบโปร่งใส",
+    descTh: "ตัดขอบโปร่งใสรอบ PNG ให้เนื้อหาชิดกรอบ พร้อมบอกพิกเซลที่ตัดไป",
+    iconSvg: `<svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#FCE7F3"/><path d="M16 10V32H38M10 16H32V38" stroke="#DB2777" stroke-width="3" stroke-linecap="round"/></svg>`,
+  },
+  {
+    id: "px-rem",
+    kind: "px-rem",
+    category: "typography",
+    titleTh: "PX ⇄ REM",
+    descTh: "แปลงพิกเซลเป็น rem และกลับกัน กำหนด root size เองได้",
+    iconSvg: swatchIcon("#334155"),
+  },
+  {
+    id: "line-height",
+    kind: "line-height",
+    category: "typography",
+    titleTh: "คำนวณ Line-height",
+    descTh: "ได้ระยะบรรทัดจริงเป็น px พร้อมคำแนะนำว่าเหมาะหัวเรื่องหรือเนื้อความ",
+    iconSvg: swatchIcon("#475569"),
+  },
+  {
+    id: "type-scale",
+    kind: "type-scale",
+    category: "typography",
+    titleTh: "Type Scale",
+    descTh: "สร้างขนาดตัวอักษรทั้งระบบจากฐานเดียว ตามอัตราส่วนดนตรี",
+    iconSvg: swatchIcon("#1D2B50"),
+  },
+  {
+    id: "word-count",
+    kind: "word-counter",
+    category: "typography",
+    titleTh: "นับคำ (รองรับไทย)",
+    descTh: "นับคำ/ตัวอักษร/ประโยค + เวลาอ่าน โดยตัดคำไทยด้วย Intl.Segmenter",
+    iconSvg: swatchIcon("#0F766E"),
+  },
+  {
+    id: "paper-size",
+    kind: "paper-sizes",
+    category: "typography",
+    titleTh: "ขนาดกระดาษ",
+    descTh: "ตาราง A/B/Letter หน่วยมม. — อ้างอิงสำหรับงานพิมพ์และ PDF",
+    iconSvg: swatchIcon("#64748B"),
+  },
+  {
+    id: "unit-convert",
+    kind: "unit-convert",
+    category: "calculators",
+    titleTh: "แปลงหน่วย",
+    descTh: "ความยาว น้ำหนัก ข้อมูล และอุณหภูมิ ครบในเครื่องเดียว",
+    iconSvg: swatchIcon("#2050E0"),
+  },
+  {
+    id: "base-convert",
+    kind: "base-convert",
+    category: "calculators",
+    titleTh: "แปลงเลขฐาน",
+    descTh: "ฐาน 2 / 8 / 10 / 16 แปลงไป-กลับทุกรูปแบบพร้อมกัน",
+    iconSvg: swatchIcon("#4F46E5"),
+  },
+  {
+    id: "time-convert",
+    kind: "time-convert",
+    category: "calculators",
+    titleTh: "แปลงหน่วยเวลา",
+    descTh: "วินาที นาที ชั่วโมง วัน สัปดาห์ เดือน ปี — รวดเร็วทันใจ",
+    iconSvg: swatchIcon("#B97A12"),
+  },
+  {
+    id: "text-encode",
+    kind: "encoder",
+    category: "calculators",
+    titleTh: "Base64 / URL Encode",
+    descTh: "เข้ารหัส-ถอดรหัสข้อความ ทั้ง Base64 (รองรับไทย) และ URL",
+    iconSvg: swatchIcon("#3D4C73"),
+  },
+  {
+    id: "meta-tags",
+    kind: "meta-tag",
+    category: "calculators",
+    titleTh: "สร้าง Meta Tags (OG)",
+    descTh: "กรอกข้อมูลเว็บ ได้ชุด meta Open Graph / Twitter พร้อมคัดลอก",
+    iconSvg: swatchIcon("#1A7F4E"),
+  },
+];
+
+/** Catalog id → interactive kind lookup. */
+export const INTERACTIVE_BY_ID: Record<string, InteractiveTool> =
+  Object.fromEntries(INTERACTIVE_TOOLS.map(tool => [tool.id, tool]));

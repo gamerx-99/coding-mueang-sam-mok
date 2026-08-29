@@ -3575,6 +3575,349 @@
   line-height: 1.7;
 }
 
+/* Interactive studio tool bodies */
+
+.toolhub-tool-body {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+
+.toolhub-hint {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.toolhub-colour-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.toolhub-colour-input input[type="color"] {
+  width: 2.9rem;
+  height: 2.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: #ffffff;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.toolhub-colour-input input[type="text"] {
+  flex: 1;
+  border: 1px solid var(--input);
+  border-radius: 0.6rem;
+  background: #ffffff;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+}
+
+.toolhub-colour-input input:focus {
+  outline: none;
+  border-color: var(--color-cobalt);
+  box-shadow: 0 0 0 3px rgba(32, 80, 224, 0.16);
+}
+
+.toolhub-big-swatch {
+  height: 4.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.toolhub-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.toolhub-swatch {
+  flex: 1 1 3rem;
+  min-width: 2.8rem;
+  height: 3rem;
+  border: 1px solid rgba(29, 43, 80, 0.18);
+  border-radius: 0.65rem;
+  padding: 0;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  transition: transform 140ms ease;
+}
+
+.toolhub-swatch:hover {
+  transform: translateY(-2px);
+}
+
+.toolhub-swatch span {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  padding-bottom: 0.25rem;
+}
+
+.toolhub-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: #ffffff;
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.toolhub-copy-row:hover {
+  border-color: rgba(32, 80, 224, 0.45);
+  background: rgba(32, 80, 224, 0.04);
+}
+
+.toolhub-copy-label {
+  flex: 0 0 6.5rem;
+  color: var(--color-ink-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.toolhub-copy-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolhub-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr));
+  gap: 0.5rem;
+}
+
+.toolhub-metric {
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: #ffffff;
+  padding: 0.7rem 0.6rem;
+  text-align: center;
+}
+
+.toolhub-metric strong {
+  display: block;
+  color: var(--color-ink);
+  font-size: 1.02rem;
+}
+
+.toolhub-metric span {
+  color: var(--color-ink-muted);
+  font-size: 0.64rem;
+}
+
+.toolhub-metric.pass strong {
+  color: var(--color-success);
+}
+
+.toolhub-metric.fail strong {
+  color: var(--color-danger);
+}
+
+.toolhub-contrast-preview {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.toolhub-cb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.toolhub-cb-grid span {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--color-ink-muted);
+  font-size: 0.66rem;
+}
+
+.toolhub-cb-swatch {
+  height: 3.4rem;
+  border: 1px solid rgba(29, 43, 80, 0.18);
+  border-radius: 0.65rem;
+}
+
+.toolhub-palette-list {
+  list-style: none;
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+}
+
+.toolhub-palette-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: #ffffff;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+.toolhub-palette-dot {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(29, 43, 80, 0.15);
+}
+
+.toolhub-palette-list small {
+  margin-left: auto;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+}
+
+.toolhub-file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.toolhub-image-preview {
+  width: 100%;
+  max-height: 15rem;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    repeating-conic-gradient(var(--color-mist) 0% 25%, #ffffff 0% 50%) 0 0 / 20px 20px;
+}
+
+.toolhub-tile-row {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+}
+
+.toolhub-tile-row img {
+  height: 6.5rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+}
+
+.toolhub-favicon-preview {
+  object-fit: contain;
+  background:
+    repeating-conic-gradient(var(--color-mist) 0% 25%, #ffffff 0% 50%) 0 0 / 14px 14px;
+}
+
+.toolhub-textarea {
+  width: 100%;
+  border: 1px solid var(--input);
+  border-radius: 0.7rem;
+  background: #ffffff;
+  padding: 0.7rem 0.85rem;
+  color: var(--color-ink);
+  font-size: 0.88rem;
+  line-height: 1.8;
+  resize: vertical;
+}
+
+.toolhub-textarea:focus {
+  outline: none;
+  border-color: var(--color-cobalt);
+  box-shadow: 0 0 0 3px rgba(32, 80, 224, 0.16);
+}
+
+.toolhub-scale-list {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.toolhub-scale-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: #ffffff;
+  padding: 0.3rem 0.8rem;
+  text-align: left;
+  transition: border-color 130ms ease;
+}
+
+.toolhub-scale-row:hover {
+  border-color: rgba(32, 80, 224, 0.45);
+}
+
+.toolhub-scale-row b {
+  width: 3rem;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.toolhub-scale-row span {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.toolhub-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.toolhub-table th {
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.toolhub-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  color: var(--color-ink-soft);
+}
+
+.toolhub-code-output {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+  color: var(--color-ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.8;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
 /* ------------------------------------------------------------
    404
    ------------------------------------------------------------ */

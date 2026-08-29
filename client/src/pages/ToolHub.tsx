@@ -22,9 +22,12 @@ import { toast } from "sonner";
 import {
   CATALOG_TOOLS,
   CATEGORY_LABELS,
+  INTERACTIVE_BY_ID,
+  INTERACTIVE_TOOLS,
   TOOL_SEARCH,
   type ToolCategory,
 } from "./toolData";
+import { InteractiveModal } from "./InteractiveModal";
 import {
   MAX_FILES,
   MAX_FILE_SIZE,
@@ -103,6 +106,16 @@ export default function ToolHub() {
       }),
     [filter, query]
   );
+
+  const interactiveTools = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return INTERACTIVE_TOOLS.filter(tool => {
+      const inCategory = filter === "all" || tool.category === filter;
+      if (!inCategory) return false;
+      if (!q) return true;
+      return `${tool.titleTh} ${tool.descTh} ${tool.id}`.toLowerCase().includes(q);
+    });
+  }, [filter, query]);
 
   return (
     <main className="toolhub-page">
@@ -218,7 +231,7 @@ export default function ToolHub() {
             <div className="toolhub-empty">
               <Search size={22} />
               <p>ไม่พบเครื่องมือที่ตรงกับ &ldquo;{query}&rdquo;</p>
-              <small>ลองคำอื่น เช่น merge, convert, บีบอัด, ลายน้ำ</small>
+              <small>ลองคำอื่น เช่น merge, convert, บีบอัด, ลายน้ำ, สี, ครอป</small>
             </div>
           ) : (
             <div className="toolhub-catalog-grid">
@@ -228,6 +241,29 @@ export default function ToolHub() {
             </div>
           )}
         </section>
+
+        {/* Interactive studio tools — live, no files needed */}
+        {interactiveTools.length > 0 && (
+          <section className="toolhub-section">
+            <div className="code-section-head toolhub-section-head">
+              <div>
+                <span className="eyebrow">
+                  <i className="eyebrow-dot" /> สตูดิโอเครื่องมือ
+                </span>
+                <h2>ใช้งานทันที ไม่ต้องอัปโหลด ({interactiveTools.length})</h2>
+              </div>
+              <p>
+                เครื่องมือสี รูปภาพ ตัวอักษร และคำนวณ — กดการ์ดแล้วใช้ได้เลย
+                ข้อมูลไม่ออกจากเครื่องคุณ
+              </p>
+            </div>
+            <div className="toolhub-catalog-grid">
+              {interactiveTools.map(tool => (
+                <InteractiveCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       <footer className="toolhub-footer">
@@ -239,6 +275,34 @@ export default function ToolHub() {
         </div>
       </footer>
     </main>
+  );
+}
+
+/* ---------- Interactive card: opens the live studio modal ---------- */
+
+function InteractiveCard({ tool }: { tool: (typeof INTERACTIVE_TOOLS)[number] }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  return (
+    <>
+      <button
+        className="toolhub-catalog-card is-working"
+        onClick={() => setModalOpen(true)}
+        type="button"
+        aria-label={`ใช้งาน ${tool.titleTh}`}
+      >
+        <span className="toolhub-badge-ready">ใช้งานได้</span>
+        <span
+          className="toolhub-catalog-icon"
+          dangerouslySetInnerHTML={{ __html: tool.iconSvg }}
+        />
+        <h3>{tool.titleTh}</h3>
+        <p>{tool.descTh}</p>
+        <span className="toolhub-status">
+          <Check size={12} /> กดเพื่อใช้งาน
+        </span>
+      </button>
+      {modalOpen && <InteractiveModal tool={tool} onClose={() => setModalOpen(false)} />}
+    </>
   );
 }
 
