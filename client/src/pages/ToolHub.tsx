@@ -28,7 +28,6 @@ import {
   type ToolCategory,
 } from "./toolData";
 import { InteractiveModal } from "./InteractiveModal";
-import { CanvaCard } from "./CanvaCard";
 import {
   MAX_FILES,
   MAX_FILE_SIZE,
@@ -167,7 +166,8 @@ export default function ToolHub() {
       </section>
 
       <div className="code-container">
-        <CanvaCard />
+        {/* CanvaCard: ถอดออกชั่วคราวจนกว่า Canva API credentials พร้อม —
+            เปิดกลับด้วย <CanvaCard /> (import จาก ./CanvaCard) */}
         <div className="toolhub-tabs" role="tablist" aria-label="หมวดเครื่องมือ">
           {CATEGORY_LABELS.map(category => (
             <button
