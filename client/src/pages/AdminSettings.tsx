@@ -1,12 +1,34 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
-import { ShieldCheck, UserRound, Loader2 } from "lucide-react";
+import { ShieldCheck, UserRound, Loader2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type AdminAccount = {
+  id: number;
+  name: string | null;
+  email: string | null;
+  openId: string;
+  loginMethod: string | null;
+  lastSignedIn: string | Date | null;
+  role: "admin" | "user";
+};
 
 export default function AdminSettings() {
   const users = trpc.admin.users.useQuery();
   const { data: me } = trpc.auth.me.useQuery();
   const utils = trpc.useUtils();
+  const [demoteTarget, setDemoteTarget] = useState<AdminAccount | null>(null);
   const setRole = trpc.admin.setUserRole.useMutation({
     onSuccess: async () => {
       await utils.admin.users.invalidate();
@@ -15,7 +37,9 @@ export default function AdminSettings() {
       toast.success("อัปเดตสิทธิ์ผู้ใช้แล้ว");
     },
     onError: error => toast.error(error.message || "ไม่สามารถอัปเดตสิทธิ์ได้"),
+    onSettled: () => setDemoteTarget(null),
   });
+
   return (
     <DashboardLayout>
       <div className="admin-shell">
@@ -37,8 +61,9 @@ export default function AdminSettings() {
             <ShieldCheck className="admin-table-icon" size={20} />
           </div>
           {users.isLoading ? (
-            <div className="p-8 flex justify-center">
-              <Loader2 className="animate-spin" />
+            <div className="admin-loading">
+              <Loader2 className="animate-spin" size={18} />
+              <span>กำลังโหลดรายชื่อผู้ใช้...</span>
             </div>
           ) : (
             <div className="admin-table-wrap">
@@ -69,39 +94,49 @@ export default function AdminSettings() {
                       </td>
                       <td>
                         <span
-                          className={`status-pill ${account.role === "admin" ? "qualified" : "new"}`}
+                          className={`status-pill ${
+                            account.role === "admin" ? "qualified" : "new"
+                          }`}
                         >
                           <UserRound size={13} />{" "}
                           {account.role === "admin" ? "Admin" : "User"}
                         </span>
                       </td>
                       <td>
-                        <button
-                          className="admin-primary"
-                          disabled={
-                            setRole.isPending ||
-                            (account.id === me?.id && account.role === "admin")
-                          }
-                          onClick={() => {
-                            const next =
-                              account.role === "admin" ? "user" : "admin";
-                            if (
-                              next === "user" &&
-                              !window.confirm(
-                                "ยืนยันลดสิทธิ์ผู้ใช้นี้เป็น User หรือไม่?"
-                              )
-                            )
-                              return;
-                            setRole.mutate({ userId: account.id, role: next });
-                          }}
-                        >
-                          {setRole.isPending ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : null}
-                          {account.role === "admin"
-                            ? "ลดสิทธิ์เป็น User"
-                            : "แต่งตั้งเป็น Admin"}
-                        </button>
+                        {account.role === "admin" &&
+                        account.id === me?.id ? (
+                          <button
+                            className="admin-secondary"
+                            disabled
+                            title="ระบบไม่อนุญาตให้ลดสิทธิ์บัญชีของตัวเอง"
+                          >
+                            ลดสิทธิ์เป็น User
+                          </button>
+                        ) : account.role === "admin" ? (
+                          <button
+                            className="admin-secondary"
+                            disabled={setRole.isPending}
+                            onClick={() => setDemoteTarget(account)}
+                          >
+                            ลดสิทธิ์เป็น User
+                          </button>
+                        ) : (
+                          <button
+                            className="admin-primary"
+                            disabled={setRole.isPending}
+                            onClick={() =>
+                              setRole.mutate({
+                                userId: account.id,
+                                role: "admin",
+                              })
+                            }
+                          >
+                            {setRole.isPending ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : null}
+                            แต่งตั้งเป็น Admin
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -110,11 +145,47 @@ export default function AdminSettings() {
             </div>
           )}
         </section>
-        <p className="text-xs text-muted-foreground mt-4">
+        <p className="admin-settings-note">
           ระบบจะไม่อนุญาตให้ผู้ดูแลลดสิทธิ์ตัวเอง
           และจะรักษาผู้ดูแลอย่างน้อยหนึ่งบัญชีไว้เสมอ
         </p>
       </div>
+
+      <AlertDialog
+        open={demoteTarget !== null}
+        onOpenChange={open => !open && setDemoteTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <ShieldAlert size={18} className="text-destructive" />
+              ลดสิทธิ์ผู้ใช้นี้เป็น User?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {demoteTarget?.name || "บัญชีนี้"} (
+              {demoteTarget?.email || "—"}) จะเสียสิทธิ์เข้าถึง Back Office
+              ทันที การเปลี่ยนแปลงนี้บันทึกในประวัติกิจกรรมของระบบ
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={event => {
+                event.preventDefault();
+                if (demoteTarget) {
+                  setRole.mutate({ userId: demoteTarget.id, role: "user" });
+                }
+              }}
+            >
+              {setRole.isPending ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : null}
+              ยืนยันลดสิทธิ์
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

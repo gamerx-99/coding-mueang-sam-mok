@@ -38,6 +38,30 @@ const projectStatuses = [
   "completed",
   "archived",
 ] as const;
+/** Thai labels for every workflow status shown in selects and pills. */
+const STATUS_LABELS: Record<string, string> = {
+  // Lead
+  new: "ใหม่",
+  contacted: "ติดต่อแล้ว",
+  qualified: "ผ่านการคัดกรอง",
+  closed: "ปิดแล้ว",
+  // Project
+  idea: "ไอเดีย",
+  active: "กำลังทำ",
+  review: "รอตรวจ",
+  completed: "เสร็จแล้ว",
+  archived: "เก็บถาวร",
+  // Quote
+  draft: "ร่าง",
+  sent: "ส่งแล้ว",
+  accepted: "ยอมรับ",
+  declined: "ปฏิเสธ",
+  // Appointment
+  requested: "ขอนัด",
+  confirmed: "นัดแล้ว",
+  cancelled: "ยกเลิก",
+};
+
 type ContentKey =
   | "heroTitle"
   | "heroAccent"
@@ -793,7 +817,7 @@ function QuoteTable({
                     >
                       {["draft", "sent", "accepted", "declined"].map(status => (
                         <option key={status} value={status}>
-                          {status}
+                          {STATUS_LABELS[status]}
                         </option>
                       ))}
                     </select>
@@ -877,13 +901,18 @@ function AppointmentTable({
                         )
                       }
                     >
-                      {["requested", "confirmed", "completed", "cancelled"].map(
-                        status => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        )
-                      )}
+                      {(
+                        [
+                          "requested",
+                          "confirmed",
+                          "completed",
+                          "cancelled",
+                        ] as const
+                      ).map(status => (
+                        <option key={status} value={status}>
+                          {STATUS_LABELS[status]}
+                        </option>
+                      ))}
                     </select>
                   </td>
                 </tr>

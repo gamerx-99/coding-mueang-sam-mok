@@ -3,7 +3,7 @@
  */
 
 function annotateHTMLWithLines(html) {
-  let result = '';
+  let result = "";
   let i = 0;
   const len = html.length;
   let line = 1;
@@ -12,53 +12,53 @@ function annotateHTMLWithLines(html) {
   let inComment = false;
 
   while (i < len) {
-    if (!inScript && !inStyle && !inComment && html.substr(i, 4) === '<!--') {
+    if (!inScript && !inStyle && !inComment && html.substr(i, 4) === "<!--") {
       inComment = true;
-      result += '<!--';
+      result += "<!--";
       i += 4;
       continue;
     }
     if (inComment) {
-      if (html.substr(i, 3) === '-->') {
+      if (html.substr(i, 3) === "-->") {
         inComment = false;
-        result += '-->';
+        result += "-->";
         i += 3;
         continue;
       }
-      if (html[i] === '\n') line++;
+      if (html[i] === "\n") line++;
       result += html[i];
       i++;
       continue;
     }
 
     if (inScript) {
-      if (html.substr(i, 9).toLowerCase() === '</script>') {
+      if (html.substr(i, 9).toLowerCase() === "</script>") {
         inScript = false;
-        result += '</script>';
+        result += "</script>";
         i += 9;
         continue;
       }
-      if (html[i] === '\n') line++;
+      if (html[i] === "\n") line++;
       result += html[i];
       i++;
       continue;
     }
 
     if (inStyle) {
-      if (html.substr(i, 8).toLowerCase() === '</style>') {
+      if (html.substr(i, 8).toLowerCase() === "</style>") {
         inStyle = false;
-        result += '</style>';
+        result += "</style>";
         i += 8;
         continue;
       }
-      if (html[i] === '\n') line++;
+      if (html[i] === "\n") line++;
       result += html[i];
       i++;
       continue;
     }
 
-    if (html[i] === '<') {
-      if (html[i + 1] === '/' || html[i + 1] === '!' || html[i + 1] === '?') {
+    if (html[i] === "<") {
+      if (html[i + 1] === "/" || html[i + 1] === "!" || html[i + 1] === "?") {
         result += html[i];
         i++;
         continue;
@@ -70,8 +70,8 @@ function annotateHTMLWithLines(html) {
         const tagLower = tagName.toLowerCase();
         const tagLine = line;
 
-        if (tagLower === 'script') inScript = true;
-        if (tagLower === 'style') inStyle = true;
+        if (tagLower === "script") inScript = true;
+        if (tagLower === "style") inStyle = true;
 
         result += `<${tagName} data-line="${tagLine}"`;
         i += match[0].length;
@@ -79,7 +79,7 @@ function annotateHTMLWithLines(html) {
       }
     }
 
-    if (html[i] === '\n') line++;
+    if (html[i] === "\n") line++;
     result += html[i];
     i++;
   }
@@ -87,8 +87,7 @@ function annotateHTMLWithLines(html) {
   return result;
 }
 
-
-function getInspectorScript(currentMode = 'visual-edit') {
+function getInspectorScript(currentMode = "visual-edit") {
   return `
   <style id="__inspector_styles">
     .__inspector_highlight {
@@ -546,25 +545,25 @@ function getInspectorScript(currentMode = 'visual-edit') {
 // Helper: ป้องกัน XSS ด้วยการใช้ textContent และ DOM Nodes แทน innerHTML
 function setBadgeContent(badgeElement, icon, selector, lineText, hint) {
   if (!badgeElement) return;
-  badgeElement.textContent = '';
-  
-  const iconSpan = document.createElement('span');
-  iconSpan.textContent = icon + ' ';
+  badgeElement.textContent = "";
+
+  const iconSpan = document.createElement("span");
+  iconSpan.textContent = icon + " ";
   badgeElement.appendChild(iconSpan);
 
-  const strong = document.createElement('strong');
+  const strong = document.createElement("strong");
   strong.textContent = selector;
   badgeElement.appendChild(strong);
 
   if (lineText) {
-    badgeElement.appendChild(document.createTextNode(' ' + lineText));
+    badgeElement.appendChild(document.createTextNode(" " + lineText));
   }
   if (hint) {
-    const hintSpan = document.createElement('span');
+    const hintSpan = document.createElement("span");
     hintSpan.textContent = hint;
-    hintSpan.style.fontSize = '0.75rem';
-    hintSpan.style.opacity = '0.8';
-    hintSpan.style.marginLeft = '6px';
+    hintSpan.style.fontSize = "0.75rem";
+    hintSpan.style.opacity = "0.8";
+    hintSpan.style.marginLeft = "6px";
     badgeElement.appendChild(hintSpan);
   }
 }

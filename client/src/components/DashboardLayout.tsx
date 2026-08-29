@@ -33,17 +33,51 @@ import {
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "ภาพรวม", path: "/admin" },
-  { icon: Inbox, label: "Lead จากเว็บไซต์", path: "/admin?tab=leads" },
-  { icon: BriefcaseBusiness, label: "โปรเจกต์", path: "/admin?tab=projects" },
+type MenuItem = {
+  icon: typeof LayoutDashboard;
+  label: string;
+  path: string;
+  /** Exact-match predicate so query-tab links highlight correctly. */
+  match: (location: string) => boolean;
+};
+
+const menuItems: MenuItem[] = [
+  {
+    icon: LayoutDashboard,
+    label: "ภาพรวม",
+    path: "/admin",
+    match: location => location === "/admin" || location.startsWith("/admin?tab=leads"),
+  },
+  {
+    icon: Inbox,
+    label: "Lead จากเว็บไซต์",
+    path: "/admin?tab=leads",
+    match: location => location.startsWith("/admin?tab=leads"),
+  },
+  {
+    icon: BriefcaseBusiness,
+    label: "โปรเจกต์",
+    path: "/admin?tab=projects",
+    match: location => location.startsWith("/admin?tab=projects"),
+  },
   {
     icon: LayoutDashboard,
     label: "จัดการคอนเทนต์",
     path: "/admin?tab=content",
+    match: location => location.startsWith("/admin?tab=content"),
   },
-  { icon: BarChart3, label: "สถิติการใช้งาน", path: "/admin/analytics" },
-  { icon: Settings2, label: "ตั้งค่าสิทธิ์ Admin", path: "/admin/settings" },
+  {
+    icon: BarChart3,
+    label: "สถิติการใช้งาน",
+    path: "/admin/analytics",
+    match: location => location.startsWith("/admin/analytics"),
+  },
+  {
+    icon: Settings2,
+    label: "ตั้งค่าสิทธิ์ Admin",
+    path: "/admin/settings",
+    match: location => location.startsWith("/admin/settings"),
+  },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -95,9 +129,8 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item =>
-    location.startsWith(item.path.split("?")[0])
-  );
+  const activeMenuItem =
+    menuItems.find(item => item.match(location)) ?? menuItems[0];
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -161,7 +194,7 @@ function DashboardLayoutContent({
           <div className="admin-auth-footer">
             <button onClick={() => setLocation("/")}>กลับหน้าเว็บหลัก</button>
             <span>•</span>
-            <button onClick={() => { window.location.href = "/tool/"; }}>เปิด Tool</button>
+            <button onClick={() => { window.location.href = "/tool"; }}>เปิด Tool</button>
           </div>
         </div>
       </div>
@@ -200,7 +233,7 @@ function DashboardLayoutContent({
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
               {menuItems.map(item => {
-                const isActive = location === item.path;
+                const isActive = item.match(location);
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
@@ -266,7 +299,7 @@ function DashboardLayoutContent({
           <div className="admin-contextbar-label"><span className="admin-contextbar-dot" /> <span>PRIVATE WORKSPACE</span><b>/</b><span>MHS DEV BACK OFFICE</span></div>
           <div className="admin-contextbar-links">
             <button onClick={() => setLocation("/")}>Public site <ArrowUpRight size={13} /></button>
-            <button onClick={() => { window.location.href = "/tool/"; }}>Tools <ArrowUpRight size={13} /></button>
+            <button onClick={() => { window.location.href = "/tool"; }}>Tools <ArrowUpRight size={13} /></button>
           </div>
         </div>
         {isMobile && (

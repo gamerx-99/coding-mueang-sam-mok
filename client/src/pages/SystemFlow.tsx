@@ -1,4 +1,4 @@
-// Design philosophy: Editorial Swiss Craft — use an ivory canvas, ink typography, cobalt actions, coral punctuation, and an asymmetric studio-tool layout.
+// Design philosophy: Editorial Ivory / Mountain Mist — ivory canvas, ink typography, cobalt actions, coral punctuation, and the mountain contour as the brand signature.
 import { type CSSProperties, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -227,14 +227,14 @@ export default function SystemFlow() {
             </Link>
             <span className="hidden h-5 w-px bg-ink/15 sm:block" />
             <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center bg-cobalt p-1">
+              <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-lg border border-ink/20 bg-white p-1">
                 <img
                   src="/media/mhs-dev-mascot.png"
                   alt=""
                   className="h-full w-full object-contain"
                 />
               </span>
-              <span className="font-display text-base font-bold tracking-[-0.05em]">
+              <span className="font-display text-base leading-tight">
                 {language === "th"
                   ? "โค้ดดิ้งเมืองสามหมอก"
                   : "Coding Mueang Sam Mok"}
@@ -281,7 +281,7 @@ export default function SystemFlow() {
             <p className="eyebrow mb-5">
               <span className="eyebrow-dot" /> {t.label}
             </p>
-            <h1 className="max-w-3xl whitespace-pre-line font-display text-5xl font-bold leading-[.92] tracking-[-.07em] sm:text-7xl">
+            <h1 className="max-w-3xl whitespace-pre-line font-display text-4xl leading-[1.18] sm:text-6xl">
               {t.title}
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-7 text-ink/60">
@@ -428,7 +428,7 @@ export default function SystemFlow() {
                 <p className="eyebrow mb-3">
                   <span className="eyebrow-dot bg-coral" /> {t.inspector}
                 </p>
-                <h2 className="font-display text-2xl font-bold tracking-[-.05em]">
+                <h2 className="font-display text-2xl leading-[1.3]">
                   {selected ? typeLabel(language, selected.type) : t.empty}
                 </h2>
               </div>

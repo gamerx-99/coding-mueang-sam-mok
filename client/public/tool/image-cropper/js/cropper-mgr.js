@@ -4,12 +4,15 @@
  */
 class CropperManager {
   constructor(options = {}) {
-    this.imageElement = options.imageElement || document.getElementById('cropperImage');
-    this.previewElement = options.previewElement || document.getElementById('manualPreviewCanvas');
-    this.infoElement = options.infoElement || document.getElementById('manualCropInfo');
+    this.imageElement =
+      options.imageElement || document.getElementById("cropperImage");
+    this.previewElement =
+      options.previewElement || document.getElementById("manualPreviewCanvas");
+    this.infoElement =
+      options.infoElement || document.getElementById("manualCropInfo");
     this.cropper = null;
     this.currentBlob = null;
-    this.currentFormat = 'png';
+    this.currentFormat = "png";
     this.currentQuality = 0.92;
     this.aspectRatio = NaN; // Free
     this.rotation = 0;
@@ -32,7 +35,7 @@ class CropperManager {
       this.cropper = new Cropper(this.imageElement, {
         aspectRatio: this.aspectRatio,
         viewMode: 1, // Restrict crop box within canvas
-        dragMode: 'move',
+        dragMode: "move",
         autoCropArea: 0.85,
         restore: false,
         guides: true,
@@ -46,7 +49,7 @@ class CropperManager {
         },
         crop: () => {
           this.updatePreviewDebounced();
-        }
+        },
       });
     };
   }
@@ -60,12 +63,12 @@ class CropperManager {
     if (!this.cropper) return;
     const canvas = this.cropper.getCroppedCanvas({
       imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high'
+      imageSmoothingQuality: "high",
     });
     if (!canvas) return;
 
     if (this.previewElement) {
-      const pCtx = this.previewElement.getContext('2d');
+      const pCtx = this.previewElement.getContext("2d");
       this.previewElement.width = canvas.width;
       this.previewElement.height = canvas.height;
       pCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -79,7 +82,7 @@ class CropperManager {
       this.infoElement.innerHTML = `
         <span class="inline-flex items-center gap-1"><i class="fa-solid fa-expand text-indigo-400"></i> ${w} × ${h} px</span>
         <span class="text-slate-400">|</span>
-        <span class="inline-flex items-center gap-1"><i class="fa-solid fa-file-image text-emerald-400"></i> ~${estSize > 1024 ? (estSize / 1024).toFixed(1) + ' MB' : estSize + ' KB'}</span>
+        <span class="inline-flex items-center gap-1"><i class="fa-solid fa-file-image text-emerald-400"></i> ~${estSize > 1024 ? (estSize / 1024).toFixed(1) + " MB" : estSize + " KB"}</span>
       `;
     }
   }
@@ -134,25 +137,36 @@ class CropperManager {
     }
   }
 
-  getCroppedCanvas(format = 'png') {
+  getCroppedCanvas(format = "png") {
     if (!this.cropper) return null;
     const canvas = this.cropper.getCroppedCanvas({
       imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high',
-      fillColor: format === 'jpeg' ? '#ffffff' : 'transparent'
+      imageSmoothingQuality: "high",
+      fillColor: format === "jpeg" ? "#ffffff" : "transparent",
     });
     return canvas;
   }
 
-  async getCroppedBlob(format = 'image/png', quality = 0.92) {
-    const canvas = this.getCroppedCanvas(format.includes('jpeg') ? 'jpeg' : 'png');
+  async getCroppedBlob(format = "image/png", quality = 0.92) {
+    const canvas = this.getCroppedCanvas(
+      format.includes("jpeg") ? "jpeg" : "png"
+    );
     if (!canvas) return null;
     return new Promise(resolve => canvas.toBlob(resolve, format, quality));
   }
 
-  async downloadCrop(filename = 'cropped_image', format = 'png', quality = 0.92) {
-    const mimeType = format === 'jpg' || format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
-    const ext = format === 'jpeg' ? 'jpg' : format;
+  async downloadCrop(
+    filename = "cropped_image",
+    format = "png",
+    quality = 0.92
+  ) {
+    const mimeType =
+      format === "jpg" || format === "jpeg"
+        ? "image/jpeg"
+        : format === "webp"
+          ? "image/webp"
+          : "image/png";
+    const ext = format === "jpeg" ? "jpg" : format;
     const blob = await this.getCroppedBlob(mimeType, quality);
     if (blob && window.saveAs) {
       window.saveAs(blob, `${filename}.${ext}`);

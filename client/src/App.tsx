@@ -1,7 +1,8 @@
-/* Design system: Editorial Swiss Craft — ivory paper, ink typography, cobalt/coral signals, asymmetric editorial rails. */
+/* Design system: Editorial Ivory / Mountain Mist — ivory paper, ink typography, cobalt actions, coral punctuation, mountain contour signature. */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import ToolHub from "@/pages/ToolHub";
 import { Route, Redirect, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/analytics" component={AdminInsights} />
       <Route path="/flow" component={SystemFlow} />
+      <Route path="/tool" component={ToolHub} />
       <Route path="/login" component={Login} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

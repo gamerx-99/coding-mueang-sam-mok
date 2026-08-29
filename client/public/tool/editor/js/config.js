@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Live HTML Editor - Configuration & Constants
  */
 
@@ -54,36 +54,4 @@ const defaultHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const STORAGE_KEY = 'live_html_editor_saved_code';
-const DRIVE_STORAGE_KEY = 'drive_folder_id';
-
-// Helper to extract clean Folder ID from URL or raw ID
-function parseDriveFolderId(input) {
-  if (!input) return '';
-  input = input.trim();
-  const folderMatch = input.match(/folders\/([a-zA-Z0-9_-]+)/);
-  if (folderMatch) return folderMatch[1];
-  const idMatch = input.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch) return idMatch[1];
-  const fileMatch = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (fileMatch) return fileMatch[1];
-  return input.replace(/[^a-zA-Z0-9_-]/g, '');
-}
-
-// Helper to extract clean File ID from URL or raw ID
-function parseDriveFileId(input) {
-  if (!input) return '';
-  input = input.trim();
-  const fileMatch = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (fileMatch) return fileMatch[1];
-  const idMatch = input.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (idMatch) return idMatch[1];
-  return input.replace(/[^a-zA-Z0-9_-]/g, '');
-}
-
-let DRIVE_FOLDER_ID = localStorage.getItem(DRIVE_STORAGE_KEY) || '12dX1erF00MV79ySehpRlTi5rDb-PUSNo';
-
-function getDriveFolderUrl(folderId = DRIVE_FOLDER_ID) {
-  if (!folderId) return '';
-  return `https://drive.google.com/drive/folders/${folderId}?usp=sharing`;
-}
+const STORAGE_KEY = "live_html_editor_saved_code";

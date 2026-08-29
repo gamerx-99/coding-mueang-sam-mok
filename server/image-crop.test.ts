@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { cropPresets, estimateBase64Bytes, isSupportedImageUpload, maxUploadBytes } from "../shared/imageCrop";
+import {
+  cropPresets,
+  estimateBase64Bytes,
+  isSupportedImageUpload,
+  maxUploadBytes,
+} from "../shared/imageCrop";
 
 describe("image crop workflow rules", () => {
   it("defines a stable output size for every website slot", () => {

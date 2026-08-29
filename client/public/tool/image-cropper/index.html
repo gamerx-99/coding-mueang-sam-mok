@@ -1,587 +1,1057 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th" class="dark h-full">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Image Cropper & Auto Sprite Extractor</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Image Cropper & Auto Sprite Extractor</title>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca'
-            }
-          }
-        }
-      }
-    }
-  </script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#eef2ff",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca",
+              },
+            },
+          },
+        },
+      };
+    </script>
 
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
 
-  <!-- Cropper.js CSS & JS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <!-- Cropper.js CSS & JS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
-  <!-- JSZip & FileSaver.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- JSZip & FileSaver.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white relative">
-
-  <!-- FULLSCREEN DRAG & DROP OVERLAY -->
-  <div id="globalDragOverlay" class="fixed inset-0 z-50 bg-indigo-950/80 backdrop-blur-md border-4 border-dashed border-indigo-400 m-4 rounded-3xl flex flex-col items-center justify-center pointer-events-none transition-all duration-200">
-    <div class="w-24 h-24 rounded-3xl bg-indigo-600/30 border border-indigo-400/40 text-indigo-300 flex items-center justify-center text-4xl mb-4 animate-bounce">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body
+    class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white relative"
+  >
+    <!-- FULLSCREEN DRAG & DROP OVERLAY -->
+    <div
+      id="globalDragOverlay"
+      class="fixed inset-0 z-50 bg-indigo-950/80 backdrop-blur-md border-4 border-dashed border-indigo-400 m-4 rounded-3xl flex flex-col items-center justify-center pointer-events-none transition-all duration-200"
+    >
+      <div
+        class="w-24 h-24 rounded-3xl bg-indigo-600/30 border border-indigo-400/40 text-indigo-300 flex items-center justify-center text-4xl mb-4 animate-bounce"
+      >
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </div>
+      <h2 class="text-2xl font-extrabold text-white mb-2">
+        ปล่อยไฟล์เพื่อตัดภาพอัตโนมัติทันที ⚡
+      </h2>
+      <p class="text-sm text-indigo-200">
+        ระบบจะทำการตรวจจับ แยกทุกตัวละคร และสร้างไฟล์พร้อมดาวน์โหลดให้ทันที
+      </p>
     </div>
-    <h2 class="text-2xl font-extrabold text-white mb-2">ปล่อยไฟล์เพื่อตัดภาพอัตโนมัติทันที ⚡</h2>
-    <p class="text-sm text-indigo-200">ระบบจะทำการตรวจจับ แยกทุกตัวละคร และสร้างไฟล์พร้อมดาวน์โหลดให้ทันที</p>
-  </div>
 
-  <!-- TOP NAVBAR -->
-  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
-    <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4">
-      
-      <!-- Brand Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-          <i class="fa-solid fa-crop-simple text-white text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-base font-bold bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
-            Smart Image Cropper <span class="text-[10px] uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">Auto-Cut On Drop</span>
-          </h1>
-          <p class="text-xs text-slate-400">โยนไฟล์ภาพเข้ามา ระบบจะตัดและแยกทุกตัวละครให้อัตโนมัติทันที</p>
-        </div>
-      </div>
-
-      <!-- Mode Switcher Tabs -->
-      <div class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800">
-        <button id="tabAuto" class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
-          <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
-          <span>Phase 2-3: Auto Sprite Extractor (โหมดตัดอัตโนมัติ)</span>
-        </button>
-        <button id="tabManual" class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white hover:bg-slate-800">
-          <i class="fa-solid fa-crop"></i>
-          <span>Phase 1: Manual Cropper (ตัดกำหนดเอง)</span>
-        </button>
-      </div>
-
-      <!-- Top Right Actions -->
-      <div class="flex items-center gap-2.5">
-        <div id="activeFileInfo" class="hidden sm:flex flex-col text-right mr-1">
-          <span id="activeFileName" class="text-xs font-medium text-slate-200 max-w-[180px] truncate">ยังไม่มีภาพ</span>
-          <span id="activeImageMeta" class="text-[11px] text-slate-400 font-mono">0 × 0 px</span>
-        </div>
-
-        <a href="../Live%20HTML%20Editor%20+%20Inspector.html" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition" title="เปิด Live HTML Editor">
-          <i class="fa-solid fa-code text-indigo-400"></i>
-          <span>Live Editor</span>
-        </a>
-
-        <a href="../Tools.html" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition" title="เปิดหน้าเพจรวมเครื่องมือ Tools Suite">
-          <i class="fa-solid fa-toolbox text-amber-400"></i>
-          <span>Tools Suite</span>
-        </a>
-
-        <label class="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-lg text-xs font-semibold cursor-pointer transition flex items-center gap-2 shadow-lg shadow-indigo-600/25">
-          <i class="fa-solid fa-upload"></i>
-          <span>เลือกรูปภาพ</span>
-          <input type="file" id="fileInput" accept="image/*" class="hidden">
-        </label>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 flex flex-col max-w-[1700px] w-full mx-auto p-4 relative">
-
-    <!-- 0. EMPTY STATE / DROP ZONE -->
-    <div id="emptyState" class="flex-1 flex flex-col items-center justify-center min-h-[550px] p-6">
-      <div id="dropZone" class="w-full max-w-2xl border-2 border-dashed border-indigo-500/50 hover:border-indigo-400 rounded-3xl p-10 flex flex-col items-center justify-center text-center transition-all duration-200 glass-panel cursor-pointer group shadow-2xl shadow-indigo-950/40">
-        <div class="w-20 h-20 rounded-2xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-xl shadow-indigo-500/20">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-        </div>
-        <h3 class="text-2xl font-bold text-slate-100 mb-2">⚡ โยนไฟล์รูปภาพมาที่นี่ ระบบตัดให้อัตโนมัติทันที!</h3>
-        <p class="text-sm text-slate-400 mb-6 max-w-md">
-          ลากไฟล์ภาพโปร่งใส PNG, Sprite Sheet, JPG มาวาง หรือกด <kbd class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700 text-indigo-300 font-mono text-xs">Ctrl + V</kbd> เพื่อวางภาพ ระบบจะวิเคราะห์ แยกทุกตัวละคร และเตรียมให้ดาวน์โหลดทันที
-        </p>
-
+    <!-- TOP NAVBAR -->
+    <header
+      class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3"
+    >
+      <div
+        class="max-w-[1700px] mx-auto flex items-center justify-between gap-4"
+      >
+        <!-- Brand Logo -->
         <div class="flex items-center gap-3">
-          <label class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold cursor-pointer shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
-            <i class="fa-regular fa-folder-open"></i>
-            <span>เลือกไฟล์จากเครื่อง</span>
-            <input type="file" onchange="document.getElementById('fileInput').files = this.files; document.getElementById('fileInput').dispatchEvent(new Event('change'))" accept="image/*" class="hidden">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25"
+          >
+            <i class="fa-solid fa-crop-simple text-white text-lg"></i>
+          </div>
+          <div>
+            <h1
+              class="text-base font-bold bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2"
+            >
+              Smart Image Cropper
+              <span
+                class="text-[10px] uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold"
+                >Auto-Cut On Drop</span
+              >
+            </h1>
+            <p class="text-xs text-slate-400">
+              โยนไฟล์ภาพเข้ามา ระบบจะตัดและแยกทุกตัวละครให้อัตโนมัติทันที
+            </p>
+          </div>
+        </div>
+
+        <!-- Mode Switcher Tabs -->
+        <div
+          class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800"
+        >
+          <button
+            id="tabAuto"
+            class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+            <span>Phase 2-3: Auto Sprite Extractor (โหมดตัดอัตโนมัติ)</span>
+          </button>
+          <button
+            id="tabManual"
+            class="px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white hover:bg-slate-800"
+          >
+            <i class="fa-solid fa-crop"></i>
+            <span>Phase 1: Manual Cropper (ตัดกำหนดเอง)</span>
+          </button>
+        </div>
+
+        <!-- Top Right Actions -->
+        <div class="flex items-center gap-2.5">
+          <div
+            id="activeFileInfo"
+            class="hidden sm:flex flex-col text-right mr-1"
+          >
+            <span
+              id="activeFileName"
+              class="text-xs font-medium text-slate-200 max-w-[180px] truncate"
+              >ยังไม่มีภาพ</span
+            >
+            <span
+              id="activeImageMeta"
+              class="text-[11px] text-slate-400 font-mono"
+              >0 × 0 px</span
+            >
+          </div>
+
+          <a
+            href="/tool/editor/"
+            class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition"
+            title="เปิด Live HTML Editor"
+          >
+            <i class="fa-solid fa-code text-indigo-400"></i>
+            <span>Live Editor</span>
+          </a>
+
+          <a
+            href="/tool"
+            class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition"
+            title="เปิดหน้าเพจรวมเครื่องมือ Tools Suite"
+          >
+            <i class="fa-solid fa-toolbox text-amber-400"></i>
+            <span>Tools Suite</span>
+          </a>
+
+          <label
+            class="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-lg text-xs font-semibold cursor-pointer transition flex items-center gap-2 shadow-lg shadow-indigo-600/25"
+          >
+            <i class="fa-solid fa-upload"></i>
+            <span>เลือกรูปภาพ</span>
+            <input type="file" id="fileInput" accept="image/*" class="hidden" />
           </label>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- MAIN ACTIVE WORKSPACE -->
-    <div id="mainWorkspace" class="hidden flex-1 flex-col gap-4">
+    <!-- MAIN CONTAINER -->
+    <main
+      class="flex-1 flex flex-col max-w-[1700px] w-full mx-auto p-4 relative"
+    >
+      <!-- 0. EMPTY STATE / DROP ZONE -->
+      <div
+        id="emptyState"
+        class="flex-1 flex flex-col items-center justify-center min-h-[550px] p-6"
+      >
+        <div
+          id="dropZone"
+          class="w-full max-w-2xl border-2 border-dashed border-indigo-500/50 hover:border-indigo-400 rounded-3xl p-10 flex flex-col items-center justify-center text-center transition-all duration-200 glass-panel cursor-pointer group shadow-2xl shadow-indigo-950/40"
+        >
+          <div
+            class="w-20 h-20 rounded-2xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-xl shadow-indigo-500/20"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-slate-100 mb-2">
+            ⚡ โยนไฟล์รูปภาพมาที่นี่ ระบบตัดให้อัตโนมัติทันที!
+          </h3>
+          <p class="text-sm text-slate-400 mb-6 max-w-md">
+            ลากไฟล์ภาพโปร่งใส PNG, Sprite Sheet, JPG มาวาง หรือกด
+            <kbd
+              class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700 text-indigo-300 font-mono text-xs"
+              >Ctrl + V</kbd
+            >
+            เพื่อวางภาพ ระบบจะวิเคราะห์ แยกทุกตัวละคร และเตรียมให้ดาวน์โหลดทันที
+          </p>
 
-      <!-- ============================================== -->
-      <!-- VIEW 2: AUTO CROP & EXTRACTOR (PHASE 2 & 3)    -->
-      <!-- ============================================== -->
-      <div id="viewAuto" class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
-        
-        <!-- Left: Settings & Smart Processors Panel -->
-        <div class="lg:col-span-3 flex flex-col gap-4">
-          <div class="glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col gap-4 max-h-[840px] overflow-y-auto pr-2">
-            
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-indigo-400"></i>
-                <span>ตั้งค่าการตรวจจับ & สเกล</span>
-              </h3>
-              <button id="btnReAnalyze" class="text-xs text-indigo-400 hover:text-indigo-300 transition" title="คำนวณใหม่">
-                <i class="fa-solid fa-rotate"></i>
-              </button>
-            </div>
-
-            <!-- Start Auto Cut Button -->
-            <button id="btnStartAutoCut" class="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-scissors text-sm"></i>
-              <span>เริ่มตัดภาพอัตโนมัติ</span>
-            </button>
-
-            <!-- Solid Background Tip / Recommendation Banner (Shown when full-image detected) -->
-            <div id="solidBgTipBanner" class="hidden bg-amber-950/80 border border-amber-500/50 rounded-xl p-3 text-xs text-amber-200 flex flex-col gap-2 shadow-lg shadow-amber-950/40">
-              <div class="flex items-center gap-2 font-bold text-amber-300">
-                <i class="fa-solid fa-lightbulb text-amber-400"></i>
-                <span>ตรวจพบภาพพื้นหลังสีทึบ</span>
-              </div>
-              <p class="text-[11px] text-amber-200/90 leading-relaxed">
-                ภาพนี้มีพื้นหลังสีทึบ หากเลือกโหมด Alpha จะตรวจจับทั้งภาพเป็นชิ้นเดียว แนะนำให้เปิดโหมดตรวจจับสีพื้นหลังเพื่อตัดแยกตัวละครแต่ละตัว
-              </p>
-              <div class="flex flex-wrap gap-1.5 mt-0.5">
-                <button id="btnSwitchWhiteBg" class="flex-1 py-1.5 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[11px] transition text-center shadow">
-                  🤍 ตัดพื้นหลังสีขาว
-                </button>
-                <button id="btnSwitchCornerBg" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-200 font-semibold rounded-lg text-[11px] transition text-center border border-amber-500/30">
-                  🎨 ตัดสีมุมภาพ
-                </button>
-              </div>
-            </div>
-
-            <!-- 1. Background / Alpha Detection (Phase 2) -->
-            <div class="flex flex-col gap-2.5">
-              <span class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5 uppercase tracking-wider">
-                <i class="fa-solid fa-crop"></i> 1. ตรวจจับพื้นหลัง (Background)
-              </span>
-              
-              <div>
-                <label class="text-[11px] text-slate-400 block mb-1">โหมดการตรวจจับ</label>
-                <select id="bgRemovalSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
-                  <option value="smart_auto" selected>✨ ตรวจจับอัตโนมัติ (Smart Auto)</option>
-                  <option value="alpha">ตรวจจับ Alpha (ภาพโปร่งใส PNG)</option>
-                  <option value="white_bg">ตรวจจับพื้นหลังสีขาว (White Background)</option>
-                  <option value="black_bg">ตรวจจับพื้นหลังสีดำ (Black Background)</option>
-                  <option value="auto_corner">ตรวจจับสีมุมภาพ (Auto Corner Color)</option>
-                  <option value="custom_color">ตัดพื้นหลังสีทึบ (กำหนดสีเอง Custom)</option>
-                </select>
-              </div>
-
-              <!-- Custom Color Picker Group (Hidden by default) -->
-              <div id="customColorGroup" class="hidden flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                <label class="text-[11px] text-slate-400">เลือกสีพื้นหลัง:</label>
-                <input type="color" id="customBgColorInput" value="#ffffff" class="w-7 h-7 rounded border border-slate-700 cursor-pointer bg-transparent">
-              </div>
-
-              <!-- Color Tolerance -->
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Color Tolerance (ความคลาดเคลื่อนสี)</span>
-                  <span id="colorToleranceVal" class="font-mono text-indigo-300">30</span>
-                </div>
-                <input type="range" id="colorToleranceSlider" min="1" max="150" value="30" class="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-
-              <!-- Alpha Threshold -->
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Alpha Threshold (ความทึบแสงขั้นต่ำ)</span>
-                  <span id="alphaThresholdVal" class="font-mono text-indigo-300">10</span>
-                </div>
-                <input type="range" id="alphaThresholdSlider" min="0" max="255" value="10" class="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-            </div>
-
-            <div class="border-t border-slate-800"></div>
-
-            <!-- 2. Output Scaling (Output Resolution / Scale Factor) -->
-            <div class="flex flex-col gap-2.5">
-              <span class="text-xs font-semibold text-pink-400 flex items-center gap-1.5 uppercase tracking-wider">
-                <i class="fa-solid fa-maximize"></i> 2. ปรับสเกลภาพที่ตัด (Output Scale)
-              </span>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="text-[11px] text-slate-400 block mb-1">สเกลขยาย/ย่อ</label>
-                  <select id="scaleFactorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-pink-500 font-mono">
-                    <option value="1.0" selected>1x (Original)</option>
-                    <option value="2.0">2x (ขยาย 2 เท่า)</option>
-                    <option value="3.0">3x (ขยาย 3 เท่า)</option>
-                    <option value="4.0">4x (ขยาย 4 เท่า)</option>
-                    <option value="0.5">0.5x (ย่อ 50%)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-[11px] text-slate-400 block mb-1">อัลกอริทึมสเกล</label>
-                  <select id="scalingAlgorithmSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-pink-500">
-                    <option value="pixelated" selected>Pixel Art (คมชัด)</option>
-                    <option value="smooth">Smooth (เนียนเรียบ)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="border-t border-slate-800"></div>
-
-            <!-- 3. Smart Noise Filter (Phase 3) -->
-            <div class="flex flex-col gap-2.5">
-              <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
-                <i class="fa-solid fa-filter"></i> 3. Smart Filter (ตัดเศษภาพเล็ก)
-              </span>
-
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Min Width / Height (ขนาดขั้นต่ำ)</span>
-                  <span id="minWidthVal" class="font-mono text-emerald-300">10 px</span>
-                </div>
-                <input type="range" id="minWidthSlider" min="2" max="100" value="10" class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Min Solid Pixels (จำนวนพิกเซลขั้นต่ำ)</span>
-                  <span id="minPixelsVal" class="font-mono text-emerald-300">50 px</span>
-                </div>
-                <input type="range" id="minPixelsSlider" min="5" max="500" value="50" class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-            </div>
-
-            <div class="border-t border-slate-800"></div>
-
-            <!-- 4. Fragment Merging (Phase 3) -->
-            <div class="flex flex-col gap-2.5">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <i class="fa-solid fa-object-group"></i> 4. รวมชิ้นส่วนที่แตก
-                </span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="autoMergeCheckbox" class="sr-only peer">
-                  <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
-                </label>
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Merge Distance Gap (ระยะดูดรวมชิ้น)</span>
-                  <span id="mergeDistanceVal" class="font-mono text-amber-300">15 px</span>
-                </div>
-                <input type="range" id="mergeDistanceSlider" min="0" max="80" value="15" class="w-full accent-amber-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
-                  <span>Crop Padding (ระยะขอบเผื่อ)</span>
-                  <span id="paddingVal" class="font-mono text-slate-300">0 px</span>
-                </div>
-                <input type="range" id="paddingSlider" min="0" max="30" value="0" class="w-full accent-slate-500 h-1.5 bg-slate-800 rounded cursor-pointer">
-              </div>
-            </div>
-
-            <div class="border-t border-slate-800"></div>
-
-            <!-- 5. Auto Naming Template (Phase 3) -->
-            <div class="flex flex-col gap-2">
-              <span class="text-xs font-semibold text-purple-400 flex items-center gap-1.5 uppercase tracking-wider">
-                <i class="fa-solid fa-signature"></i> 5. ตั้งชื่อไฟล์อัตโนมัติ
-              </span>
-              <div>
-                <label class="text-[11px] text-slate-400 block mb-1">Prefix / โฟลเดอร์</label>
-                <input type="text" id="namingPrefixInput" value="character" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-mono">
-              </div>
-              <div>
-                <label class="text-[11px] text-slate-400 block mb-1">Naming Pattern Template</label>
-                <input type="text" id="namingTemplateInput" value="{prefix}_{pad2}" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-mono">
-                <p class="text-[10px] text-slate-500 mt-1">แท็กที่ใช้ได้: <code>{prefix}</code>, <code>{pad2}</code>, <code>{index}</code>, <code>{w}</code>, <code>{h}</code></p>
-              </div>
-            </div>
-
+          <div class="flex items-center gap-3">
+            <label
+              class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold cursor-pointer shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"
+            >
+              <i class="fa-regular fa-folder-open"></i>
+              <span>เลือกไฟล์จากเครื่อง</span>
+              <input
+                type="file"
+                onchange="document.getElementById('fileInput').files = this.files; document.getElementById('fileInput').dispatchEvent(new Event('change'))"
+                accept="image/*"
+                class="hidden"
+              />
+            </label>
           </div>
         </div>
+      </div>
 
-        <!-- Center: Image Overlay Viewport (Bounding Boxes with Zoom & Pan) -->
-        <div class="lg:col-span-5 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl overflow-hidden">
-          
-          <!-- Viewport Header & Zoom Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <i class="fa-solid fa-vector-square text-indigo-400"></i>
-                <span>พรีวิวภาพ & สเกล</span>
-              </h3>
-            </div>
-
-            <!-- Zoom & Pan Navigation Controls -->
-            <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
-              <button id="btnZoomOutAuto" class="p-1 px-2 hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg transition" title="ซูมออก">
-                <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
-              </button>
-              
-              <input type="range" id="zoomSliderAuto" min="20" max="400" value="100" class="w-20 accent-indigo-500 h-1 bg-slate-800 rounded cursor-pointer" title="ปรับระดับการซูม">
-              
-              <button id="btnZoomInAuto" class="p-1 px-2 hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg transition" title="ซูมเข้า">
-                <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
-              </button>
-
-              <span id="zoomPercentBadge" class="font-mono text-[11px] text-indigo-300 px-1 min-w-[36px] text-center">100%</span>
-
-              <div class="w-px h-3.5 bg-slate-700 mx-0.5"></div>
-
-              <button id="btnZoomFitAuto" class="px-2 py-0.5 hover:bg-slate-800 hover:text-white text-slate-300 rounded text-[11px] font-medium transition" title="ปรับขนาดพอดีจอ">
-                Fit
-              </button>
-              <button id="btnZoomResetAuto" class="px-2 py-0.5 hover:bg-slate-800 hover:text-white text-slate-300 rounded text-[11px] font-medium transition" title="ขนาด 100%">
-                1:1
-              </button>
-            </div>
-          </div>
-
-          <!-- Zoomable & Pannable Viewport Container -->
-          <div id="autoCropContainer" class="flex-1 min-h-[460px] checkerboard rounded-xl overflow-hidden flex items-center justify-center border border-slate-800 relative select-none cursor-grab">
-            
-            <!-- Transform Content Wrapper -->
-            <div id="autoCropContentWrapper" class="relative inline-block align-top transition-transform duration-75">
-              <img id="autoCropImage" class="block pointer-events-none select-none max-w-none" alt="Source for auto crop">
-              <canvas id="autoCropOverlayCanvas" class="absolute top-0 left-0 w-full h-full cursor-crosshair pointer-events-auto"></canvas>
-            </div>
-
-            <!-- Overlay Help Badge -->
-            <div class="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 pointer-events-none shadow-lg flex items-center gap-2">
-              <i class="fa-solid fa-arrows-up-down-left-right text-indigo-400"></i>
-              <span>คลิกลากเพื่อแพน • ลูกกลิ้งเมาส์เพื่อซูม</span>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Right: Gallery Grid & Batch Downloads (Phase 2 & 3) -->
-        <div class="lg:col-span-4 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex-1 max-h-[820px]">
-          
-          <!-- Gallery Header & Multi-actions -->
-          <div class="flex flex-col gap-3 pb-3 mb-2 border-b border-slate-800">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                  <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
-                  <span>รายการตัวละครที่ตัดได้</span>
+      <!-- MAIN ACTIVE WORKSPACE -->
+      <div id="mainWorkspace" class="hidden flex-1 flex-col gap-4">
+        <!-- ============================================== -->
+        <!-- VIEW 2: AUTO CROP & EXTRACTOR (PHASE 2 & 3)    -->
+        <!-- ============================================== -->
+        <div
+          id="viewAuto"
+          class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1"
+        >
+          <!-- Left: Settings & Smart Processors Panel -->
+          <div class="lg:col-span-3 flex flex-col gap-4">
+            <div
+              class="glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col gap-4 max-h-[840px] overflow-y-auto pr-2"
+            >
+              <div
+                class="flex items-center justify-between border-b border-slate-800 pb-3"
+              >
+                <h3
+                  class="text-sm font-bold text-slate-200 flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-sliders text-indigo-400"></i>
+                  <span>ตั้งค่าการตรวจจับ & สเกล</span>
                 </h3>
-                <span id="detectedCountBadge" class="bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 text-xs px-2 py-0.5 rounded-full font-bold">0 ตัวละคร</span>
-              </div>
-              <span id="selectedCountLabel" class="text-xs text-amber-400 font-semibold"></span>
-            </div>
-
-            <!-- Batch Action Buttons -->
-            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div class="flex items-center gap-1.5">
-                <button id="btnSelectAll" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-700 transition" title="เลือกทั้งหมด">
-                  เลือกทั้งหมด
-                </button>
-                <button id="btnDeselectAll" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-700 transition" title="ยกเลิกการเลือก">
-                  ยกเลิก
+                <button
+                  id="btnReAnalyze"
+                  class="text-xs text-indigo-400 hover:text-indigo-300 transition"
+                  title="คำนวณใหม่"
+                >
+                  <i class="fa-solid fa-rotate"></i>
                 </button>
               </div>
 
-              <div class="flex items-center gap-1.5">
-                <button id="btnMergeSelected" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-medium transition opacity-40 cursor-not-allowed flex items-center gap-1 shadow-sm" disabled title="รวมชิ้นส่วนที่เลือกเข้าด้วยกัน">
-                  <i class="fa-solid fa-object-group"></i> รวมชิ้นที่เลือก
-                </button>
-                <button id="btnDeleteSelected" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-medium transition opacity-40 cursor-not-allowed flex items-center gap-1 shadow-sm" disabled title="ลบชิ้นที่เลือก">
-                  <i class="fa-solid fa-trash-can"></i> ลบ
-                </button>
+              <!-- Start Auto Cut Button -->
+              <button
+                id="btnStartAutoCut"
+                class="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-scissors text-sm"></i>
+                <span>เริ่มตัดภาพอัตโนมัติ</span>
+              </button>
+
+              <!-- Solid Background Tip / Recommendation Banner (Shown when full-image detected) -->
+              <div
+                id="solidBgTipBanner"
+                class="hidden bg-amber-950/80 border border-amber-500/50 rounded-xl p-3 text-xs text-amber-200 flex flex-col gap-2 shadow-lg shadow-amber-950/40"
+              >
+                <div class="flex items-center gap-2 font-bold text-amber-300">
+                  <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                  <span>ตรวจพบภาพพื้นหลังสีทึบ</span>
+                </div>
+                <p class="text-[11px] text-amber-200/90 leading-relaxed">
+                  ภาพนี้มีพื้นหลังสีทึบ หากเลือกโหมด Alpha
+                  จะตรวจจับทั้งภาพเป็นชิ้นเดียว
+                  แนะนำให้เปิดโหมดตรวจจับสีพื้นหลังเพื่อตัดแยกตัวละครแต่ละตัว
+                </p>
+                <div class="flex flex-wrap gap-1.5 mt-0.5">
+                  <button
+                    id="btnSwitchWhiteBg"
+                    class="flex-1 py-1.5 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[11px] transition text-center shadow"
+                  >
+                    🤍 ตัดพื้นหลังสีขาว
+                  </button>
+                  <button
+                    id="btnSwitchCornerBg"
+                    class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-200 font-semibold rounded-lg text-[11px] transition text-center border border-amber-500/30"
+                  >
+                    🎨 ตัดสีมุมภาพ
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Gallery Scrollable Grid -->
-          <div id="galleryGrid" class="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 pr-1 py-1">
-            <!-- Dynamically populated via app.js -->
-          </div>
+              <!-- 1. Background / Alpha Detection (Phase 2) -->
+              <div class="flex flex-col gap-2.5">
+                <span
+                  class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5 uppercase tracking-wider"
+                >
+                  <i class="fa-solid fa-crop"></i> 1. ตรวจจับพื้นหลัง
+                  (Background)
+                </span>
 
-          <!-- Batch Download ZIP Footer -->
-          <div class="mt-3 pt-3 border-t border-slate-800">
-            <button id="btnDownloadAllZip" class="w-full py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-download text-sm"></i>
-              <span>ดาวน์โหลดทั้งหมดเป็นไฟล์ ZIP (PNG โปร่งใส)</span>
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- ============================================== -->
-      <!-- VIEW 1: MANUAL CROPPER (PHASE 1)               -->
-      <!-- ============================================== -->
-      <div id="viewManual" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
-        
-        <!-- Center/Left: Cropper Canvas Area -->
-        <div class="lg:col-span-8 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl overflow-hidden">
-          
-          <!-- Cropper Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800/80">
-            <!-- Aspect Ratios -->
-            <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium transition bg-indigo-600 text-white" data-ratio="free">Free</button>
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition" data-ratio="1">1:1</button>
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition" data-ratio="4/3">4:3</button>
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition" data-ratio="16/9">16:9</button>
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition" data-ratio="9/16">9:16</button>
-              <button class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition" data-ratio="2/3">2:3</button>
-            </div>
-
-            <!-- Transforms -->
-            <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-slate-300">
-              <button id="btnZoomIn" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="ซูมเข้า">
-                <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
-              </button>
-              <button id="btnZoomOut" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="ซูมออก">
-                <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
-              </button>
-              <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
-              <button id="btnRotateLeft" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="หมุนซ้าย 90°">
-                <i class="fa-solid fa-rotate-left text-xs"></i>
-              </button>
-              <button id="btnRotateRight" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="หมุนขวา 90°">
-                <i class="fa-solid fa-rotate-right text-xs"></i>
-              </button>
-              <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
-              <button id="btnFlipH" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="กลับแนวนอน">
-                <i class="fa-solid fa-arrows-left-right text-xs"></i>
-              </button>
-              <button id="btnFlipV" class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition" title="กลับแนวตั้ง">
-                <i class="fa-solid fa-arrows-up-down text-xs"></i>
-              </button>
-              <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
-              <button id="btnResetCrop" class="p-1.5 px-2 text-rose-400 hover:bg-rose-950/40 rounded-lg transition" title="รีเซ็ต">
-                <i class="fa-solid fa-arrows-rotate text-xs"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Cropper Container -->
-          <div class="flex-1 min-h-[480px] max-h-[650px] checkerboard rounded-xl overflow-hidden flex items-center justify-center relative border border-slate-800">
-            <img id="cropperImage" class="max-w-full max-h-full block" alt="Cropper target">
-          </div>
-
-          <!-- Fine Rotation Slider -->
-          <div class="mt-3 flex items-center gap-3 px-2">
-            <span class="text-xs font-medium text-slate-400 flex items-center gap-1"><i class="fa-solid fa-compass-drafting text-indigo-400"></i> ปรับองศาละเอียด:</span>
-            <input type="range" id="rotateSlider" min="-180" max="180" value="0" class="flex-1 accent-indigo-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
-            <span id="rotateSliderVal" class="text-xs font-mono text-indigo-300 w-12 text-right">0°</span>
-          </div>
-
-        </div>
-
-        <!-- Right: Side-by-side Preview & Export Panel (Phase 1) -->
-        <div class="lg:col-span-4 flex flex-col gap-4">
-          
-          <!-- Live Preview Card -->
-          <div class="glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col flex-1">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <i class="fa-solid fa-eye text-indigo-400"></i>
-                <span>พรีวิวด้านข้าง (Live Preview)</span>
-              </h3>
-              <div id="manualCropInfo" class="text-xs font-mono text-slate-300 flex items-center gap-2">
-                0 × 0 px
-              </div>
-            </div>
-
-            <!-- Preview Viewport -->
-            <div class="flex-1 min-h-[260px] checkerboard rounded-xl overflow-hidden flex items-center justify-center p-3 border border-slate-800 relative">
-              <canvas id="manualPreviewCanvas" class="max-w-full max-h-[300px] object-contain filter drop-shadow-lg"></canvas>
-            </div>
-
-            <!-- Export Formats & Controls -->
-            <div class="mt-4 flex flex-col gap-3">
-              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="text-[11px] font-medium text-slate-400 block mb-1">ฟอร์แมตไฟล์</label>
-                  <select id="exportFormatSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
-                    <option value="png">PNG (โปร่งใส)</option>
-                    <option value="jpeg">JPG (พื้นขาว)</option>
-                    <option value="webp">WebP (ขนาดเล็ก)</option>
+                  <label class="text-[11px] text-slate-400 block mb-1"
+                    >โหมดการตรวจจับ</label
+                  >
+                  <select
+                    id="bgRemovalSelect"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium"
+                  >
+                    <option value="smart_auto" selected>
+                      ✨ ตรวจจับอัตโนมัติ (Smart Auto)
+                    </option>
+                    <option value="alpha">
+                      ตรวจจับ Alpha (ภาพโปร่งใส PNG)
+                    </option>
+                    <option value="white_bg">
+                      ตรวจจับพื้นหลังสีขาว (White Background)
+                    </option>
+                    <option value="black_bg">
+                      ตรวจจับพื้นหลังสีดำ (Black Background)
+                    </option>
+                    <option value="auto_corner">
+                      ตรวจจับสีมุมภาพ (Auto Corner Color)
+                    </option>
+                    <option value="custom_color">
+                      ตัดพื้นหลังสีทึบ (กำหนดสีเอง Custom)
+                    </option>
                   </select>
                 </div>
+
+                <!-- Custom Color Picker Group (Hidden by default) -->
+                <div
+                  id="customColorGroup"
+                  class="hidden flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800"
+                >
+                  <label class="text-[11px] text-slate-400"
+                    >เลือกสีพื้นหลัง:</label
+                  >
+                  <input
+                    type="color"
+                    id="customBgColorInput"
+                    value="#ffffff"
+                    class="w-7 h-7 rounded border border-slate-700 cursor-pointer bg-transparent"
+                  />
+                </div>
+
+                <!-- Color Tolerance -->
                 <div>
-                  <label class="text-[11px] font-medium text-slate-400 block mb-1">ชื่อไฟล์บันทึก</label>
-                  <input type="text" id="manualFileNameInput" value="cropped_image" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Color Tolerance (ความคลาดเคลื่อนสี)</span>
+                    <span
+                      id="colorToleranceVal"
+                      class="font-mono text-indigo-300"
+                      >30</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="colorToleranceSlider"
+                    min="1"
+                    max="150"
+                    value="30"
+                    class="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
+                </div>
+
+                <!-- Alpha Threshold -->
+                <div>
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Alpha Threshold (ความทึบแสงขั้นต่ำ)</span>
+                    <span
+                      id="alphaThresholdVal"
+                      class="font-mono text-indigo-300"
+                      >10</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="alphaThresholdSlider"
+                    min="0"
+                    max="255"
+                    value="10"
+                    class="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
                 </div>
               </div>
 
-              <!-- Export Buttons -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                <button id="btnDownloadSingleCrop" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-download"></i>
-                  <span>ดาวน์โหลดภาพ</span>
-                </button>
-                <button id="btnDownloadSingleZip" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-file-zipper text-amber-400"></i>
-                  <span>ส่งออกเป็น ZIP</span>
-                </button>
+              <div class="border-t border-slate-800"></div>
+
+              <!-- 2. Output Scaling (Output Resolution / Scale Factor) -->
+              <div class="flex flex-col gap-2.5">
+                <span
+                  class="text-xs font-semibold text-pink-400 flex items-center gap-1.5 uppercase tracking-wider"
+                >
+                  <i class="fa-solid fa-maximize"></i> 2. ปรับสเกลภาพที่ตัด
+                  (Output Scale)
+                </span>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[11px] text-slate-400 block mb-1"
+                      >สเกลขยาย/ย่อ</label
+                    >
+                    <select
+                      id="scaleFactorSelect"
+                      class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-pink-500 font-mono"
+                    >
+                      <option value="1.0" selected>1x (Original)</option>
+                      <option value="2.0">2x (ขยาย 2 เท่า)</option>
+                      <option value="3.0">3x (ขยาย 3 เท่า)</option>
+                      <option value="4.0">4x (ขยาย 4 เท่า)</option>
+                      <option value="0.5">0.5x (ย่อ 50%)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-[11px] text-slate-400 block mb-1"
+                      >อัลกอริทึมสเกล</label
+                    >
+                    <select
+                      id="scalingAlgorithmSelect"
+                      class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-pink-500"
+                    >
+                      <option value="pixelated" selected>
+                        Pixel Art (คมชัด)
+                      </option>
+                      <option value="smooth">Smooth (เนียนเรียบ)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
+              <div class="border-t border-slate-800"></div>
+
+              <!-- 3. Smart Noise Filter (Phase 3) -->
+              <div class="flex flex-col gap-2.5">
+                <span
+                  class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider"
+                >
+                  <i class="fa-solid fa-filter"></i> 3. Smart Filter
+                  (ตัดเศษภาพเล็ก)
+                </span>
+
+                <div>
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Min Width / Height (ขนาดขั้นต่ำ)</span>
+                    <span id="minWidthVal" class="font-mono text-emerald-300"
+                      >10 px</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="minWidthSlider"
+                    min="2"
+                    max="100"
+                    value="10"
+                    class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Min Solid Pixels (จำนวนพิกเซลขั้นต่ำ)</span>
+                    <span id="minPixelsVal" class="font-mono text-emerald-300"
+                      >50 px</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="minPixelsSlider"
+                    min="5"
+                    max="500"
+                    value="50"
+                    class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800"></div>
+
+              <!-- 4. Fragment Merging (Phase 3) -->
+              <div class="flex flex-col gap-2.5">
+                <div class="flex items-center justify-between">
+                  <span
+                    class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider"
+                  >
+                    <i class="fa-solid fa-object-group"></i> 4.
+                    รวมชิ้นส่วนที่แตก
+                  </span>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="autoMergeCheckbox"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"
+                    ></div>
+                  </label>
+                </div>
+
+                <div>
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Merge Distance Gap (ระยะดูดรวมชิ้น)</span>
+                    <span id="mergeDistanceVal" class="font-mono text-amber-300"
+                      >15 px</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="mergeDistanceSlider"
+                    min="0"
+                    max="80"
+                    value="15"
+                    class="w-full accent-amber-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div
+                    class="flex justify-between text-[11px] text-slate-400 mb-1"
+                  >
+                    <span>Crop Padding (ระยะขอบเผื่อ)</span>
+                    <span id="paddingVal" class="font-mono text-slate-300"
+                      >0 px</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="paddingSlider"
+                    min="0"
+                    max="30"
+                    value="0"
+                    class="w-full accent-slate-500 h-1.5 bg-slate-800 rounded cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800"></div>
+
+              <!-- 5. Auto Naming Template (Phase 3) -->
+              <div class="flex flex-col gap-2">
+                <span
+                  class="text-xs font-semibold text-purple-400 flex items-center gap-1.5 uppercase tracking-wider"
+                >
+                  <i class="fa-solid fa-signature"></i> 5. ตั้งชื่อไฟล์อัตโนมัติ
+                </span>
+                <div>
+                  <label class="text-[11px] text-slate-400 block mb-1"
+                    >Prefix / โฟลเดอร์</label
+                  >
+                  <input
+                    type="text"
+                    id="namingPrefixInput"
+                    value="character"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-mono"
+                  />
+                </div>
+                <div>
+                  <label class="text-[11px] text-slate-400 block mb-1"
+                    >Naming Pattern Template</label
+                  >
+                  <input
+                    type="text"
+                    id="namingTemplateInput"
+                    value="{prefix}_{pad2}"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 font-mono"
+                  />
+                  <p class="text-[10px] text-slate-500 mt-1">
+                    แท็กที่ใช้ได้: <code>{prefix}</code>, <code>{pad2}</code>,
+                    <code>{index}</code>, <code>{w}</code>, <code>{h}</code>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
+          <!-- Center: Image Overlay Viewport (Bounding Boxes with Zoom & Pan) -->
+          <div
+            class="lg:col-span-5 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl overflow-hidden"
+          >
+            <!-- Viewport Header & Zoom Toolbar -->
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800"
+            >
+              <div class="flex items-center gap-2">
+                <h3
+                  class="text-sm font-bold text-slate-200 flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-vector-square text-indigo-400"></i>
+                  <span>พรีวิวภาพ & สเกล</span>
+                </h3>
+              </div>
+
+              <!-- Zoom & Pan Navigation Controls -->
+              <div
+                class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs"
+              >
+                <button
+                  id="btnZoomOutAuto"
+                  class="p-1 px-2 hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg transition"
+                  title="ซูมออก"
+                >
+                  <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
+                </button>
+
+                <input
+                  type="range"
+                  id="zoomSliderAuto"
+                  min="20"
+                  max="400"
+                  value="100"
+                  class="w-20 accent-indigo-500 h-1 bg-slate-800 rounded cursor-pointer"
+                  title="ปรับระดับการซูม"
+                />
+
+                <button
+                  id="btnZoomInAuto"
+                  class="p-1 px-2 hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg transition"
+                  title="ซูมเข้า"
+                >
+                  <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+                </button>
+
+                <span
+                  id="zoomPercentBadge"
+                  class="font-mono text-[11px] text-indigo-300 px-1 min-w-[36px] text-center"
+                  >100%</span
+                >
+
+                <div class="w-px h-3.5 bg-slate-700 mx-0.5"></div>
+
+                <button
+                  id="btnZoomFitAuto"
+                  class="px-2 py-0.5 hover:bg-slate-800 hover:text-white text-slate-300 rounded text-[11px] font-medium transition"
+                  title="ปรับขนาดพอดีจอ"
+                >
+                  Fit
+                </button>
+                <button
+                  id="btnZoomResetAuto"
+                  class="px-2 py-0.5 hover:bg-slate-800 hover:text-white text-slate-300 rounded text-[11px] font-medium transition"
+                  title="ขนาด 100%"
+                >
+                  1:1
+                </button>
+              </div>
+            </div>
+
+            <!-- Zoomable & Pannable Viewport Container -->
+            <div
+              id="autoCropContainer"
+              class="flex-1 min-h-[460px] checkerboard rounded-xl overflow-hidden flex items-center justify-center border border-slate-800 relative select-none cursor-grab"
+            >
+              <!-- Transform Content Wrapper -->
+              <div
+                id="autoCropContentWrapper"
+                class="relative inline-block align-top transition-transform duration-75"
+              >
+                <img
+                  id="autoCropImage"
+                  class="block pointer-events-none select-none max-w-none"
+                  alt="Source for auto crop"
+                />
+                <canvas
+                  id="autoCropOverlayCanvas"
+                  class="absolute top-0 left-0 w-full h-full cursor-crosshair pointer-events-auto"
+                ></canvas>
+              </div>
+
+              <!-- Overlay Help Badge -->
+              <div
+                class="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 pointer-events-none shadow-lg flex items-center gap-2"
+              >
+                <i
+                  class="fa-solid fa-arrows-up-down-left-right text-indigo-400"
+                ></i>
+                <span>คลิกลากเพื่อแพน • ลูกกลิ้งเมาส์เพื่อซูม</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Gallery Grid & Batch Downloads (Phase 2 & 3) -->
+          <div
+            class="lg:col-span-4 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex-1 max-h-[820px]"
+          >
+            <!-- Gallery Header & Multi-actions -->
+            <div
+              class="flex flex-col gap-3 pb-3 mb-2 border-b border-slate-800"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3
+                    class="text-sm font-bold text-slate-200 flex items-center gap-2"
+                  >
+                    <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
+                    <span>รายการตัวละครที่ตัดได้</span>
+                  </h3>
+                  <span
+                    id="detectedCountBadge"
+                    class="bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 text-xs px-2 py-0.5 rounded-full font-bold"
+                    >0 ตัวละคร</span
+                  >
+                </div>
+                <span
+                  id="selectedCountLabel"
+                  class="text-xs text-amber-400 font-semibold"
+                ></span>
+              </div>
+
+              <!-- Batch Action Buttons -->
+              <div
+                class="flex flex-wrap items-center justify-between gap-2 text-xs"
+              >
+                <div class="flex items-center gap-1.5">
+                  <button
+                    id="btnSelectAll"
+                    class="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-700 transition"
+                    title="เลือกทั้งหมด"
+                  >
+                    เลือกทั้งหมด
+                  </button>
+                  <button
+                    id="btnDeselectAll"
+                    class="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-700 transition"
+                    title="ยกเลิกการเลือก"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    id="btnMergeSelected"
+                    class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-medium transition opacity-40 cursor-not-allowed flex items-center gap-1 shadow-sm"
+                    disabled
+                    title="รวมชิ้นส่วนที่เลือกเข้าด้วยกัน"
+                  >
+                    <i class="fa-solid fa-object-group"></i> รวมชิ้นที่เลือก
+                  </button>
+                  <button
+                    id="btnDeleteSelected"
+                    class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-medium transition opacity-40 cursor-not-allowed flex items-center gap-1 shadow-sm"
+                    disabled
+                    title="ลบชิ้นที่เลือก"
+                  >
+                    <i class="fa-solid fa-trash-can"></i> ลบ
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gallery Scrollable Grid -->
+            <div
+              id="galleryGrid"
+              class="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 pr-1 py-1"
+            >
+              <!-- Dynamically populated via app.js -->
+            </div>
+
+            <!-- Batch Download ZIP Footer -->
+            <div class="mt-3 pt-3 border-t border-slate-800">
+              <button
+                id="btnDownloadAllZip"
+                class="w-full py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-download text-sm"></i>
+                <span>ดาวน์โหลดทั้งหมดเป็นไฟล์ ZIP (PNG โปร่งใส)</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-      </div>
+        <!-- ============================================== -->
+        <!-- VIEW 1: MANUAL CROPPER (PHASE 1)               -->
+        <!-- ============================================== -->
+        <div
+          id="viewManual"
+          class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1"
+        >
+          <!-- Center/Left: Cropper Canvas Area -->
+          <div
+            class="lg:col-span-8 flex flex-col glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl overflow-hidden"
+          >
+            <!-- Cropper Toolbar -->
+            <div
+              class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800/80"
+            >
+              <!-- Aspect Ratios -->
+              <div
+                class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs"
+              >
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium transition bg-indigo-600 text-white"
+                  data-ratio="free"
+                >
+                  Free
+                </button>
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition"
+                  data-ratio="1"
+                >
+                  1:1
+                </button>
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition"
+                  data-ratio="4/3"
+                >
+                  4:3
+                </button>
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition"
+                  data-ratio="16/9"
+                >
+                  16:9
+                </button>
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition"
+                  data-ratio="9/16"
+                >
+                  9:16
+                </button>
+                <button
+                  class="aspect-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition"
+                  data-ratio="2/3"
+                >
+                  2:3
+                </button>
+              </div>
 
+              <!-- Transforms -->
+              <div
+                class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-slate-300"
+              >
+                <button
+                  id="btnZoomIn"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="ซูมเข้า"
+                >
+                  <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+                </button>
+                <button
+                  id="btnZoomOut"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="ซูมออก"
+                >
+                  <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
+                </button>
+                <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+                <button
+                  id="btnRotateLeft"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="หมุนซ้าย 90°"
+                >
+                  <i class="fa-solid fa-rotate-left text-xs"></i>
+                </button>
+                <button
+                  id="btnRotateRight"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="หมุนขวา 90°"
+                >
+                  <i class="fa-solid fa-rotate-right text-xs"></i>
+                </button>
+                <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+                <button
+                  id="btnFlipH"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="กลับแนวนอน"
+                >
+                  <i class="fa-solid fa-arrows-left-right text-xs"></i>
+                </button>
+                <button
+                  id="btnFlipV"
+                  class="p-1.5 px-2 hover:bg-slate-800 hover:text-white rounded-lg transition"
+                  title="กลับแนวตั้ง"
+                >
+                  <i class="fa-solid fa-arrows-up-down text-xs"></i>
+                </button>
+                <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+                <button
+                  id="btnResetCrop"
+                  class="p-1.5 px-2 text-rose-400 hover:bg-rose-950/40 rounded-lg transition"
+                  title="รีเซ็ต"
+                >
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Cropper Container -->
+            <div
+              class="flex-1 min-h-[480px] max-h-[650px] checkerboard rounded-xl overflow-hidden flex items-center justify-center relative border border-slate-800"
+            >
+              <img
+                id="cropperImage"
+                class="max-w-full max-h-full block"
+                alt="Cropper target"
+              />
+            </div>
+
+            <!-- Fine Rotation Slider -->
+            <div class="mt-3 flex items-center gap-3 px-2">
+              <span
+                class="text-xs font-medium text-slate-400 flex items-center gap-1"
+                ><i class="fa-solid fa-compass-drafting text-indigo-400"></i>
+                ปรับองศาละเอียด:</span
+              >
+              <input
+                type="range"
+                id="rotateSlider"
+                min="-180"
+                max="180"
+                value="0"
+                class="flex-1 accent-indigo-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+              />
+              <span
+                id="rotateSliderVal"
+                class="text-xs font-mono text-indigo-300 w-12 text-right"
+                >0°</span
+              >
+            </div>
+          </div>
+
+          <!-- Right: Side-by-side Preview & Export Panel (Phase 1) -->
+          <div class="lg:col-span-4 flex flex-col gap-4">
+            <!-- Live Preview Card -->
+            <div
+              class="glass-panel rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col flex-1"
+            >
+              <div
+                class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800"
+              >
+                <h3
+                  class="text-sm font-bold text-slate-200 flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-eye text-indigo-400"></i>
+                  <span>พรีวิวด้านข้าง (Live Preview)</span>
+                </h3>
+                <div
+                  id="manualCropInfo"
+                  class="text-xs font-mono text-slate-300 flex items-center gap-2"
+                >
+                  0 × 0 px
+                </div>
+              </div>
+
+              <!-- Preview Viewport -->
+              <div
+                class="flex-1 min-h-[260px] checkerboard rounded-xl overflow-hidden flex items-center justify-center p-3 border border-slate-800 relative"
+              >
+                <canvas
+                  id="manualPreviewCanvas"
+                  class="max-w-full max-h-[300px] object-contain filter drop-shadow-lg"
+                ></canvas>
+              </div>
+
+              <!-- Export Formats & Controls -->
+              <div class="mt-4 flex flex-col gap-3">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label
+                      class="text-[11px] font-medium text-slate-400 block mb-1"
+                      >ฟอร์แมตไฟล์</label
+                    >
+                    <select
+                      id="exportFormatSelect"
+                      class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium"
+                    >
+                      <option value="png">PNG (โปร่งใส)</option>
+                      <option value="jpeg">JPG (พื้นขาว)</option>
+                      <option value="webp">WebP (ขนาดเล็ก)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      class="text-[11px] font-medium text-slate-400 block mb-1"
+                      >ชื่อไฟล์บันทึก</label
+                    >
+                    <input
+                      type="text"
+                      id="manualFileNameInput"
+                      value="cropped_image"
+                      class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <!-- Export Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <button
+                    id="btnDownloadSingleCrop"
+                    class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-download"></i>
+                    <span>ดาวน์โหลดภาพ</span>
+                  </button>
+                  <button
+                    id="btnDownloadSingleZip"
+                    class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-file-zipper text-amber-400"></i>
+                    <span>ส่งออกเป็น ZIP</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- PROGRESS MODAL -->
+    <div
+      id="progressModal"
+      class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center"
+      >
+        <div
+          class="w-12 h-12 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xl mb-4 animate-spin"
+        >
+          <i class="fa-solid fa-circle-notch"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-100 mb-1">
+          กำลังบีบอัดไฟล์ ZIP...
+        </h4>
+        <p id="progressText" class="text-xs text-slate-400 mb-4">
+          กำลังเตรียมภาพ
+        </p>
+
+        <div
+          class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700"
+        >
+          <div
+            id="progressBar"
+            class="bg-gradient-to-r from-indigo-500 to-pink-500 h-full w-0 transition-all duration-150"
+          ></div>
+        </div>
+      </div>
     </div>
 
-  </main>
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div
+      id="toastContainer"
+      class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-md"
+    ></div>
 
-  <!-- PROGRESS MODAL -->
-  <div id="progressModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center text-center">
-      <div class="w-12 h-12 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xl mb-4 animate-spin">
-        <i class="fa-solid fa-circle-notch"></i>
-      </div>
-      <h4 class="text-base font-bold text-slate-100 mb-1">กำลังบีบอัดไฟล์ ZIP...</h4>
-      <p id="progressText" class="text-xs text-slate-400 mb-4">กำลังเตรียมภาพ</p>
-      
-      <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
-        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-pink-500 h-full w-0 transition-all duration-150"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-md"></div>
-
-  <!-- JS APP MODULES -->
-  <script src="js/cropper-mgr.js"></script>
-  <script src="js/smart-proc.js"></script>
-  <script src="js/auto-crop.js"></script>
-  <script src="js/app.js"></script>
-
-</body>
+    <!-- JS APP MODULES -->
+    <script src="js/cropper-mgr.js"></script>
+    <script src="js/smart-proc.js"></script>
+    <script src="js/auto-crop.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>

@@ -41,7 +41,7 @@ class SmartProcessor {
       ...box,
       id: index + 1,
       width: box.maxX - box.minX + 1,
-      height: box.maxY - box.minY + 1
+      height: box.maxY - box.minY + 1,
     }));
   }
 
@@ -69,8 +69,14 @@ class SmartProcessor {
           const other = currentBoxes[j];
 
           // Calculate horizontal and vertical gap
-          const gapX = Math.max(0, Math.max(cur.minX, other.minX) - Math.min(cur.maxX, other.maxX));
-          const gapY = Math.max(0, Math.max(cur.minY, other.minY) - Math.min(cur.maxY, other.maxY));
+          const gapX = Math.max(
+            0,
+            Math.max(cur.minX, other.minX) - Math.min(cur.maxX, other.maxX)
+          );
+          const gapY = Math.max(
+            0,
+            Math.max(cur.minY, other.minY) - Math.min(cur.maxY, other.maxY)
+          );
           const distance = Math.max(gapX, gapY); // Chebyshev / Box distance
 
           if (distance <= maxDistance) {
@@ -98,11 +104,13 @@ class SmartProcessor {
    * Tokens: {prefix}, {index}, {pad2}, {pad3}, {w}, {h}
    */
   static formatFileName(template, prefix, index, width, height) {
-    const pad2 = String(index).padStart(2, '0');
-    const pad3 = String(index).padStart(3, '0');
-    const cleanPrefix = (prefix || 'character').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const pad2 = String(index).padStart(2, "0");
+    const pad3 = String(index).padStart(3, "0");
+    const cleanPrefix = (prefix || "character")
+      .trim()
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
 
-    let name = template || '{prefix}_{pad2}';
+    let name = template || "{prefix}_{pad2}";
     name = name
       .replace(/{prefix}/gi, cleanPrefix)
       .replace(/{index}/gi, String(index))
@@ -118,27 +126,45 @@ class SmartProcessor {
    * Export multiple canvases to a ZIP file using JSZip
    */
   static async exportToZip(boxes, options = {}, onProgress = null) {
-    if (!boxes || boxes.length === 0) throw new Error('No items to export');
-    if (typeof JSZip === 'undefined') throw new Error('JSZip library is not loaded');
+    if (!boxes || boxes.length === 0) throw new Error("No items to export");
+    if (typeof JSZip === "undefined")
+      throw new Error("JSZip library is not loaded");
 
     const zip = new JSZip();
-    const folderName = (options.zipFolderName || options.prefix || 'sprites').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const folderName = (options.zipFolderName || options.prefix || "sprites")
+      .trim()
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
     const folder = zip.folder(folderName);
 
-    const template = options.namingTemplate || '{prefix}_{pad2}';
-    const prefix = options.prefix || 'sprite';
-    const format = options.format || 'png';
-    const ext = format === 'jpeg' ? 'jpg' : format;
-    const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+    const template = options.namingTemplate || "{prefix}_{pad2}";
+    const prefix = options.prefix || "sprite";
+    const format = options.format || "png";
+    const ext = format === "jpeg" ? "jpg" : format;
+    const mimeType =
+      format === "jpeg"
+        ? "image/jpeg"
+        : format === "webp"
+          ? "image/webp"
+          : "image/png";
     const quality = options.quality || 0.92;
 
     const total = boxes.length;
     for (let i = 0; i < total; i++) {
       const box = boxes[i];
-      const filename = box.customName || this.formatFileName(template, prefix, i + 1, box.cropWidth, box.cropHeight);
+      const filename =
+        box.customName ||
+        this.formatFileName(
+          template,
+          prefix,
+          i + 1,
+          box.cropWidth,
+          box.cropHeight
+        );
 
       if (box.cropCanvas) {
-        const blob = await new Promise(resolve => box.cropCanvas.toBlob(resolve, mimeType, quality));
+        const blob = await new Promise(resolve =>
+          box.cropCanvas.toBlob(resolve, mimeType, quality)
+        );
         if (blob) {
           folder.file(`${filename}.${ext}`, blob);
         }
@@ -149,7 +175,7 @@ class SmartProcessor {
       }
     }
 
-    const zipBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+    const zipBlob = await zip.generateAsync({ type: "blob" }, metadata => {
       if (onProgress) {
         onProgress(Math.round(metadata.percent), total, total);
       }
@@ -163,6 +189,6 @@ class SmartProcessor {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.SmartProcessor = SmartProcessor;
 }

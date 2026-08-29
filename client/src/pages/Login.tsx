@@ -20,6 +20,7 @@ export default function Login() {
     ? ({
         access_denied: "คุณยกเลิกการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง",
         callback_failed: "เข้าสู่ระบบ Google ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        database_unavailable: "ระบบยังบันทึกบัญชีผู้ใช้ไม่ได้ กรุณาติดต่อผู้ดูแลระบบ",
         invalid_grant: "เซสชัน Google หมดอายุ กรุณาเริ่มเข้าสู่ระบบใหม่",
         invalid_state: "เซสชันหมดอายุ กรุณาลองใหม่อีกครั้ง",
         profile_lookup_failed: "ไม่สามารถอ่านข้อมูลบัญชี Google ได้",
@@ -39,35 +40,80 @@ export default function Login() {
     <main className="auth-page">
       <div className="auth-noise" />
       <header className="auth-topbar">
-        <button onClick={() => setLocation("/")} className="auth-back"><ArrowLeft size={16} /> กลับสู่หน้าหลัก</button>
+        <button onClick={() => setLocation("/")} className="auth-back">
+          <ArrowLeft size={16} /> กลับสู่หน้าหลัก
+        </button>
         <span className="auth-code">MHS DEV / PRIVATE WORKSPACE</span>
       </header>
       <section className="auth-shell">
         <div className="auth-story">
-          <span className="auth-kicker"><Mountain size={14} /> LOCAL DIGITAL STUDIO</span>
-          <h1>เข้าไปดูหลังบ้าน<br /><em>แล้วสร้างของจริงกัน</em></h1>
-          <p>พื้นที่สำหรับจัดการ Lead, โปรเจกต์, คอนเทนต์ และข้อมูลที่ทำให้ไอเดียของคุณเดินต่อได้</p>
+          <span className="auth-kicker">
+            <Mountain size={14} /> LOCAL DIGITAL STUDIO
+          </span>
+          <h1>
+            เข้าไปดูหลังบ้าน
+            <br />
+            <em>แล้วสร้างของจริงกัน</em>
+          </h1>
+          <p>
+            พื้นที่สำหรับจัดการ Lead, โปรเจกต์, คอนเทนต์
+            และข้อมูลที่ทำให้ไอเดียของคุณเดินต่อได้
+          </p>
           <div className="auth-pose-card">
-            <div className="auth-pose-glow" />
             <img src="/media/mascot/mhs-pose-01.png" alt="เมืองสามหมอกเดฟกำลังเขียนโค้ด" />
-            <div className="auth-pose-note"><Coffee size={15} /><span><b>MHS COFFEE MODE</b><small>ready to build</small></span></div>
+            <div className="auth-pose-note">
+              <Coffee size={15} />
+              <span>
+                <b>MHS COFFEE MODE</b>
+                <small>ready to build</small>
+              </span>
+            </div>
           </div>
-          <div className="auth-values"><span><Sparkles size={14} /> เข้าใจง่าย</span><span><ShieldCheck size={14} /> ปลอดภัย</span><span><Mountain size={14} /> จากแม่ฮ่องสอน</span></div>
+          <div className="auth-values">
+            <span>
+              <Sparkles size={14} /> เข้าใจง่าย
+            </span>
+            <span>
+              <ShieldCheck size={14} /> ปลอดภัย
+            </span>
+            <span>
+              <Mountain size={14} /> จากแม่ฮ่องสอน
+            </span>
+          </div>
         </div>
         <div className="auth-card">
-          <div className="auth-card-mark"><ShieldCheck size={21} /></div>
+          <div className="auth-card-mark">
+            <ShieldCheck size={21} />
+          </div>
           <span className="auth-card-label">SIGN IN / 01</span>
           <h2>เข้าสู่ระบบแผงควบคุม</h2>
           <p>เลือกบัญชีเพื่อเข้าไปจัดการระบบหลังบ้านของสามหมอกโค้ดดิ้ง</p>
-          {errorMessage && <div className="auth-error" role="alert"><b>พบปัญหา:</b> {errorMessage}</div>}
+          {errorMessage && (
+            <div className="auth-error" role="alert" style={{ marginTop: "1rem" }}>
+              <b>พบปัญหา:</b>
+              <span>{errorMessage}</span>
+            </div>
+          )}
           <div className="auth-actions">
-            <Button onClick={() => startGoogleLogin()} size="lg" className="auth-google"><span className="google-mark">G</span><span>เข้าสู่ระบบด้วย Google</span></Button>
-            <FacebookLoginButton onClick={() => startFacebookLogin()} label="Continue with Facebook" />
+            <Button onClick={() => startGoogleLogin()} size="lg" className="auth-google">
+              <span className="google-mark">G</span>
+              <span>เข้าสู่ระบบด้วย Google</span>
+            </Button>
+            <FacebookLoginButton
+              onClick={() => startFacebookLogin()}
+              label="เข้าสู่ระบบด้วย Facebook"
+            />
           </div>
-          <div className="auth-footnote"><ShieldCheck size={14} /><span>ระบบยืนยันตัวตนสำหรับทีมงานและผู้ดูแลเท่านั้น</span></div>
+          <div className="auth-footnote">
+            <ShieldCheck size={14} />
+            <span>ระบบยืนยันตัวตนสำหรับทีมงานและผู้ดูแลเท่านั้น</span>
+          </div>
         </div>
       </section>
-      <footer className="auth-footer">© {new Date().getFullYear()} โค้ดดิ้งเมืองสามหมอก <span>•</span> Built with care in Mae Hong Son</footer>
+      <footer className="auth-footer">
+        © {new Date().getFullYear()} โค้ดดิ้งเมืองสามหมอก <span>•</span> Built with care in Mae
+        Hong Son
+      </footer>
     </main>
   );
 }

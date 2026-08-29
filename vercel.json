@@ -6,11 +6,9 @@
   "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/handler" },
-    { "source": "/tool", "destination": "/tool/index.html" },
-    { "source": "/tool/", "destination": "/tool/index.html" },
-    { "source": "/tools", "destination": "/tool/index.html" },
-    { "source": "/tools/", "destination": "/tool/index.html" },
-    { "source": "/tool/:path*", "destination": "/tool/:path*" },
-    { "source": "/((?!tool|tools|api|media).*)", "destination": "/index.html" }
+    { "source": "/tool", "destination": "/index.html" },
+    { "source": "/tools", "destination": "/index.html" },
+    { "source": "/tool/editor", "destination": "/tool/editor/index.html" },
+    { "source": "/((?!api|media|tool/).*)", "destination": "/index.html" }
   ]
 }

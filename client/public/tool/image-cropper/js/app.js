@@ -3,53 +3,59 @@
  * Implements Instant Auto-Cut on Drop/Upload, Viewport Zoom & Pan Navigation,
  * Output Scaling (1x, 2x, 3x, 4x Pixel Art Upscaling), and Interactive Bounding Box Editing.
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Elements
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const emptyState = document.getElementById('emptyState');
-  const mainWorkspace = document.getElementById('mainWorkspace');
-  const activeFileName = document.getElementById('activeFileName');
-  const activeImageMeta = document.getElementById('activeImageMeta');
-  const globalDragOverlay = document.getElementById('globalDragOverlay');
+  const dropZone = document.getElementById("dropZone");
+  const fileInput = document.getElementById("fileInput");
+  const emptyState = document.getElementById("emptyState");
+  const mainWorkspace = document.getElementById("mainWorkspace");
+  const activeFileName = document.getElementById("activeFileName");
+  const activeImageMeta = document.getElementById("activeImageMeta");
+  const globalDragOverlay = document.getElementById("globalDragOverlay");
 
   // Mode Tabs
-  const tabManual = document.getElementById('tabManual');
-  const tabAuto = document.getElementById('tabAuto');
-  const viewManual = document.getElementById('viewManual');
-  const viewAuto = document.getElementById('viewAuto');
+  const tabManual = document.getElementById("tabManual");
+  const tabAuto = document.getElementById("tabAuto");
+  const viewManual = document.getElementById("viewManual");
+  const viewAuto = document.getElementById("viewAuto");
 
   // Overlay Canvas & Image Elements
-  const cropperImage = document.getElementById('cropperImage');
-  const autoCropImage = document.getElementById('autoCropImage');
-  const autoCropOverlayCanvas = document.getElementById('autoCropOverlayCanvas');
-  const autoCropContainer = document.getElementById('autoCropContainer');
-  const autoCropContentWrapper = document.getElementById('autoCropContentWrapper');
+  const cropperImage = document.getElementById("cropperImage");
+  const autoCropImage = document.getElementById("autoCropImage");
+  const autoCropOverlayCanvas = document.getElementById(
+    "autoCropOverlayCanvas"
+  );
+  const autoCropContainer = document.getElementById("autoCropContainer");
+  const autoCropContentWrapper = document.getElementById(
+    "autoCropContentWrapper"
+  );
 
   // Viewport Zoom & Pan Controls
-  const btnZoomInAuto = document.getElementById('btnZoomInAuto');
-  const btnZoomOutAuto = document.getElementById('btnZoomOutAuto');
-  const btnZoomResetAuto = document.getElementById('btnZoomResetAuto');
-  const btnZoomFitAuto = document.getElementById('btnZoomFitAuto');
-  const zoomSliderAuto = document.getElementById('zoomSliderAuto');
-  const zoomPercentBadge = document.getElementById('zoomPercentBadge');
+  const btnZoomInAuto = document.getElementById("btnZoomInAuto");
+  const btnZoomOutAuto = document.getElementById("btnZoomOutAuto");
+  const btnZoomResetAuto = document.getElementById("btnZoomResetAuto");
+  const btnZoomFitAuto = document.getElementById("btnZoomFitAuto");
+  const zoomSliderAuto = document.getElementById("zoomSliderAuto");
+  const zoomPercentBadge = document.getElementById("zoomPercentBadge");
 
   // Output Scaling Controls
-  const scaleFactorSelect = document.getElementById('scaleFactorSelect');
-  const scalingAlgorithmSelect = document.getElementById('scalingAlgorithmSelect');
+  const scaleFactorSelect = document.getElementById("scaleFactorSelect");
+  const scalingAlgorithmSelect = document.getElementById(
+    "scalingAlgorithmSelect"
+  );
 
   // Engines
   const cropperMgr = new CropperManager({
     imageElement: cropperImage,
-    previewElement: document.getElementById('manualPreviewCanvas'),
-    infoElement: document.getElementById('manualCropInfo')
+    previewElement: document.getElementById("manualPreviewCanvas"),
+    infoElement: document.getElementById("manualCropInfo"),
   });
   const autoCropEngine = new AutoCropEngine();
 
   // App State
   let currentImageSrc = null;
-  let currentImageName = 'image';
-  let currentActiveTab = 'auto'; // Default to Auto Extractor for instant cutting!
+  let currentImageName = "image";
+  let currentActiveTab = "auto"; // Default to Auto Extractor for instant cutting!
   let selectedBoxIds = new Set();
   let debounceAnalyzeTimer = null;
   let dragCounter = 0;
@@ -68,20 +74,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Instant Auto-Cut on File Drop / Upload / Paste
   // ----------------------------------------------------
   function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      showToast('กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง (PNG, JPG, WebP ฯลฯ)', 'error');
+    if (!file || !file.type.startsWith("image/")) {
+      showToast("กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง (PNG, JPG, WebP ฯลฯ)", "error");
       return;
     }
 
     currentImageName = file.name.replace(/\.[^/.]+$/, "");
     activeFileName.textContent = file.name;
-    const prefixInput = document.getElementById('namingPrefixInput');
+    const prefixInput = document.getElementById("namingPrefixInput");
     if (prefixInput) {
       prefixInput.value = currentImageName;
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       loadImageAndAutoCut(e.target.result);
     };
     reader.readAsDataURL(file);
@@ -91,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
     currentImageSrc = src;
     const img = new Image();
     img.onload = () => {
-      emptyState.classList.add('hidden');
-      mainWorkspace.classList.remove('hidden');
-      mainWorkspace.classList.add('flex');
+      emptyState.classList.add("hidden");
+      mainWorkspace.classList.remove("hidden");
+      mainWorkspace.classList.add("flex");
 
       activeImageMeta.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`;
 
@@ -118,12 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         autoCropEngine.setImage(autoCropImage);
-        
+
         // Reset Zoom and Fit to container
         fitAutoCropToScreen();
 
         // Always default to Auto Extractor mode & cut immediately
-        switchTab('auto');
+        switchTab("auto");
         triggerAutoAnalyze(true);
       };
     };
@@ -131,31 +137,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Global Drag & Drop over entire window
-  window.addEventListener('dragenter', (e) => {
+  window.addEventListener("dragenter", e => {
     e.preventDefault();
     dragCounter++;
-    if (globalDragOverlay) globalDragOverlay.classList.add('active');
+    if (globalDragOverlay) globalDragOverlay.classList.add("active");
   });
 
-  window.addEventListener('dragleave', (e) => {
+  window.addEventListener("dragleave", e => {
     e.preventDefault();
     dragCounter--;
     if (dragCounter <= 0) {
       dragCounter = 0;
-      if (globalDragOverlay) globalDragOverlay.classList.remove('active');
+      if (globalDragOverlay) globalDragOverlay.classList.remove("active");
     }
   });
 
-  window.addEventListener('dragover', (e) => {
+  window.addEventListener("dragover", e => {
     e.preventDefault();
   });
 
-  window.addEventListener('drop', (e) => {
+  window.addEventListener("drop", e => {
     e.preventDefault();
     e.stopPropagation();
     dragCounter = 0;
-    if (globalDragOverlay) globalDragOverlay.classList.remove('active');
-    if (dropZone) dropZone.classList.remove('drag-active');
+    if (globalDragOverlay) globalDragOverlay.classList.remove("active");
+    if (dropZone) dropZone.classList.remove("drag-active");
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
@@ -164,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (fileInput) {
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener("change", e => {
       if (e.target.files && e.target.files.length > 0) {
         handleFile(e.target.files[0]);
       }
@@ -172,11 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Paste from clipboard (Ctrl+V) anywhere
-  window.addEventListener('paste', (e) => {
+  window.addEventListener("paste", e => {
     const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
     if (!items) return;
     for (const item of items) {
-      if (item.kind === 'file' && item.type.startsWith('image/')) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
         const file = item.getAsFile();
         handleFile(file);
         break;
@@ -184,40 +190,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
-
   // ----------------------------------------------------
   // 2. Tab Navigation (Manual Cropper vs Auto Extractor)
   // ----------------------------------------------------
   function switchTab(tab) {
     currentActiveTab = tab;
-    if (tab === 'manual') {
-      tabManual.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-      tabManual.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
-      tabAuto.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-      tabAuto.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+    if (tab === "manual") {
+      tabManual.classList.add(
+        "bg-indigo-600",
+        "text-white",
+        "shadow-lg",
+        "shadow-indigo-600/30"
+      );
+      tabManual.classList.remove(
+        "text-slate-400",
+        "hover:text-white",
+        "hover:bg-slate-800"
+      );
+      tabAuto.classList.remove(
+        "bg-indigo-600",
+        "text-white",
+        "shadow-lg",
+        "shadow-indigo-600/30"
+      );
+      tabAuto.classList.add(
+        "text-slate-400",
+        "hover:text-white",
+        "hover:bg-slate-800"
+      );
 
-      viewManual.classList.remove('hidden');
-      viewAuto.classList.add('hidden');
+      viewManual.classList.remove("hidden");
+      viewAuto.classList.add("hidden");
       if (cropperMgr.cropper) {
         cropperMgr.updatePreview();
       }
     } else {
-      tabAuto.classList.add('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-      tabAuto.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
-      tabManual.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg', 'shadow-indigo-600/30');
-      tabManual.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+      tabAuto.classList.add(
+        "bg-indigo-600",
+        "text-white",
+        "shadow-lg",
+        "shadow-indigo-600/30"
+      );
+      tabAuto.classList.remove(
+        "text-slate-400",
+        "hover:text-white",
+        "hover:bg-slate-800"
+      );
+      tabManual.classList.remove(
+        "bg-indigo-600",
+        "text-white",
+        "shadow-lg",
+        "shadow-indigo-600/30"
+      );
+      tabManual.classList.add(
+        "text-slate-400",
+        "hover:text-white",
+        "hover:bg-slate-800"
+      );
 
-      viewManual.classList.add('hidden');
-      viewAuto.classList.remove('hidden');
+      viewManual.classList.add("hidden");
+      viewAuto.classList.remove("hidden");
 
       applyAutoTransform();
       triggerAutoAnalyze();
     }
   }
 
-  tabManual.addEventListener('click', () => switchTab('manual'));
-  tabAuto.addEventListener('click', () => switchTab('auto'));
+  tabManual.addEventListener("click", () => switchTab("manual"));
+  tabAuto.addEventListener("click", () => switchTab("auto"));
 
   // ----------------------------------------------------
   // 3. Viewport Zoom & Pan Controller (Auto Extractor)
@@ -225,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function applyAutoTransform() {
     if (!autoCropContentWrapper) return;
     autoCropContentWrapper.style.transform = `translate(${autoPanX}px, ${autoPanY}px) scale(${autoZoom})`;
-    autoCropContentWrapper.style.transformOrigin = '0 0';
+    autoCropContentWrapper.style.transformOrigin = "0 0";
 
     if (zoomSliderAuto) {
       zoomSliderAuto.value = Math.round(autoZoom * 100);
@@ -248,7 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function fitAutoCropToScreen() {
-    if (!autoCropContainer || !autoCropEngine.width || !autoCropEngine.height) return;
+    if (!autoCropContainer || !autoCropEngine.width || !autoCropEngine.height)
+      return;
     const containerW = autoCropContainer.clientWidth - 40;
     const containerH = autoCropContainer.clientHeight - 40;
     const imgW = autoCropEngine.width;
@@ -260,52 +301,64 @@ document.addEventListener('DOMContentLoaded', () => {
     autoZoom = Math.max(0.2, autoZoom);
 
     // Center image
-    autoPanX = Math.round((autoCropContainer.clientWidth - imgW * autoZoom) / 2);
-    autoPanY = Math.round((autoCropContainer.clientHeight - imgH * autoZoom) / 2);
+    autoPanX = Math.round(
+      (autoCropContainer.clientWidth - imgW * autoZoom) / 2
+    );
+    autoPanY = Math.round(
+      (autoCropContainer.clientHeight - imgH * autoZoom) / 2
+    );
     applyAutoTransform();
   }
 
   // Zoom Button Listeners
-  btnZoomInAuto?.addEventListener('click', () => setAutoZoom(autoZoom * 1.25));
-  btnZoomOutAuto?.addEventListener('click', () => setAutoZoom(autoZoom / 1.25));
-  btnZoomResetAuto?.addEventListener('click', () => {
+  btnZoomInAuto?.addEventListener("click", () => setAutoZoom(autoZoom * 1.25));
+  btnZoomOutAuto?.addEventListener("click", () => setAutoZoom(autoZoom / 1.25));
+  btnZoomResetAuto?.addEventListener("click", () => {
     autoZoom = 1.0;
     if (autoCropContainer && autoCropEngine.width) {
-      autoPanX = Math.round((autoCropContainer.clientWidth - autoCropEngine.width) / 2);
-      autoPanY = Math.round((autoCropContainer.clientHeight - autoCropEngine.height) / 2);
+      autoPanX = Math.round(
+        (autoCropContainer.clientWidth - autoCropEngine.width) / 2
+      );
+      autoPanY = Math.round(
+        (autoCropContainer.clientHeight - autoCropEngine.height) / 2
+      );
     }
     applyAutoTransform();
   });
-  btnZoomFitAuto?.addEventListener('click', () => fitAutoCropToScreen());
+  btnZoomFitAuto?.addEventListener("click", () => fitAutoCropToScreen());
 
-  zoomSliderAuto?.addEventListener('input', (e) => {
+  zoomSliderAuto?.addEventListener("input", e => {
     const val = parseInt(e.target.value) / 100;
     setAutoZoom(val);
   });
 
   // Mouse Wheel Zoom
   if (autoCropContainer) {
-    autoCropContainer.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const rect = autoCropContainer.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const factor = e.deltaY < 0 ? 1.15 : 0.85;
-      setAutoZoom(autoZoom * factor, mouseX, mouseY);
-    }, { passive: false });
+    autoCropContainer.addEventListener(
+      "wheel",
+      e => {
+        e.preventDefault();
+        const rect = autoCropContainer.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.15 : 0.85;
+        setAutoZoom(autoZoom * factor, mouseX, mouseY);
+      },
+      { passive: false }
+    );
 
     // Drag to Pan Canvas
-    autoCropContainer.addEventListener('mousedown', (e) => {
+    autoCropContainer.addEventListener("mousedown", e => {
       if (interactionState) return;
       isPanning = true;
       startMouseX = e.clientX;
       startMouseY = e.clientY;
       startPanX = autoPanX;
       startPanY = autoPanY;
-      autoCropContainer.classList.add('cursor-grabbing');
+      autoCropContainer.classList.add("cursor-grabbing");
     });
 
-    window.addEventListener('mousemove', (e) => {
+    window.addEventListener("mousemove", e => {
       if (interactionState) {
         const { x, y } = getCanvasCoordinates(e);
         const dx = x - interactionState.startCanvasX;
@@ -318,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgW = autoCropEngine.width;
         const imgH = autoCropEngine.height;
 
-        if (interactionState.mode === 'resize') {
+        if (interactionState.mode === "resize") {
           const box = interactionState.targetBox;
           const init = interactionState.initialBoxes.get(box.id);
           const h = interactionState.handle;
@@ -329,17 +382,29 @@ document.addEventListener('DOMContentLoaded', () => {
           let newMaxX = init.maxX;
           let newMaxY = init.maxY;
 
-          if (h.includes('w')) {
-            newMinX = Math.min(init.maxX - minBoxSize, Math.max(0, Math.round(init.minX + dx)));
+          if (h.includes("w")) {
+            newMinX = Math.min(
+              init.maxX - minBoxSize,
+              Math.max(0, Math.round(init.minX + dx))
+            );
           }
-          if (h.includes('e')) {
-            newMaxX = Math.max(init.minX + minBoxSize, Math.min(imgW - 1, Math.round(init.maxX + dx)));
+          if (h.includes("e")) {
+            newMaxX = Math.max(
+              init.minX + minBoxSize,
+              Math.min(imgW - 1, Math.round(init.maxX + dx))
+            );
           }
-          if (h.includes('n')) {
-            newMinY = Math.min(init.maxY - minBoxSize, Math.max(0, Math.round(init.minY + dy)));
+          if (h.includes("n")) {
+            newMinY = Math.min(
+              init.maxY - minBoxSize,
+              Math.max(0, Math.round(init.minY + dy))
+            );
           }
-          if (h.includes('s')) {
-            newMaxY = Math.max(init.minY + minBoxSize, Math.min(imgH - 1, Math.round(init.maxY + dy)));
+          if (h.includes("s")) {
+            newMaxY = Math.max(
+              init.minY + minBoxSize,
+              Math.min(imgH - 1, Math.round(init.maxY + dy))
+            );
           }
 
           box.minX = newMinX;
@@ -350,21 +415,25 @@ document.addEventListener('DOMContentLoaded', () => {
           box.height = box.maxY - box.minY + 1;
 
           renderDetectedOverlays();
-        } else if (interactionState.mode === 'move') {
+        } else if (interactionState.mode === "move") {
           let minAllowedDx = -Infinity;
           let maxAllowedDx = Infinity;
           let minAllowedDy = -Infinity;
           let maxAllowedDy = Infinity;
 
-          interactionState.initialBoxes.forEach((init) => {
+          interactionState.initialBoxes.forEach(init => {
             minAllowedDx = Math.max(minAllowedDx, -init.minX);
-            maxAllowedDx = Math.min(maxAllowedDx, (imgW - 1) - init.maxX);
+            maxAllowedDx = Math.min(maxAllowedDx, imgW - 1 - init.maxX);
             minAllowedDy = Math.max(minAllowedDy, -init.minY);
-            maxAllowedDy = Math.min(maxAllowedDy, (imgH - 1) - init.maxY);
+            maxAllowedDy = Math.min(maxAllowedDy, imgH - 1 - init.maxY);
           });
 
-          const clampedDx = Math.round(Math.min(maxAllowedDx, Math.max(minAllowedDx, dx)));
-          const clampedDy = Math.round(Math.min(maxAllowedDy, Math.max(minAllowedDy, dy)));
+          const clampedDx = Math.round(
+            Math.min(maxAllowedDx, Math.max(minAllowedDx, dx))
+          );
+          const clampedDy = Math.round(
+            Math.min(maxAllowedDy, Math.max(minAllowedDy, dy))
+          );
 
           interactionState.initialBoxes.forEach((init, id) => {
             const box = autoCropEngine.processedBoxes.find(b => b.id === id);
@@ -389,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    window.addEventListener('mouseup', () => {
+    window.addEventListener("mouseup", () => {
       if (interactionState) {
         if (interactionState.hasMoved) {
           interactionState.initialBoxes.forEach((_, id) => {
@@ -406,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (isPanning) {
         isPanning = false;
-        autoCropContainer?.classList.remove('cursor-grabbing');
+        autoCropContainer?.classList.remove("cursor-grabbing");
       }
     });
   }
@@ -414,164 +483,203 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   // 4. Phase 1: Manual Cropper Controls
   // ----------------------------------------------------
-  document.querySelectorAll('.aspect-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('bg-indigo-600', 'text-white', 'active'));
-      btn.classList.add('bg-indigo-600', 'text-white', 'active');
-      const ratioVal = btn.getAttribute('data-ratio');
-      const ratio = ratioVal === 'free' ? NaN : eval(ratioVal);
+  document.querySelectorAll(".aspect-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".aspect-btn")
+        .forEach(b =>
+          b.classList.remove("bg-indigo-600", "text-white", "active")
+        );
+      btn.classList.add("bg-indigo-600", "text-white", "active");
+      const ratioVal = btn.getAttribute("data-ratio");
+      const ratio = ratioVal === "free" ? NaN : eval(ratioVal);
       cropperMgr.setAspectRatio(ratio);
     });
   });
 
-  document.getElementById('btnZoomIn')?.addEventListener('click', () => cropperMgr.zoom(0.1));
-  document.getElementById('btnZoomOut')?.addEventListener('click', () => cropperMgr.zoom(-0.1));
-  document.getElementById('btnRotateLeft')?.addEventListener('click', () => cropperMgr.rotate(-90));
-  document.getElementById('btnRotateRight')?.addEventListener('click', () => cropperMgr.rotate(90));
-  document.getElementById('btnFlipH')?.addEventListener('click', () => cropperMgr.flipH());
-  document.getElementById('btnFlipV')?.addEventListener('click', () => cropperMgr.flipV());
-  document.getElementById('btnResetCrop')?.addEventListener('click', () => {
+  document
+    .getElementById("btnZoomIn")
+    ?.addEventListener("click", () => cropperMgr.zoom(0.1));
+  document
+    .getElementById("btnZoomOut")
+    ?.addEventListener("click", () => cropperMgr.zoom(-0.1));
+  document
+    .getElementById("btnRotateLeft")
+    ?.addEventListener("click", () => cropperMgr.rotate(-90));
+  document
+    .getElementById("btnRotateRight")
+    ?.addEventListener("click", () => cropperMgr.rotate(90));
+  document
+    .getElementById("btnFlipH")
+    ?.addEventListener("click", () => cropperMgr.flipH());
+  document
+    .getElementById("btnFlipV")
+    ?.addEventListener("click", () => cropperMgr.flipV());
+  document.getElementById("btnResetCrop")?.addEventListener("click", () => {
     cropperMgr.reset();
-    document.getElementById('rotateSlider').value = 0;
-    document.getElementById('rotateSliderVal').textContent = '0°';
+    document.getElementById("rotateSlider").value = 0;
+    document.getElementById("rotateSliderVal").textContent = "0°";
   });
 
-  const rotateSlider = document.getElementById('rotateSlider');
-  const rotateSliderVal = document.getElementById('rotateSliderVal');
+  const rotateSlider = document.getElementById("rotateSlider");
+  const rotateSliderVal = document.getElementById("rotateSliderVal");
   if (rotateSlider) {
-    rotateSlider.addEventListener('input', (e) => {
+    rotateSlider.addEventListener("input", e => {
       const val = parseInt(e.target.value);
       rotateSliderVal.textContent = `${val}°`;
       cropperMgr.rotateTo(val);
     });
   }
 
-  document.getElementById('btnDownloadSingleCrop')?.addEventListener('click', () => {
-    const format = document.getElementById('exportFormatSelect')?.value || 'png';
-    const filename = (document.getElementById('manualFileNameInput')?.value || currentImageName || 'cropped').trim();
-    cropperMgr.downloadCrop(filename, format);
-    showToast(`ดาวน์โหลดภาพตัดแล้ว (${format.toUpperCase()})`, 'success');
-  });
-
-  document.getElementById('btnDownloadSingleZip')?.addEventListener('click', async () => {
-    const format = document.getElementById('exportFormatSelect')?.value || 'png';
-    const filename = (document.getElementById('manualFileNameInput')?.value || currentImageName || 'cropped').trim();
-    const canvas = cropperMgr.getCroppedCanvas(format);
-    if (!canvas) return;
-
-    const fakeBox = [{
-      cropCanvas: canvas,
-      cropWidth: canvas.width,
-      cropHeight: canvas.height,
-      customName: filename
-    }];
-
-    await SmartProcessor.exportToZip(fakeBox, {
-      zipFolderName: filename,
-      prefix: filename,
-      format: format
+  document
+    .getElementById("btnDownloadSingleCrop")
+    ?.addEventListener("click", () => {
+      const format =
+        document.getElementById("exportFormatSelect")?.value || "png";
+      const filename = (
+        document.getElementById("manualFileNameInput")?.value ||
+        currentImageName ||
+        "cropped"
+      ).trim();
+      cropperMgr.downloadCrop(filename, format);
+      showToast(`ดาวน์โหลดภาพตัดแล้ว (${format.toUpperCase()})`, "success");
     });
-    showToast('ดาวน์โหลด ZIP ภาพตัดสำเร็จ!', 'success');
-  });
+
+  document
+    .getElementById("btnDownloadSingleZip")
+    ?.addEventListener("click", async () => {
+      const format =
+        document.getElementById("exportFormatSelect")?.value || "png";
+      const filename = (
+        document.getElementById("manualFileNameInput")?.value ||
+        currentImageName ||
+        "cropped"
+      ).trim();
+      const canvas = cropperMgr.getCroppedCanvas(format);
+      if (!canvas) return;
+
+      const fakeBox = [
+        {
+          cropCanvas: canvas,
+          cropWidth: canvas.width,
+          cropHeight: canvas.height,
+          customName: filename,
+        },
+      ];
+
+      await SmartProcessor.exportToZip(fakeBox, {
+        zipFolderName: filename,
+        prefix: filename,
+        format: format,
+      });
+      showToast("ดาวน์โหลด ZIP ภาพตัดสำเร็จ!", "success");
+    });
 
   // ----------------------------------------------------
   // 5. Phase 2 & 3: Auto Crop Engine & UI Controls
   // ----------------------------------------------------
-  const bgRemovalSelect = document.getElementById('bgRemovalSelect');
-  const customColorGroup = document.getElementById('customColorGroup');
-  const customBgColorInput = document.getElementById('customBgColorInput');
-  const colorToleranceSlider = document.getElementById('colorToleranceSlider');
-  const colorToleranceVal = document.getElementById('colorToleranceVal');
-  const alphaThresholdSlider = document.getElementById('alphaThresholdSlider');
-  const alphaThresholdVal = document.getElementById('alphaThresholdVal');
+  const bgRemovalSelect = document.getElementById("bgRemovalSelect");
+  const customColorGroup = document.getElementById("customColorGroup");
+  const customBgColorInput = document.getElementById("customBgColorInput");
+  const colorToleranceSlider = document.getElementById("colorToleranceSlider");
+  const colorToleranceVal = document.getElementById("colorToleranceVal");
+  const alphaThresholdSlider = document.getElementById("alphaThresholdSlider");
+  const alphaThresholdVal = document.getElementById("alphaThresholdVal");
 
-  const minWidthSlider = document.getElementById('minWidthSlider');
-  const minWidthVal = document.getElementById('minWidthVal');
-  const minHeightSlider = document.getElementById('minHeightSlider');
-  const minHeightVal = document.getElementById('minHeightVal');
-  const minPixelsSlider = document.getElementById('minPixelsSlider');
-  const minPixelsVal = document.getElementById('minPixelsVal');
+  const minWidthSlider = document.getElementById("minWidthSlider");
+  const minWidthVal = document.getElementById("minWidthVal");
+  const minHeightSlider = document.getElementById("minHeightSlider");
+  const minHeightVal = document.getElementById("minHeightVal");
+  const minPixelsSlider = document.getElementById("minPixelsSlider");
+  const minPixelsVal = document.getElementById("minPixelsVal");
 
-  const autoMergeCheckbox = document.getElementById('autoMergeCheckbox');
-  const mergeDistanceSlider = document.getElementById('mergeDistanceSlider');
-  const mergeDistanceVal = document.getElementById('mergeDistanceVal');
-  const paddingSlider = document.getElementById('paddingSlider');
-  const paddingVal = document.getElementById('paddingVal');
+  const autoMergeCheckbox = document.getElementById("autoMergeCheckbox");
+  const mergeDistanceSlider = document.getElementById("mergeDistanceSlider");
+  const mergeDistanceVal = document.getElementById("mergeDistanceVal");
+  const paddingSlider = document.getElementById("paddingSlider");
+  const paddingVal = document.getElementById("paddingVal");
 
-  const namingPrefixInput = document.getElementById('namingPrefixInput');
-  const namingTemplateInput = document.getElementById('namingTemplateInput');
-  const solidBgTipBanner = document.getElementById('solidBgTipBanner');
-  const btnSwitchWhiteBg = document.getElementById('btnSwitchWhiteBg');
-  const btnSwitchCornerBg = document.getElementById('btnSwitchCornerBg');
+  const namingPrefixInput = document.getElementById("namingPrefixInput");
+  const namingTemplateInput = document.getElementById("namingTemplateInput");
+  const solidBgTipBanner = document.getElementById("solidBgTipBanner");
+  const btnSwitchWhiteBg = document.getElementById("btnSwitchWhiteBg");
+  const btnSwitchCornerBg = document.getElementById("btnSwitchCornerBg");
 
   function getAutoCropConfig() {
     return {
-      bgRemovalMode: bgRemovalSelect ? bgRemovalSelect.value : 'smart_auto',
-      customBgColor: customBgColorInput ? customBgColorInput.value : '#ffffff',
+      bgRemovalMode: bgRemovalSelect ? bgRemovalSelect.value : "smart_auto",
+      customBgColor: customBgColorInput ? customBgColorInput.value : "#ffffff",
       colorTolerance: parseInt(colorToleranceSlider?.value || 30),
       alphaThreshold: parseInt(alphaThresholdSlider?.value || 10),
       scaleFactor: parseFloat(scaleFactorSelect?.value || 1.0),
-      scalingAlgorithm: scalingAlgorithmSelect?.value || 'pixelated',
+      scalingAlgorithm: scalingAlgorithmSelect?.value || "pixelated",
       minWidth: parseInt(minWidthSlider?.value || 10),
       minHeight: parseInt(minHeightSlider?.value || 10),
       minPixels: parseInt(minPixelsSlider?.value || 50),
       autoMerge: autoMergeCheckbox ? autoMergeCheckbox.checked : false,
       mergeDistance: parseInt(mergeDistanceSlider?.value || 15),
-      padding: parseInt(paddingSlider?.value || 0)
+      padding: parseInt(paddingSlider?.value || 0),
     };
   }
 
   function triggerAutoAnalyze(isInitialLoad = false) {
     if (debounceAnalyzeTimer) clearTimeout(debounceAnalyzeTimer);
-    debounceAnalyzeTimer = setTimeout(async () => {
-      const config = getAutoCropConfig();
-      const boxes = await autoCropEngine.analyze(config);
-      renderDetectedOverlays();
-      renderGalleryGrid(boxes);
-      updateSummaryStats(boxes);
+    debounceAnalyzeTimer = setTimeout(
+      async () => {
+        const config = getAutoCropConfig();
+        const boxes = await autoCropEngine.analyze(config);
+        renderDetectedOverlays();
+        renderGalleryGrid(boxes);
+        updateSummaryStats(boxes);
 
-      // Check if image is solid background and user is in alpha mode with 1 full-size box
-      if (solidBgTipBanner) {
-        const isSingleLargeBox = boxes.length === 1 && 
-          boxes[0].width >= (autoCropEngine.width * 0.75) && 
-          boxes[0].height >= (autoCropEngine.height * 0.75);
+        // Check if image is solid background and user is in alpha mode with 1 full-size box
+        if (solidBgTipBanner) {
+          const isSingleLargeBox =
+            boxes.length === 1 &&
+            boxes[0].width >= autoCropEngine.width * 0.75 &&
+            boxes[0].height >= autoCropEngine.height * 0.75;
 
-        if (isSingleLargeBox && config.bgRemovalMode === 'alpha') {
-          solidBgTipBanner.classList.remove('hidden');
-        } else {
-          solidBgTipBanner.classList.add('hidden');
+          if (isSingleLargeBox && config.bgRemovalMode === "alpha") {
+            solidBgTipBanner.classList.remove("hidden");
+          } else {
+            solidBgTipBanner.classList.add("hidden");
+          }
         }
-      }
 
-      if (isInitialLoad) {
-        showToast(`⚡ ตัดภาพอัตโนมัติสำเร็จ! แยกได้ทั้งหมด ${boxes.length} ชิ้น`, 'success');
-      }
-    }, isInitialLoad ? 10 : 100);
+        if (isInitialLoad) {
+          showToast(
+            `⚡ ตัดภาพอัตโนมัติสำเร็จ! แยกได้ทั้งหมด ${boxes.length} ชิ้น`,
+            "success"
+          );
+        }
+      },
+      isInitialLoad ? 10 : 100
+    );
   }
 
   if (btnSwitchWhiteBg) {
-    btnSwitchWhiteBg.addEventListener('click', () => {
-      if (bgRemovalSelect) bgRemovalSelect.value = 'white_bg';
-      if (customColorGroup) customColorGroup.classList.add('hidden');
-      if (solidBgTipBanner) solidBgTipBanner.classList.add('hidden');
+    btnSwitchWhiteBg.addEventListener("click", () => {
+      if (bgRemovalSelect) bgRemovalSelect.value = "white_bg";
+      if (customColorGroup) customColorGroup.classList.add("hidden");
+      if (solidBgTipBanner) solidBgTipBanner.classList.add("hidden");
       triggerAutoAnalyze();
-      showToast('🤍 สลับเป็นโหมดตัดพื้นหลังสีขาวแล้ว', 'info');
+      showToast("🤍 สลับเป็นโหมดตัดพื้นหลังสีขาวแล้ว", "info");
     });
   }
 
   if (btnSwitchCornerBg) {
-    btnSwitchCornerBg.addEventListener('click', () => {
-      if (bgRemovalSelect) bgRemovalSelect.value = 'auto_corner';
-      if (customColorGroup) customColorGroup.classList.add('hidden');
-      if (solidBgTipBanner) solidBgTipBanner.classList.add('hidden');
+    btnSwitchCornerBg.addEventListener("click", () => {
+      if (bgRemovalSelect) bgRemovalSelect.value = "auto_corner";
+      if (customColorGroup) customColorGroup.classList.add("hidden");
+      if (solidBgTipBanner) solidBgTipBanner.classList.add("hidden");
       triggerAutoAnalyze();
-      showToast('🎨 สลับเป็นโหมดตัดสีมุมภาพแล้ว', 'info');
+      showToast("🎨 สลับเป็นโหมดตัดสีมุมภาพแล้ว", "info");
     });
   }
 
-  function bindSlider(slider, labelEl, unit = '') {
+  function bindSlider(slider, labelEl, unit = "") {
     if (!slider || !labelEl) return;
-    slider.addEventListener('input', (e) => {
+    slider.addEventListener("input", e => {
       labelEl.textContent = `${e.target.value}${unit}`;
       triggerAutoAnalyze();
     });
@@ -579,49 +687,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bindSlider(alphaThresholdSlider, alphaThresholdVal);
   bindSlider(colorToleranceSlider, colorToleranceVal);
-  bindSlider(minWidthSlider, minWidthVal, ' px');
-  bindSlider(minHeightSlider, minHeightVal, ' px');
-  bindSlider(minPixelsSlider, minPixelsVal, ' px');
-  bindSlider(mergeDistanceSlider, mergeDistanceVal, ' px');
-  bindSlider(paddingSlider, paddingVal, ' px');
+  bindSlider(minWidthSlider, minWidthVal, " px");
+  bindSlider(minHeightSlider, minHeightVal, " px");
+  bindSlider(minPixelsSlider, minPixelsVal, " px");
+  bindSlider(mergeDistanceSlider, mergeDistanceVal, " px");
+  bindSlider(paddingSlider, paddingVal, " px");
 
   if (scaleFactorSelect) {
-    scaleFactorSelect.addEventListener('change', () => {
+    scaleFactorSelect.addEventListener("change", () => {
       triggerAutoAnalyze();
-      showToast(`เปลี่ยน Output Scale เป็น ${scaleFactorSelect.value}x แล้ว`, 'info');
+      showToast(
+        `เปลี่ยน Output Scale เป็น ${scaleFactorSelect.value}x แล้ว`,
+        "info"
+      );
     });
   }
 
   if (scalingAlgorithmSelect) {
-    scalingAlgorithmSelect.addEventListener('change', () => {
+    scalingAlgorithmSelect.addEventListener("change", () => {
       triggerAutoAnalyze();
     });
   }
 
   if (bgRemovalSelect) {
-    bgRemovalSelect.addEventListener('change', () => {
-      if (bgRemovalSelect.value === 'custom_color') {
-        customColorGroup.classList.remove('hidden');
+    bgRemovalSelect.addEventListener("change", () => {
+      if (bgRemovalSelect.value === "custom_color") {
+        customColorGroup.classList.remove("hidden");
       } else {
-        customColorGroup.classList.add('hidden');
+        customColorGroup.classList.add("hidden");
       }
       triggerAutoAnalyze();
     });
   }
 
   if (customBgColorInput) {
-    customBgColorInput.addEventListener('input', () => triggerAutoAnalyze());
+    customBgColorInput.addEventListener("input", () => triggerAutoAnalyze());
   }
 
   if (autoMergeCheckbox) {
-    autoMergeCheckbox.addEventListener('change', () => triggerAutoAnalyze());
+    autoMergeCheckbox.addEventListener("change", () => triggerAutoAnalyze());
   }
 
   if (namingPrefixInput) {
-    namingPrefixInput.addEventListener('input', () => updateGalleryNames());
+    namingPrefixInput.addEventListener("input", () => updateGalleryNames());
   }
   if (namingTemplateInput) {
-    namingTemplateInput.addEventListener('input', () => updateGalleryNames());
+    namingTemplateInput.addEventListener("input", () => updateGalleryNames());
   }
 
   // ----------------------------------------------------
@@ -637,9 +748,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const scaleY = autoCropOverlayCanvas.height / rect.height;
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
-    return { 
-      x: Math.max(0, Math.min(autoCropOverlayCanvas.width - 1, x)), 
-      y: Math.max(0, Math.min(autoCropOverlayCanvas.height - 1, y)) 
+    return {
+      x: Math.max(0, Math.min(autoCropOverlayCanvas.width - 1, x)),
+      y: Math.max(0, Math.min(autoCropOverlayCanvas.height - 1, y)),
     };
   }
 
@@ -665,9 +776,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = boxes[i];
       const x = Math.max(0, b.minX - pad);
       const y = Math.max(0, b.minY - pad);
-      const w = Math.min(autoCropEngine.width - x, (b.maxX - b.minX + 1) + pad * 2);
-      const h = Math.min(autoCropEngine.height - y, (b.maxY - b.minY + 1) + pad * 2);
-      if (canvasX >= x && canvasX <= x + w && canvasY >= y && canvasY <= y + h) {
+      const w = Math.min(
+        autoCropEngine.width - x,
+        b.maxX - b.minX + 1 + pad * 2
+      );
+      const h = Math.min(
+        autoCropEngine.height - y,
+        b.maxY - b.minY + 1 + pad * 2
+      );
+      if (
+        canvasX >= x &&
+        canvasX <= x + w &&
+        canvasY >= y &&
+        canvasY <= y + h
+      ) {
         return b;
       }
     }
@@ -675,7 +797,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderDetectedOverlays(hoveredId = null) {
-    autoCropEngine.drawOverlays(autoCropOverlayCanvas, hoveredId, Array.from(selectedBoxIds));
+    autoCropEngine.drawOverlays(
+      autoCropOverlayCanvas,
+      hoveredId,
+      Array.from(selectedBoxIds)
+    );
   }
 
   function updateGalleryCard(box) {
@@ -685,18 +811,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const scaleFactor = parseFloat(scaleFactorSelect?.value || 1.0);
     const sizeBadge = card.querySelector('[title="ขนาด Output"]');
     if (sizeBadge) {
-      sizeBadge.textContent = `${box.cropWidth}×${box.cropHeight}${scaleFactor !== 1 ? ' (' + scaleFactor + 'x)' : ''}`;
+      sizeBadge.textContent = `${box.cropWidth}×${box.cropHeight}${scaleFactor !== 1 ? " (" + scaleFactor + "x)" : ""}`;
     }
 
-    const thumbImg = card.querySelector('.checkerboard img');
+    const thumbImg = card.querySelector(".checkerboard img");
     if (thumbImg && box.cropCanvas) {
-      thumbImg.src = box.cropCanvas.toDataURL('image/png');
+      thumbImg.src = box.cropCanvas.toDataURL("image/png");
     }
   }
 
   if (autoCropOverlayCanvas) {
     // Hover cursor feedback
-    autoCropOverlayCanvas.addEventListener('mousemove', (e) => {
+    autoCropOverlayCanvas.addEventListener("mousemove", e => {
       if (interactionState || isPanning) return;
       const { x, y } = getCanvasCoordinates(e);
 
@@ -719,17 +845,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const hitBox = hitTestBox(x, y);
       if (hitBox) {
         if (selectedBoxIds.has(hitBox.id)) {
-          autoCropOverlayCanvas.style.cursor = 'move';
+          autoCropOverlayCanvas.style.cursor = "move";
         } else {
-          autoCropOverlayCanvas.style.cursor = 'pointer';
+          autoCropOverlayCanvas.style.cursor = "pointer";
         }
       } else {
-        autoCropOverlayCanvas.style.cursor = 'grab';
+        autoCropOverlayCanvas.style.cursor = "grab";
       }
     });
 
     // Mousedown on canvas: Handle resize, box move, or selection
-    autoCropOverlayCanvas.addEventListener('mousedown', (e) => {
+    autoCropOverlayCanvas.addEventListener("mousedown", e => {
       if (e.button !== 0 && e.button !== 1) return;
       const { x, y } = getCanvasCoordinates(e);
 
@@ -752,11 +878,11 @@ document.addEventListener('DOMContentLoaded', () => {
           minX: box.minX,
           minY: box.minY,
           maxX: box.maxX,
-          maxY: box.maxY
+          maxY: box.maxY,
         });
 
         interactionState = {
-          mode: 'resize',
+          mode: "resize",
           handle: handleHit.handle,
           targetBox: box,
           startMouseX: e.clientX,
@@ -764,7 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
           startCanvasX: x,
           startCanvasY: y,
           initialBoxes,
-          hasMoved: false
+          hasMoved: false,
         };
         return;
       }
@@ -798,20 +924,20 @@ document.addEventListener('DOMContentLoaded', () => {
               minX: b.minX,
               minY: b.minY,
               maxX: b.maxX,
-              maxY: b.maxY
+              maxY: b.maxY,
             });
           }
         });
 
         interactionState = {
-          mode: 'move',
+          mode: "move",
           targetBox: hitBox,
           startMouseX: e.clientX,
           startMouseY: e.clientY,
           startCanvasX: x,
           startCanvasY: y,
           initialBoxes,
-          hasMoved: false
+          hasMoved: false,
         };
         return;
       }
@@ -831,15 +957,15 @@ document.addEventListener('DOMContentLoaded', () => {
       startMouseY = e.clientY;
       startPanX = autoPanX;
       startPanY = autoPanY;
-      autoCropContainer?.classList.add('cursor-grabbing');
+      autoCropContainer?.classList.add("cursor-grabbing");
     });
   }
 
   // ----------------------------------------------------
   // 7. Gallery Grid Rendering & Actions
   // ----------------------------------------------------
-  const galleryGrid = document.getElementById('galleryGrid');
-  const detectedCountBadge = document.getElementById('detectedCountBadge');
+  const galleryGrid = document.getElementById("galleryGrid");
+  const detectedCountBadge = document.getElementById("detectedCountBadge");
 
   function updateSummaryStats(boxes) {
     const count = boxes.length;
@@ -850,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGalleryGrid(boxes) {
     if (!galleryGrid) return;
-    galleryGrid.innerHTML = '';
+    galleryGrid.innerHTML = "";
 
     if (!boxes || boxes.length === 0) {
       galleryGrid.innerHTML = `
@@ -863,29 +989,37 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const template = namingTemplateInput?.value || '{prefix}_{pad2}';
-    const prefix = namingPrefixInput?.value || currentImageName || 'character';
+    const template = namingTemplateInput?.value || "{prefix}_{pad2}";
+    const prefix = namingPrefixInput?.value || currentImageName || "character";
     const scaleFactor = parseFloat(scaleFactorSelect?.value || 1.0);
 
     boxes.forEach((box, idx) => {
-      const card = document.createElement('div');
+      const card = document.createElement("div");
       card.id = `gallery-card-${box.id}`;
       card.className = `group relative rounded-xl p-3 flex flex-col transition-all duration-200 glass-panel-card border ${
-        selectedBoxIds.has(box.id) ? 'border-amber-500 ring-2 ring-amber-500/30 bg-slate-900/90' : 'border-slate-700/60 hover:border-slate-500 hover:bg-slate-800/80'
+        selectedBoxIds.has(box.id)
+          ? "border-amber-500 ring-2 ring-amber-500/30 bg-slate-900/90"
+          : "border-slate-700/60 hover:border-slate-500 hover:bg-slate-800/80"
       }`;
 
-      const defaultName = SmartProcessor.formatFileName(template, prefix, idx + 1, box.cropWidth, box.cropHeight);
+      const defaultName = SmartProcessor.formatFileName(
+        template,
+        prefix,
+        idx + 1,
+        box.cropWidth,
+        box.cropHeight
+      );
 
       // Card Header
-      const header = document.createElement('div');
-      header.className = 'flex items-center justify-between gap-2 mb-2';
+      const header = document.createElement("div");
+      header.className = "flex items-center justify-between gap-2 mb-2";
       header.innerHTML = `
         <div class="flex items-center gap-2">
-          <input type="checkbox" class="box-checkbox rounded border-slate-600 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer" data-id="${box.id}" ${selectedBoxIds.has(box.id) ? 'checked' : ''}>
+          <input type="checkbox" class="box-checkbox rounded border-slate-600 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer" data-id="${box.id}" ${selectedBoxIds.has(box.id) ? "checked" : ""}>
           <span class="text-xs font-bold text-indigo-400">#${box.id}</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700" title="ขนาด Output">${box.cropWidth}×${box.cropHeight}${scaleFactor !== 1 ? ' (' + scaleFactor + 'x)' : ''}</span>
+          <span class="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700" title="ขนาด Output">${box.cropWidth}×${box.cropHeight}${scaleFactor !== 1 ? " (" + scaleFactor + "x)" : ""}</span>
           <button class="btn-delete-box text-slate-400 hover:text-rose-400 p-1 transition" title="ลบชิ้นนี้" data-id="${box.id}">
             <i class="fa-solid fa-trash-can text-xs"></i>
           </button>
@@ -893,19 +1027,21 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       // Card Thumbnail Preview Container
-      const thumbContainer = document.createElement('div');
-      thumbContainer.className = 'w-full h-32 rounded-lg checkerboard overflow-hidden flex items-center justify-center p-2 border border-slate-700/40 relative cursor-pointer';
+      const thumbContainer = document.createElement("div");
+      thumbContainer.className =
+        "w-full h-32 rounded-lg checkerboard overflow-hidden flex items-center justify-center p-2 border border-slate-700/40 relative cursor-pointer";
 
       if (box.cropCanvas) {
-        const thumbImg = document.createElement('img');
-        thumbImg.src = box.cropCanvas.toDataURL('image/png');
-        thumbImg.className = 'max-w-full max-h-full object-contain filter drop-shadow hover:scale-105 transition-transform duration-150';
+        const thumbImg = document.createElement("img");
+        thumbImg.src = box.cropCanvas.toDataURL("image/png");
+        thumbImg.className =
+          "max-w-full max-h-full object-contain filter drop-shadow hover:scale-105 transition-transform duration-150";
         thumbContainer.appendChild(thumbImg);
       }
 
       // Card Footer / Controls
-      const footer = document.createElement('div');
-      footer.className = 'mt-2 flex flex-col gap-1.5';
+      const footer = document.createElement("div");
+      footer.className = "mt-2 flex flex-col gap-1.5";
       footer.innerHTML = `
         <div class="flex items-center gap-1">
           <input type="text" class="box-name-input w-full bg-slate-900/90 text-slate-200 border border-slate-700/80 rounded px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none font-mono" value="${box.customName || defaultName}" data-id="${box.id}" placeholder="ชื่อไฟล์">
@@ -920,11 +1056,11 @@ document.addEventListener('DOMContentLoaded', () => {
       card.appendChild(footer);
 
       // Hover events to highlight on canvas
-      card.addEventListener('mouseenter', () => renderDetectedOverlays(box.id));
-      card.addEventListener('mouseleave', () => renderDetectedOverlays(null));
+      card.addEventListener("mouseenter", () => renderDetectedOverlays(box.id));
+      card.addEventListener("mouseleave", () => renderDetectedOverlays(null));
 
       // Click card to toggle selection
-      thumbContainer.addEventListener('click', () => {
+      thumbContainer.addEventListener("click", () => {
         if (selectedBoxIds.has(box.id)) {
           selectedBoxIds.delete(box.id);
         } else {
@@ -935,28 +1071,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Individual actions
-      card.querySelector('.box-checkbox')?.addEventListener('change', (e) => {
+      card.querySelector(".box-checkbox")?.addEventListener("change", e => {
         if (e.target.checked) selectedBoxIds.add(box.id);
         else selectedBoxIds.delete(box.id);
         renderDetectedOverlays();
         updateGallerySelections();
       });
 
-      card.querySelector('.box-name-input')?.addEventListener('input', (e) => {
+      card.querySelector(".box-name-input")?.addEventListener("input", e => {
         box.customName = e.target.value;
       });
 
-      card.querySelector('.btn-delete-box')?.addEventListener('click', (e) => {
+      card.querySelector(".btn-delete-box")?.addEventListener("click", e => {
         e.stopPropagation();
         autoCropEngine.deleteBox(box.id);
         selectedBoxIds.delete(box.id);
         renderDetectedOverlays();
         renderGalleryGrid(autoCropEngine.processedBoxes);
         updateSummaryStats(autoCropEngine.processedBoxes);
-        showToast(`ลบกรอบ #${box.id} แล้ว`, 'info');
+        showToast(`ลบกรอบ #${box.id} แล้ว`, "info");
       });
 
-      card.querySelector('.btn-download-one')?.addEventListener('click', (e) => {
+      card.querySelector(".btn-download-one")?.addEventListener("click", e => {
         e.stopPropagation();
         downloadSingleBox(box);
       });
@@ -968,12 +1104,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateGalleryNames() {
-    const template = namingTemplateInput?.value || '{prefix}_{pad2}';
-    const prefix = namingPrefixInput?.value || currentImageName || 'character';
+    const template = namingTemplateInput?.value || "{prefix}_{pad2}";
+    const prefix = namingPrefixInput?.value || currentImageName || "character";
     autoCropEngine.processedBoxes.forEach((box, idx) => {
-      const input = document.querySelector(`.box-name-input[data-id="${box.id}"]`);
+      const input = document.querySelector(
+        `.box-name-input[data-id="${box.id}"]`
+      );
       if (input && !box.customName) {
-        input.value = SmartProcessor.formatFileName(template, prefix, idx + 1, box.cropWidth, box.cropHeight);
+        input.value = SmartProcessor.formatFileName(
+          template,
+          prefix,
+          idx + 1,
+          box.cropWidth,
+          box.cropHeight
+        );
       }
     });
   }
@@ -981,17 +1125,27 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateGallerySelections() {
     autoCropEngine.processedBoxes.forEach(box => {
       const card = document.getElementById(`gallery-card-${box.id}`);
-      const checkbox = card?.querySelector('.box-checkbox');
+      const checkbox = card?.querySelector(".box-checkbox");
       const isSel = selectedBoxIds.has(box.id);
 
       if (checkbox) checkbox.checked = isSel;
       if (card) {
         if (isSel) {
-          card.classList.add('border-amber-500', 'ring-2', 'ring-amber-500/30', 'bg-slate-900/90');
-          card.classList.remove('border-slate-700/60');
+          card.classList.add(
+            "border-amber-500",
+            "ring-2",
+            "ring-amber-500/30",
+            "bg-slate-900/90"
+          );
+          card.classList.remove("border-slate-700/60");
         } else {
-          card.classList.remove('border-amber-500', 'ring-2', 'ring-amber-500/30', 'bg-slate-900/90');
-          card.classList.add('border-slate-700/60');
+          card.classList.remove(
+            "border-amber-500",
+            "ring-2",
+            "ring-amber-500/30",
+            "bg-slate-900/90"
+          );
+          card.classList.add("border-slate-700/60");
         }
       }
     });
@@ -1001,64 +1155,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateSelectionUI() {
     const count = selectedBoxIds.size;
-    const btnMerge = document.getElementById('btnMergeSelected');
-    const btnDeleteSel = document.getElementById('btnDeleteSelected');
-    const selectedCountLabel = document.getElementById('selectedCountLabel');
+    const btnMerge = document.getElementById("btnMergeSelected");
+    const btnDeleteSel = document.getElementById("btnDeleteSelected");
+    const selectedCountLabel = document.getElementById("selectedCountLabel");
 
     if (selectedCountLabel) {
-      selectedCountLabel.textContent = count > 0 ? `(เลือกอยู่ ${count} ชิ้น)` : '';
+      selectedCountLabel.textContent =
+        count > 0 ? `(เลือกอยู่ ${count} ชิ้น)` : "";
     }
 
     if (btnMerge) {
       btnMerge.disabled = count < 2;
       if (count >= 2) {
-        btnMerge.classList.remove('opacity-40', 'cursor-not-allowed');
+        btnMerge.classList.remove("opacity-40", "cursor-not-allowed");
       } else {
-        btnMerge.classList.add('opacity-40', 'cursor-not-allowed');
+        btnMerge.classList.add("opacity-40", "cursor-not-allowed");
       }
     }
 
     if (btnDeleteSel) {
       btnDeleteSel.disabled = count === 0;
       if (count > 0) {
-        btnDeleteSel.classList.remove('opacity-40', 'cursor-not-allowed');
+        btnDeleteSel.classList.remove("opacity-40", "cursor-not-allowed");
       } else {
-        btnDeleteSel.classList.add('opacity-40', 'cursor-not-allowed');
+        btnDeleteSel.classList.add("opacity-40", "cursor-not-allowed");
       }
     }
   }
 
   function downloadSingleBox(box) {
     if (!box.cropCanvas) return;
-    const template = namingTemplateInput?.value || '{prefix}_{pad2}';
-    const prefix = namingPrefixInput?.value || currentImageName || 'character';
-    const filename = box.customName || SmartProcessor.formatFileName(template, prefix, box.id, box.cropWidth, box.cropHeight);
+    const template = namingTemplateInput?.value || "{prefix}_{pad2}";
+    const prefix = namingPrefixInput?.value || currentImageName || "character";
+    const filename =
+      box.customName ||
+      SmartProcessor.formatFileName(
+        template,
+        prefix,
+        box.id,
+        box.cropWidth,
+        box.cropHeight
+      );
 
-    box.cropCanvas.toBlob((blob) => {
+    box.cropCanvas.toBlob(blob => {
       if (blob && window.saveAs) {
         window.saveAs(blob, `${filename}.png`);
-        showToast(`ดาวน์โหลด ${filename}.png สำเร็จ!`, 'success');
+        showToast(`ดาวน์โหลด ${filename}.png สำเร็จ!`, "success");
       }
-    }, 'image/png');
+    }, "image/png");
   }
 
   // ----------------------------------------------------
   // 8. Multi-Selection & Batch Actions
   // ----------------------------------------------------
-  document.getElementById('btnSelectAll')?.addEventListener('click', () => {
+  document.getElementById("btnSelectAll")?.addEventListener("click", () => {
     autoCropEngine.processedBoxes.forEach(b => selectedBoxIds.add(b.id));
     renderDetectedOverlays();
     updateGallerySelections();
   });
 
-  document.getElementById('btnDeselectAll')?.addEventListener('click', () => {
+  document.getElementById("btnDeselectAll")?.addEventListener("click", () => {
     selectedBoxIds.clear();
     renderDetectedOverlays();
     updateGallerySelections();
   });
 
   // Merge Selected (Phase 3)
-  document.getElementById('btnMergeSelected')?.addEventListener('click', () => {
+  document.getElementById("btnMergeSelected")?.addEventListener("click", () => {
     if (selectedBoxIds.size < 2) return;
     const count = selectedBoxIds.size;
     autoCropEngine.mergeSelectedBoxes(Array.from(selectedBoxIds));
@@ -1066,70 +1229,81 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDetectedOverlays();
     renderGalleryGrid(autoCropEngine.processedBoxes);
     updateSummaryStats(autoCropEngine.processedBoxes);
-    showToast(`รวมชิ้นส่วน ${count} ชิ้นเข้าด้วยกันแล้ว`, 'success');
+    showToast(`รวมชิ้นส่วน ${count} ชิ้นเข้าด้วยกันแล้ว`, "success");
   });
 
   // Delete Selected
-  document.getElementById('btnDeleteSelected')?.addEventListener('click', () => {
-    if (selectedBoxIds.size === 0) return;
-    const count = selectedBoxIds.size;
-    selectedBoxIds.forEach(id => autoCropEngine.deleteBox(id));
-    selectedBoxIds.clear();
-    renderDetectedOverlays();
-    renderGalleryGrid(autoCropEngine.processedBoxes);
-    updateSummaryStats(autoCropEngine.processedBoxes);
-    showToast(`ลบ ${count} ชิ้นที่เลือกแล้ว`, 'info');
-  });
+  document
+    .getElementById("btnDeleteSelected")
+    ?.addEventListener("click", () => {
+      if (selectedBoxIds.size === 0) return;
+      const count = selectedBoxIds.size;
+      selectedBoxIds.forEach(id => autoCropEngine.deleteBox(id));
+      selectedBoxIds.clear();
+      renderDetectedOverlays();
+      renderGalleryGrid(autoCropEngine.processedBoxes);
+      updateSummaryStats(autoCropEngine.processedBoxes);
+      showToast(`ลบ ${count} ชิ้นที่เลือกแล้ว`, "info");
+    });
 
   // Download All as ZIP (Phase 2 & 3)
-  document.getElementById('btnDownloadAllZip')?.addEventListener('click', async () => {
-    const boxes = autoCropEngine.processedBoxes;
-    if (!boxes || boxes.length === 0) {
-      showToast('ไม่พบรายการภาพสำหรับส่งออก', 'error');
-      return;
-    }
+  document
+    .getElementById("btnDownloadAllZip")
+    ?.addEventListener("click", async () => {
+      const boxes = autoCropEngine.processedBoxes;
+      if (!boxes || boxes.length === 0) {
+        showToast("ไม่พบรายการภาพสำหรับส่งออก", "error");
+        return;
+      }
 
-    const prefix = namingPrefixInput?.value || currentImageName || 'character';
-    const template = namingTemplateInput?.value || '{prefix}_{pad2}';
+      const prefix =
+        namingPrefixInput?.value || currentImageName || "character";
+      const template = namingTemplateInput?.value || "{prefix}_{pad2}";
 
-    const modal = document.getElementById('progressModal');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
+      const modal = document.getElementById("progressModal");
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
 
-    if (modal) modal.classList.remove('hidden');
+      if (modal) modal.classList.remove("hidden");
 
-    try {
-      await SmartProcessor.exportToZip(boxes, {
-        zipFolderName: prefix,
-        prefix: prefix,
-        namingTemplate: template,
-        format: 'png'
-      }, (percent, current, total) => {
-        if (progressBar) progressBar.style.width = `${percent}%`;
-        if (progressText) progressText.textContent = `กำลังบีบอัดไฟล์ ${current}/${total} (${percent}%)`;
-      });
-      showToast(`ส่งออก ZIP ทั้งหมด ${boxes.length} ไฟล์สำเร็จ!`, 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('เกิดข้อผิดพลาดในการสร้างไฟล์ ZIP: ' + err.message, 'error');
-    } finally {
-      if (modal) setTimeout(() => modal.classList.add('hidden'), 500);
-    }
-  });
+      try {
+        await SmartProcessor.exportToZip(
+          boxes,
+          {
+            zipFolderName: prefix,
+            prefix: prefix,
+            namingTemplate: template,
+            format: "png",
+          },
+          (percent, current, total) => {
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            if (progressText)
+              progressText.textContent = `กำลังบีบอัดไฟล์ ${current}/${total} (${percent}%)`;
+          }
+        );
+        showToast(`ส่งออก ZIP ทั้งหมด ${boxes.length} ไฟล์สำเร็จ!`, "success");
+      } catch (err) {
+        console.error(err);
+        showToast("เกิดข้อผิดพลาดในการสร้างไฟล์ ZIP: " + err.message, "error");
+      } finally {
+        if (modal) setTimeout(() => modal.classList.add("hidden"), 500);
+      }
+    });
 
   // Start Auto Cut Button
-  const btnStartAutoCut = document.getElementById('btnStartAutoCut');
+  const btnStartAutoCut = document.getElementById("btnStartAutoCut");
   if (btnStartAutoCut) {
-    btnStartAutoCut.addEventListener('click', async () => {
+    btnStartAutoCut.addEventListener("click", async () => {
       if (!autoCropEngine.sourceImage) {
-        showToast('กรุณาเลือกรูปภาพก่อนเริ่มตัด', 'info');
+        showToast("กรุณาเลือกรูปภาพก่อนเริ่มตัด", "info");
         return;
       }
 
       const origContent = btnStartAutoCut.innerHTML;
       btnStartAutoCut.disabled = true;
-      btnStartAutoCut.classList.add('opacity-75', 'cursor-wait');
-      btnStartAutoCut.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i><span>กำลังตัดภาพอัตโนมัติ...</span>';
+      btnStartAutoCut.classList.add("opacity-75", "cursor-wait");
+      btnStartAutoCut.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin text-sm"></i><span>กำลังตัดภาพอัตโนมัติ...</span>';
 
       try {
         const config = getAutoCropConfig();
@@ -1137,41 +1311,44 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDetectedOverlays();
         renderGalleryGrid(boxes);
         updateSummaryStats(boxes);
-        showToast(`✂️ ตัดภาพอัตโนมัติสำเร็จ! แยกได้ทั้งหมด ${boxes.length} ชิ้น`, 'success');
+        showToast(
+          `✂️ ตัดภาพอัตโนมัติสำเร็จ! แยกได้ทั้งหมด ${boxes.length} ชิ้น`,
+          "success"
+        );
       } catch (err) {
         console.error(err);
-        showToast('เกิดข้อผิดพลาดในการตัดภาพ: ' + err.message, 'error');
+        showToast("เกิดข้อผิดพลาดในการตัดภาพ: " + err.message, "error");
       } finally {
         btnStartAutoCut.disabled = false;
-        btnStartAutoCut.classList.remove('opacity-75', 'cursor-wait');
+        btnStartAutoCut.classList.remove("opacity-75", "cursor-wait");
         btnStartAutoCut.innerHTML = origContent;
       }
     });
   }
 
   // Re-Analyze Button
-  document.getElementById('btnReAnalyze')?.addEventListener('click', () => {
+  document.getElementById("btnReAnalyze")?.addEventListener("click", () => {
     triggerAutoAnalyze();
-    showToast('รีเฟรชการวิเคราะห์ภาพแล้ว', 'info');
+    showToast("รีเฟรชการวิเคราะห์ภาพแล้ว", "info");
   });
 
   // ----------------------------------------------------
   // 9. Toast Notification Utility
   // ----------------------------------------------------
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
+  function showToast(message, type = "info") {
+    const container = document.getElementById("toastContainer");
     if (!container) return;
 
-    const toast = document.createElement('div');
+    const toast = document.createElement("div");
     const colors = {
-      success: 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50',
-      error: 'bg-rose-950/90 text-rose-300 border-rose-500/50',
-      info: 'bg-slate-900/95 text-slate-200 border-indigo-500/50'
+      success: "bg-emerald-950/90 text-emerald-300 border-emerald-500/50",
+      error: "bg-rose-950/90 text-rose-300 border-rose-500/50",
+      info: "bg-slate-900/95 text-slate-200 border-indigo-500/50",
     };
     const icons = {
       success: '<i class="fa-solid fa-circle-check text-emerald-400"></i>',
       error: '<i class="fa-solid fa-circle-exclamation text-rose-400"></i>',
-      info: '<i class="fa-solid fa-circle-info text-indigo-400"></i>'
+      info: '<i class="fa-solid fa-circle-info text-indigo-400"></i>',
     };
 
     toast.className = `toast-animate flex items-center gap-2.5 px-4 py-3 rounded-xl border backdrop-blur-md shadow-2xl text-sm font-medium ${colors[type] || colors.info}`;
@@ -1182,9 +1359,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     container.appendChild(toast);
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
-      toast.style.transition = 'all 0.3s ease';
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(10px)";
+      toast.style.transition = "all 0.3s ease";
       setTimeout(() => toast.remove(), 300);
     }, 3000);
   }

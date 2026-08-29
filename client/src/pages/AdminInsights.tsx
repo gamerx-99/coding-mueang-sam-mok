@@ -1,6 +1,13 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
-import { Activity, BarChart3, Clock3, FileText, Users } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Clock3,
+  FileText,
+  Users,
+  UserRoundCog,
+} from "lucide-react";
 
 export default function AdminInsights() {
   const stats = trpc.admin.usageStats.useQuery();
@@ -8,7 +15,11 @@ export default function AdminInsights() {
   const cards = stats.data
     ? [
         { label: "ผู้ใช้ทั้งหมด", value: stats.data.users, icon: Users },
-        { label: "ผู้ดูแลระบบ", value: stats.data.admins, icon: Users },
+        {
+          label: "ผู้ดูแลระบบ",
+          value: stats.data.admins,
+          icon: UserRoundCog,
+        },
         { label: "การเข้าสู่ระบบ", value: stats.data.logins, icon: Activity },
         { label: "Lead", value: stats.data.leads, icon: FileText },
         { label: "โปรเจกต์", value: stats.data.projects, icon: BarChart3 },
@@ -33,7 +44,12 @@ export default function AdminInsights() {
         </header>
         <section className="admin-stat-grid">
           {cards.map(({ label, value, icon: Icon }) => (
-            <article className="admin-stat blue" key={label}>
+            <article
+              className={`admin-stat ${
+                label === "ผู้ดูแลระบบ" ? "purple" : "blue"
+              }`}
+              key={label}
+            >
               <div className="admin-stat-icon">
                 <Icon size={18} />
               </div>
@@ -54,7 +70,9 @@ export default function AdminInsights() {
             <Clock3 className="admin-table-icon" size={20} />
           </div>
           {activity.isLoading ? (
-            <div className="p-8 text-muted-foreground">กำลังโหลดข้อมูล...</div>
+            <div className="admin-loading">
+              <span>กำลังโหลดข้อมูล...</span>
+            </div>
           ) : activity.data?.length ? (
             <div className="admin-table-wrap">
               <table>
@@ -70,11 +88,9 @@ export default function AdminInsights() {
                   {activity.data.map(item => (
                     <tr key={item.id}>
                       <td>
-                        <span className="status-pill qualified">
+                        <span className="status-pill contacted">
                           <Activity size={13} />{" "}
-                          {item.action === "login"
-                            ? "เข้าสู่ระบบ"
-                            : "เปลี่ยนสิทธิ์"}
+                          {item.action === "login" ? "เข้าสู่ระบบ" : "เปลี่ยนสิทธิ์"}
                         </span>
                       </td>
                       <td>
@@ -91,8 +107,10 @@ export default function AdminInsights() {
               </table>
             </div>
           ) : (
-            <div className="p-8 text-muted-foreground">
-              ยังไม่มีประวัติการใช้งาน
+            <div className="admin-empty">
+              <Clock3 size={24} />
+              <p>ยังไม่มีประวัติการใช้งาน</p>
+              <small>กิจกรรมจะแสดงที่นี่เมื่อมีการเข้าสู่ระบบ</small>
             </div>
           )}
         </section>

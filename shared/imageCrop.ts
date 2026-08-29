@@ -6,14 +6,29 @@ export const cropPresets = {
 } as const;
 
 export type CropSlot = keyof typeof cropPresets;
-export const supportedImageMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
+export const supportedImageMimeTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+] as const;
 export const maxUploadBytes = 5_000_000;
 
 export function isSupportedImageUpload(mimeType: string, fileSize: number) {
-  return supportedImageMimeTypes.includes(mimeType as (typeof supportedImageMimeTypes)[number]) && fileSize > 0 && fileSize <= maxUploadBytes;
+  return (
+    supportedImageMimeTypes.includes(
+      mimeType as (typeof supportedImageMimeTypes)[number]
+    ) &&
+    fileSize > 0 &&
+    fileSize <= maxUploadBytes
+  );
 }
 
 export function estimateBase64Bytes(base64Payload: string) {
-  const padding = base64Payload.endsWith("==") ? 2 : base64Payload.endsWith("=") ? 1 : 0;
+  const padding = base64Payload.endsWith("==")
+    ? 2
+    : base64Payload.endsWith("=")
+      ? 1
+      : 0;
   return Math.max(0, Math.floor((base64Payload.length * 3) / 4) - padding);
 }

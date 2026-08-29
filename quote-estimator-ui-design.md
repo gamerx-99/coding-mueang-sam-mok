@@ -40,16 +40,16 @@ flowchart TD
 
 ## 3. โครงสร้างขั้นตอนและคำถาม
 
-| Step | คำถามหลัก | รูปแบบ UI | เหตุผลทางธุรกิจ |
-|---|---|---|---|
-| 0 | คุณกำลังมองหาอะไร | Intro card + CTA | สร้างความมั่นใจและอธิบายว่าใช้เวลาไม่นาน |
-| 1 | เว็บไซต์ประเภทใด | Radio cards | เลือกราคาฐานและชุดความต้องการเริ่มต้น |
-| 2 | ขนาดเว็บไซต์ประมาณเท่าไร | Segmented cards | ประเมิน effort จากจำนวนหน้าและโครงสร้าง |
-| 3 | ต้องการฟีเจอร์อะไรบ้าง | Checkbox cards | บวกค่า add-on แบบโปร่งใส |
-| 4 | มีเนื้อหาพร้อมแค่ไหน | Radio cards | แยกงานออกแบบ/พัฒนาออกจากงาน content |
-| 5 | ต้องการเปิดใช้งานเมื่อไร | Timeline cards | ใช้ประเมินความเร่งด่วนและทรัพยากร |
-| 6 | ผลประเมิน | Price range + breakdown | ให้ภาพรวมและทางเลือกถัดไป |
-| 7 | ส่งบรีฟหรือจองคิว | Form / calendar | เปลี่ยนผู้สนใจเป็น lead ที่ทีมงานติดตามได้ |
+| Step | คำถามหลัก                | รูปแบบ UI               | เหตุผลทางธุรกิจ                            |
+| ---- | ------------------------ | ----------------------- | ------------------------------------------ |
+| 0    | คุณกำลังมองหาอะไร        | Intro card + CTA        | สร้างความมั่นใจและอธิบายว่าใช้เวลาไม่นาน   |
+| 1    | เว็บไซต์ประเภทใด         | Radio cards             | เลือกราคาฐานและชุดความต้องการเริ่มต้น      |
+| 2    | ขนาดเว็บไซต์ประมาณเท่าไร | Segmented cards         | ประเมิน effort จากจำนวนหน้าและโครงสร้าง    |
+| 3    | ต้องการฟีเจอร์อะไรบ้าง   | Checkbox cards          | บวกค่า add-on แบบโปร่งใส                   |
+| 4    | มีเนื้อหาพร้อมแค่ไหน     | Radio cards             | แยกงานออกแบบ/พัฒนาออกจากงาน content        |
+| 5    | ต้องการเปิดใช้งานเมื่อไร | Timeline cards          | ใช้ประเมินความเร่งด่วนและทรัพยากร          |
+| 6    | ผลประเมิน                | Price range + breakdown | ให้ภาพรวมและทางเลือกถัดไป                  |
+| 7    | ส่งบรีฟหรือจองคิว        | Form / calendar         | เปลี่ยนผู้สนใจเป็น lead ที่ทีมงานติดตามได้ |
 
 ### Step 0 — Intro
 
@@ -145,32 +145,32 @@ displayMax = roundToNearestThousand(estimatedRange * 1.15)
 
 ## 6. Component inventory
 
-| Component | หน้าที่ | States ที่ต้องรองรับ |
-|---|---|---|
-| `EstimatorShell` | layout หลักและ progress | intro, wizard, result, success |
-| `ProgressRail` | แสดงขั้นตอน | active, complete, upcoming |
-| `OptionCard` | เลือก radio/checkbox | default, hover, selected, focus, disabled |
-| `StepNavigation` | ปุ่มย้อนกลับ/ถัดไป | disabled, loading, submitting |
-| `EstimateSummary` | แสดงช่วงราคาและสมมติฐาน | normal, custom-review, error |
-| `BreakdownAccordion` | แสดงรายละเอียดการประเมิน | collapsed, expanded |
-| `ContactCaptureForm` | รับข้อมูลติดต่อ | idle, invalid, submitting, success |
-| `BookingCalendar` | เลือก slot | loading, available, unavailable, selected |
-| `ResumeDraftDialog` | ให้ทำต่อจากคำตอบเดิม | resume, discard |
-| `LanguageSwitcher` | สลับ TH/EN | active, focus |
+| Component            | หน้าที่                  | States ที่ต้องรองรับ                      |
+| -------------------- | ------------------------ | ----------------------------------------- |
+| `EstimatorShell`     | layout หลักและ progress  | intro, wizard, result, success            |
+| `ProgressRail`       | แสดงขั้นตอน              | active, complete, upcoming                |
+| `OptionCard`         | เลือก radio/checkbox     | default, hover, selected, focus, disabled |
+| `StepNavigation`     | ปุ่มย้อนกลับ/ถัดไป       | disabled, loading, submitting             |
+| `EstimateSummary`    | แสดงช่วงราคาและสมมติฐาน  | normal, custom-review, error              |
+| `BreakdownAccordion` | แสดงรายละเอียดการประเมิน | collapsed, expanded                       |
+| `ContactCaptureForm` | รับข้อมูลติดต่อ          | idle, invalid, submitting, success        |
+| `BookingCalendar`    | เลือก slot               | loading, available, unavailable, selected |
+| `ResumeDraftDialog`  | ให้ทำต่อจากคำตอบเดิม     | resume, discard                           |
+| `LanguageSwitcher`   | สลับ TH/EN               | active, focus                             |
 
 ## 7. Validation, loading และ error states
 
-| สถานการณ์ | การตอบสนองของ UI |
-|---|---|
-| ยังไม่เลือกคำตอบ | ปิดปุ่มถัดไปและแสดง hint ใต้คำถาม |
-| เปลี่ยนภาษา | แปลข้อความทันทีและรักษาค่าที่เลือกไว้ |
-| คำนวณราคา | แสดง skeleton/loader สั้น ๆ ไม่เกินความจำเป็น แล้วแสดงผล |
-| ไม่มีข้อมูลราคา | แสดง “ต้องคุยรายละเอียดกับทีมงาน” แทนการล้มเหลว |
-| ส่งบรีฟไม่สำเร็จ | รักษาข้อมูลในฟอร์มและให้ลองส่งใหม่ |
-| อีเมลไม่ถูกต้อง | แสดง error ใต้ field พร้อมข้อความแก้ไขได้ |
-| ไม่มี slot ว่าง | เสนอวันถัดไปหรือลิงก์ติดต่อทีมงาน |
-| ผู้ใช้กดย้อนกลับ | คำตอบเดิมต้องอยู่ครบ |
-| ผู้ใช้ refresh หน้า | เสนอ resume draft หากมีข้อมูลชั่วคราว |
+| สถานการณ์           | การตอบสนองของ UI                                         |
+| ------------------- | -------------------------------------------------------- |
+| ยังไม่เลือกคำตอบ    | ปิดปุ่มถัดไปและแสดง hint ใต้คำถาม                        |
+| เปลี่ยนภาษา         | แปลข้อความทันทีและรักษาค่าที่เลือกไว้                    |
+| คำนวณราคา           | แสดง skeleton/loader สั้น ๆ ไม่เกินความจำเป็น แล้วแสดงผล |
+| ไม่มีข้อมูลราคา     | แสดง “ต้องคุยรายละเอียดกับทีมงาน” แทนการล้มเหลว          |
+| ส่งบรีฟไม่สำเร็จ    | รักษาข้อมูลในฟอร์มและให้ลองส่งใหม่                       |
+| อีเมลไม่ถูกต้อง     | แสดง error ใต้ field พร้อมข้อความแก้ไขได้                |
+| ไม่มี slot ว่าง     | เสนอวันถัดไปหรือลิงก์ติดต่อทีมงาน                        |
+| ผู้ใช้กดย้อนกลับ    | คำตอบเดิมต้องอยู่ครบ                                     |
+| ผู้ใช้ refresh หน้า | เสนอ resume draft หากมีข้อมูลชั่วคราว                    |
 
 ## 8. Accessibility และ Responsive
 

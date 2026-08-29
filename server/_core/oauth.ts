@@ -278,8 +278,18 @@ export function registerOAuthRoutes(app: Express) {
       const mapped = mapGoogleProfile({ sub: profile.sub, name: profile.name, email: profile.email });
       try {
         await db.upsertUser({ ...mapped, lastSignedIn: new Date() });
+        const persistedUser = await db.getUserByOpenId(mapped.openId);
+        if (!persistedUser) {
+          console.error("[Google OAuth] User persistence check failed");
+          res.redirect(302, "/login?error=database_unavailable");
+          return;
+        }
       } catch (dbErr) {
-        console.warn("[Google OAuth] DB upsert failed (continuing session creation):", dbErr);
+        console.error("[Google OAuth] DB upsert failed; session not created", {
+          message: dbErr instanceof Error ? dbErr.message : String(dbErr),
+        });
+        res.redirect(302, "/login?error=database_unavailable");
+        return;
       }
       const sessionToken = await sessionService.createSessionToken(mapped.openId, { name: mapped.name ?? "", expiresInMs: 365 * 24 * 60 * 60 * 1000 });
       res.cookie(COOKIE_NAME, sessionToken, { ...getSessionCookieOptions(req), maxAge: 365 * 24 * 60 * 60 * 1000 });

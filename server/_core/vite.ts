@@ -20,6 +20,17 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // Tool is a later-added standalone utility module. Serve its own document before
+  // the React SPA fallback so /tool/ never gets rendered as the public 404 page.
+  const standaloneToolRoot = path.resolve(
+    import.meta.dirname,
+    "../..",
+    "client",
+    "public",
+    "tool"
+  );
+  app.use("/tool", express.static(standaloneToolRoot));
+
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -48,10 +59,9 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath =
-    process.env.NODE_ENV === "development"
-      ? path.resolve(import.meta.dirname, "../..", "public")
-      : path.resolve(import.meta.dirname, "..", "public");
+  // Both dev and production builds use the project-root public directory.
+  // The Vite config writes production output to ../../public, not server/public.
+  const distPath = path.resolve(import.meta.dirname, "../..", "public");
   if (!fs.existsSync(distPath)) {
     console.error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
